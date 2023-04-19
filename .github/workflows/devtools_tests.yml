@@ -1,0 +1,44 @@
+name: Devtools Tests
+on: [push]
+jobs:
+  devtools-tests:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-renv@v2
+
+      - name: Create and Activate Python Virtual Environment
+        shell: bash
+        run: |
+          python3 -m venv .venv
+          chmod 755 .venv/bin/activate
+          source .venv/bin/activate
+            
+      - name: Create Oauth Config
+        shell: Rscript {0}
+        run: |
+          config <- "client_id: ${{ secrets.OAUTH_CLIENT_ID }}"
+          config <- c(config, "client_secret: ${{ secrets.OAUTH_CLIENT_SECRET }}")
+          appUrl<- "http://127.0.0.1:3978"
+          config <- c(config, sprintf("app_url: %s", appUrl))
+         
+          configFileConn<-file("oauth_config.yml")
+          tryCatch(
+             writeLines(config, configFileConn),
+             finally=close(configFileConn)
+          )
+
+      - name: Run tests
+        shell: Rscript {0}
+        run: |
+          install.packages("devtools")
+          devtools::test()

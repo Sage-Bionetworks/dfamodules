@@ -4,22 +4,26 @@
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
-#' @noRd 
+#' @noRd
 #'
-#' @importFrom shiny NS tagList 
+#' @importFrom shiny NS tagList
+#' @export
+
 mod_submit_model_ui <- function(id){
   ns <- NS(id)
   tagList(
     waiter::useWaiter(),
     actionButton(ns("submit"), "Submit to Synapse")
- 
+
   )
 }
-    
+
 #' submit_model Server Functions
 #'
-#' @noRd 
-mod_submit_model_server <- function(id, 
+#' @noRd
+#' @export
+
+mod_submit_model_server <- function(id,
                                     dfs_manifest,
                                     data_type,
                                     asset_view,
@@ -30,30 +34,30 @@ mod_submit_model_server <- function(id,
                                     base_url) {
   moduleServer( id, function(input, output, session) {
     ns <- session$ns
-    
+
     # FIXME: Stop writing csv, use json instead
     # Blocked due to schematic api limitations
-    
+
     # create manifest directory if it doesn't exist yet
     if (!file.exists(manifest_dir)) {
       dir.create(manifest_dir)
     }
-    
+
     # on button click submit model to synapse
     observeEvent(input$submit, {
-      
+
       # write manifest csv
       path <- file.path(manifest_dir, "synapse_storage_manifest_dataflow.csv")
       write.table(dfs_manifest(),
                   path,
                   sep = ",",
                   row.names = FALSE)
-      
+
       waiter::waiter_show(html = div(
         style="color:#424874;",
         waiter::spin_3(),
         h4("Submitting updated manifest to Synapse...")))
-      
+
       # submit model to synapse
       model_submit(data_type = data_type,
                    asset_view = asset_view,
@@ -64,16 +68,16 @@ mod_submit_model_server <- function(id,
                    manifest_record_type = "table_and_file",
                    schema_url = schema_url,
                    base_url = base_url)
-      
+
       waiter::waiter_hide()
     })
-    
- 
+
+
   })
 }
-    
+
 ## To be copied in the UI
 # mod_submit_model_ui("submit_model_1")
-    
+
 ## To be copied in the server
 # mod_submit_model_server("submit_model_1")

@@ -4,9 +4,11 @@
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
-#' @noRd 
+#' @noRd
 #'
-#' @importFrom shiny NS tagList 
+#' @importFrom shiny NS tagList
+#' @export
+
 mod_datatable_filters_ui <- function(id,
                                      width = NULL,
                                      contributor_choices = c("Contributor 1", "Contributor 2"),
@@ -20,13 +22,13 @@ mod_datatable_filters_ui <- function(id,
                         collapsed = TRUE,
                         width = width,
                         status = "primary",
-                        
+
                         shiny::selectInput(ns("contributor_select"),
                                            label = "Filter by contributor(s)",
                                            choices = contributor_choices,
                                            selected = contributor_choices,
                                            multiple = TRUE),
-                        
+
                         shiny::selectInput(ns("dataset_select"),
                                            label = "Filter by dataset type(s)",
                                            choices = dataset_choices,
@@ -35,9 +37,9 @@ mod_datatable_filters_ui <- function(id,
 
                         shiny::dateRangeInput(ns("release_scheduled_daterange"),
                                               label = "Filter by release scheduled date range",
-                                              start = release_daterange[1], 
+                                              start = release_daterange[1],
                                               end = release_daterange[2]),
-                        
+
                         shiny::checkboxGroupInput(ns("choose_status_checkbox"),
                                                   label = "Filter by status",
                                                   choices = status_choices,
@@ -45,48 +47,50 @@ mod_datatable_filters_ui <- function(id,
                         )
   )
 }
-    
+
 #' datatable_filters Server Functions
 #'
-#' @noRd 
+#' @noRd
+#' @export
+
 mod_datatable_filters_server <- function(id,
                                          manifest){
-  
+
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
-    
+
     # CHANGE "NA" TO NA --------
     selected_datasets_modified <- reactive({
-      # replace string "NA" with true NA 
+      # replace string "NA" with true NA
       datasets <- input$dataset_select
       datasets[datasets == "NA"] <- NA
       datasets
     })
-    
-    
+
+
     # FILTER INPUTS ---------
     manifest_filtered <- reactive({
       manifest <- manifest()
-      
+
       # FIXME: For some reason line 75 cause a warning
       # Problem while computing `..3 = ... | is.na(release_scheduled)`. Input `..3` must be of size 19 or 1, not size 0.
       # No error seems to be introduced so I will keep this line of code for now
       filtered <- manifest %>%
         dplyr::filter(contributor %in% input$contributor_select,
                       dataset %in% selected_datasets_modified(),
-                      release_scheduled >= input$release_scheduled_daterange[1] & release_scheduled <= input$release_scheduled_daterange[2] | is.na(release_scheduled),     
+                      release_scheduled >= input$release_scheduled_daterange[1] & release_scheduled <= input$release_scheduled_daterange[2] | is.na(release_scheduled),
                       data_flow_status %in% input$choose_status_checkbox)
-      
-      
+
+
       return(filtered)
     })
-    
+
     return(manifest_filtered)
   })
 }
-    
+
 ## To be copied in the UI
 # mod_datatable_filters_ui("datatable_filters_1")
-    
+
 ## To be copied in the server
 # mod_datatable_filters_server("datatable_filters_1")

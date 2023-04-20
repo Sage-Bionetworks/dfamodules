@@ -315,6 +315,61 @@ storage_project_manifests <- function(asset_view,
 }
 
 
+#' Get all the attributes associated with a specific data model component formatted as a dataframe
+#'
+#' @param schema_url A data model URL
+#' @param component Component of the data model to explore
+#' @param base_url URL to schematic API endpoint
+#' @export
+
+visualize_component <- function(schema_url,
+                                component = "DataFlow",
+                                base_url = "https://schematic-dev.api.sagebionetworks.org") {
+  
+  # create api url
+  url <- paste0(base_url, "/v1/visualize/component")
+  
+  # set up parameters for httr::get 
+  params = list(
+    `schema_url` = schema_url,
+    `component` = component,
+    `include_index` = "false"
+  )
+  
+  # GET
+  res <- httr::GET(url = url, query = params)
+  
+  # check that application returns json
+  # even when json = TRUE, http_type = "text/csv"
+  # if (httr::http_type(res) != "application/json") {
+  #   stop("API did not return json", call. = FALSE)
+  # }
+  
+  # pull out content from request
+  parsed <- suppressMessages(httr::content(res))
+  
+  # if the api call returns an error
+  # surface error to user
+  if (httr::http_error(res)) {
+    stop(
+      sprintf(
+        "Schematic API request failed [%s]", 
+        httr::status_code(res)
+      ),
+      call. = FALSE
+    )
+  }
+  
+  # return a helpful object
+  structure(
+    list(
+      content = parsed,
+      response = res
+    ),
+    class = "schematic_api"
+  )
+}
+
 # print method for schematic_api class of functions
 print.schematic_api <- function(x, ...) {
   str(x$content)

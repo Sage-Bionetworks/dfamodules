@@ -1,4 +1,4 @@
 library(testthat)
-library(dataflow)
+library(dfamodules)
 
-test_check("dataflow")
+test_check("dfamodules")

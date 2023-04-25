@@ -1,17 +1,13 @@
-#' tabbed_dashboard UI Function
+#' Tabbed dashboard module UI (deprecated)
 #'
-#' @description A shiny Module.
-#'
+#' @description A shiny module that displays a tabbed dashboard
 #' @param id,input,output,session Internal parameters for {shiny}.
-#'
-#' @noRd
-#'
 #' @importFrom shiny NS tagList
 #' @export
 
 mod_tabbed_dashboard_ui <- function(id){
-  ns <- NS(id)
-  tagList(
+  ns <- shiny::NS(id)
+  shiny::tagList(
 
     # tabbox
     shinydashboard::tabBox(
@@ -22,55 +18,56 @@ mod_tabbed_dashboard_ui <- function(id){
       # show different views of dataset on different tab panels
 
       # all unreleased data
-      tabPanel("Unreleased",
-               mod_datatable_dashboard_ui(ns("datatable_dashboard_unreleased"))),
+      shiny::tabPanel("Unreleased",
+                      mod_datatable_dashboard_ui(ns("datatable_dashboard_unreleased"))),
 
       # unreleased, no embargo, passing all checks
       # aka ready for release
-      tabPanel("Ready for release",
-               mod_datatable_dashboard_ui(ns("datatable_dashboard_ready"))),
+      shiny::tabPanel("Ready for release",
+                      mod_datatable_dashboard_ui(ns("datatable_dashboard_ready"))),
 
       # released_scheduled = NA
-      tabPanel("Not scheduled",
-               mod_datatable_dashboard_ui(ns("datatable_dashboard_not_scheduled"))),
+      shiny::tabPanel("Not scheduled",
+                      mod_datatable_dashboard_ui(ns("datatable_dashboard_not_scheduled"))),
 
       # all
-      tabPanel("All",
-               mod_datatable_dashboard_ui(ns("datatable_dashboard_all"))),
+      shiny::tabPanel("All",
+                      mod_datatable_dashboard_ui(ns("datatable_dashboard_all"))),
 
       # released = TRUE
-      tabPanel("Previously released",
-               mod_datatable_dashboard_ui(ns("datatable_dashboard_archive")))
+      shiny::tabPanel("Previously released",
+                      mod_datatable_dashboard_ui(ns("datatable_dashboard_archive")))
     )
   )
 }
 
-#' tabbed_dashboard Server Functions
-#'
-#' @noRd
+#' Tabbed dashboard module UI (deprecated)
+#' @param id tabbed dashboard ID
+#' @param df dataframe with certain columns
+#' @param config datatable dashboard config
 #' @export
 
 mod_tabbed_dashboard_server <- function(id, df, config){
-  moduleServer( id, function(input, output, session){
+  shiny::moduleServer( id, function(input, output, session){
     ns <- session$ns
 
     # TODO: Remove hard coded column names
     # I think column names will come from data flow component
 
     # subset dataframe into various views
-    unreleased_datasets <- reactive({
+    unreleased_datasets <- shiny::reactive({
       data <- df()
       data[ data$released == FALSE, ]
     })
 
     # not scheduled
-    not_scheduled_datasets <- reactive({
+    not_scheduled_datasets <- shiny::reactive({
       data <- df()
       data[ is.na(data$release_scheduled), ]
     })
 
     # all checks passing / no embargo / unreleased (i.e. ready for release)
-    all_checks_passed_datasets <- reactive({
+    all_checks_passed_datasets <- shiny::reactive({
 
       qc_cols <- "standard_compliance"
 
@@ -94,7 +91,7 @@ mod_tabbed_dashboard_server <- function(id, df, config){
     })
 
     # previously released
-    released_datasets <- reactive({
+    released_datasets <- shiny::reactive({
       data <- df()
       data[ data$released == TRUE, ]
     })

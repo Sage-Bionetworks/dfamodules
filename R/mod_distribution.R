@@ -3,15 +3,12 @@
 #' @description A Shiny module that takes a dataframe and displays a distribution bar plot
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
-#'
-#' @noRd
-#'
 #' @importFrom shiny NS tagList
 #' @export
 
 mod_distribution_ui <- function(id){
-  ns <- NS(id)
-  tagList(
+  ns <- shiny::NS(id)
+  shiny::tagList(
     shiny::plotOutput(ns("distribution_plot"))
   )
 }
@@ -25,8 +22,6 @@ mod_distribution_ui <- function(id){
 #' @param x_lab X axis label
 #' @param y_lab Y axis label
 #' @param fill Fill color
-#'
-#' @noRd
 #' @export
 
 mod_distribution_server <- function(id,
@@ -36,10 +31,10 @@ mod_distribution_server <- function(id,
                                     x_lab = NULL,
                                     y_lab = NULL,
                                     fill = "#0d1c38"){
-  moduleServer( id, function(input, output, session){
+  shiny::moduleServer( id, function(input, output, session){
     ns <- session$ns
 
-    grouped_data <- reactive({
+    grouped_data <- shiny::reactive({
       df <- df()
 
       # group and tally data
@@ -51,10 +46,10 @@ mod_distribution_server <- function(id,
 
 
     # create distribution plot
-    dist <- reactive({
+    dist <- shiny::reactive({
       plot_df <- grouped_data()
       ggplot2::ggplot(plot_df,
-                      ggplot2::aes(x = reorder(.data[[group_by_var]], -n, ), y = n)) +
+                      ggplot2::aes(x = stats::reorder(.data[[group_by_var]], -n, ), y = n)) +
 
         ggplot2::geom_bar(stat = "identity", fill = fill) +
 

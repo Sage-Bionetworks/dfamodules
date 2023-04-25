@@ -1,41 +1,39 @@
-# Storage Project Selection Module UI
-
-#' @title select_storage_project_ui and select_storage_project_server
+#' Storage Project Selection Module UI
+#'
 #' @description A shiny module. Outputs a selectInput dropdown of Synapse storage project names to the UI.
-#' @return To the server: A list information from the module. `selected_df` - a dataframe with a single row containing the `name` and `id` of the selected storage project. `action_btn` - TRUE/FALSE output from button click.
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
-#'
-#' @noRd
 #'
 #' @importFrom shiny NS tagList
 #' @export
 
 mod_select_storage_project_ui <- function(id){
-  ns <- NS(id)
-  tagList(
+  ns <- shiny::NS(id)
+  shiny::tagList(
     shinydashboard::box(
       title = "Select Project",
       width = NULL,
 
       # Project dropdown
-      uiOutput(ns("project_selector")),
+      shiny::uiOutput(ns("project_selector")),
 
       # Button to initiate project selection
-      actionButton(ns("submit_btn"),
-                   "Select Project"),
-      )
+      shiny::actionButton(ns("submit_btn"),
+                          "Select Project"),
     )
+  )
 }
 
 # Storage Project Selection Module Server
 #'
-#' @noRd
 #' @export
 
-mod_select_storage_project_server <- function(id, asset_view, input_token, base_url) {
+mod_select_storage_project_server <- function(id,
+                                              asset_view,
+                                              input_token,
+                                              base_url) {
 
-  moduleServer( id, function(input, output, session){
+  shiny::moduleServer( id, function(input, output, session){
 
     ns <- session$ns
 
@@ -50,29 +48,29 @@ mod_select_storage_project_server <- function(id, asset_view, input_token, base_
     # render ui for storage project drop down
     output$project_selector <- shiny::renderUI({
 
-       selectInput(inputId = ns("selected_project"),
-                   label = NULL,
-                   choices = storage_project_obj$content[,"name"],
-                   selectize = FALSE) # must be false or for some reason cannot reference `input$selected_project`
+      shiny::selectInput(inputId = ns("selected_project"),
+                         label = NULL,
+                         choices = storage_project_obj$content[,"name"],
+                         selectize = FALSE) # must be false or for some reason cannot reference `input$selected_project`
 
     })
 
     # SUBSET STORAGE PROJECT DATAFRAME BY SELECTED PROJECT  ##############################################################
 
-    selected_project_df <- reactive({
+    selected_project_df <- shiny::reactive({
 
-      req(input$selected_project)
+      shiny::req(input$selected_project)
 
       storage_project_obj$content[ match(input$selected_project, storage_project_obj$content[,"name"]), ]
-      })
+    })
 
     # RETURN SELECTED PROJECT  ##############################################################
 
-    eventReactive(input$submit_btn, {
+    shiny::eventReactive(input$submit_btn, {
       return(selected_project_df())
     })
   })
-  }
+}
 
 ## To be copied in the UI
 # mod_select_storage_project_ui("select_storage_project_1")

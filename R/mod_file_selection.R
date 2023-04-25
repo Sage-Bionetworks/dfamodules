@@ -1,56 +1,57 @@
-#' file_selection UI Function
+#' Select a File UI function
 #'
-#' @description A shiny Module.
+#' @description A Shiny module that displays the files in a given dataset in a selectable DT::datatable
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
-#'
-#' @noRd
-#'
 #' @importFrom shiny NS tagList
 #' @export
 
 mod_file_selection_ui <- function(id){
-  ns <- NS(id)
-  tagList(
+  ns <- shiny::NS(id)
+  shiny::tagList(
 
-    fluidRow(
+    shiny::fluidRow(
       waiter::use_waiter(),
-      column(width = 12,
-             # Action button that opens file selector
-             # TODO: eventually this will become a toggle similar to data_curator dashboard
-             div(
-               id = ns("select_files_wrapper"),
-               shinydashboard::box(
-                 width = NULL,
-                 title = "Select Files",
+      shiny::column(width = 12,
+                    # Action button that opens file selector
+                    # TODO: eventually this will become a toggle similar to data_curator dashboard
+                    shiny::div(
+                      id = ns("select_files_wrapper"),
+                      shinydashboard::box(
+                        width = NULL,
+                        title = "Select Files",
 
-                 actionButton(ns("getfiles_btn"), "Get Files"),
+                        shiny::actionButton(ns("getfiles_btn"), "Get Files"),
 
-                 DT::DTOutput(ns("manifest_tbl"))
-                 )
-               )
-             )
+                        DT::DTOutput(ns("manifest_tbl"))
+                      )
+                    )
       )
     )
-  }
+  )
+}
 
-#' file_selection Server Functions
+#' Select a File Server Functions
 #'
-#' @noRd
+#' @param id internal shiny ID
+#' @param dataset dataset folder synId
+#' @param asset_view fileview synId
+#' @param input_token Syanpse PAT
+#'
 #' @export
 
 mod_file_selection_server <- function(id, dataset, asset_view, input_token) {
 
-  moduleServer( id, function(input, output, session) {
+  shiny::moduleServer( id, function(input, output, session) {
 
     ns <- session$ns
 
     w <- Waiter$new(id = ns("select_files_wrapper"),
-                    html = div(
+                    html = htmltools::div(
                       style="color:#424874;",
                       waiter::spin_3(),
-                      h4("Retrieving manifest...")),
-                    color = transparent(.8))
+                      htmltools::h4("Retrieving manifest...")),
+                    color = waiter::transparent(.8))
 
 
     # ON CLICK GET MANIFEST FOR SELECTED DATASET ############################################################
@@ -59,7 +60,7 @@ mod_file_selection_server <- function(id, dataset, asset_view, input_token) {
     # If you have clicked show file level view and displayed a dataset, but want to
     # change that dataset you need to click "Show file level view" again
 
-    manifest <- eventReactive(input$getfiles_btn, {
+    manifest <- shiny::eventReactive(input$getfiles_btn, {
 
       # show waiter
       w$show()
@@ -70,9 +71,9 @@ mod_file_selection_server <- function(id, dataset, asset_view, input_token) {
       })
 
       ds <- dataset()
-      manifest_download_to_df(asset_view = asset_view,
-                              dataset_id = ds$id,
-                              input_token = input_token)
+      dfamodules:: manifest_download_to_df(asset_view = asset_view,
+                                           dataset_id = ds$id,
+                                           input_token = input_token)
 
     })
 
@@ -91,8 +92,8 @@ mod_file_selection_server <- function(id, dataset, asset_view, input_token) {
     # return a list containing the downloaded manifest and rows selected
 
     return(list(
-      manifest = reactive({ manifest() }),
-      selected_rows = reactive({ input$manifest_tbl_rows_selected })
+      manifest = shiny::reactive({ manifest() }),
+      selected_rows = shiny::reactive({ input$manifest_tbl_rows_selected })
     ))
 
   })

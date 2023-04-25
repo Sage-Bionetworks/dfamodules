@@ -1,10 +1,7 @@
-#' datatable_filters UI Function
+#' Filters for dataFlow Manifest UI
 #'
-#' @description A shiny Module.
-#'
+#' @description A shiny Module that renders filters for the dataFlow manifest
 #' @param id,input,output,session Internal parameters for {shiny}.
-#'
-#' @noRd
 #'
 #' @importFrom shiny NS tagList
 #' @export
@@ -15,8 +12,8 @@ mod_datatable_filters_ui <- function(id,
                                      dataset_choices = c("dataset 1", "dataset 2"),
                                      release_daterange = c(Sys.Date(), (Sys.Date() + 365)),
                                      status_choices = c("status 1", "status 2")){
-  ns <- NS(id)
-  tagList(
+  ns <- shiny::NS(id)
+  shiny::tagList(
     shinydashboard::box(title = "Filter Datasets",
                         collapsible = TRUE,
                         collapsed = TRUE,
@@ -48,19 +45,23 @@ mod_datatable_filters_ui <- function(id,
   )
 }
 
-#' datatable_filters Server Functions
+#' Filters for dataFlow Manifest Server.
 #'
-#' @noRd
+#' @param id internal Shiny ID
+#' @param manifest a dataFlow manifest
+#'
+#' @returns a filtered dataframe
+#'
 #' @export
 
 mod_datatable_filters_server <- function(id,
                                          manifest){
 
-  moduleServer(id, function(input, output, session) {
+  shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
     # CHANGE "NA" TO NA --------
-    selected_datasets_modified <- reactive({
+    selected_datasets_modified <- shiny::reactive({
       # replace string "NA" with true NA
       datasets <- input$dataset_select
       datasets[datasets == "NA"] <- NA
@@ -69,7 +70,7 @@ mod_datatable_filters_server <- function(id,
 
 
     # FILTER INPUTS ---------
-    manifest_filtered <- reactive({
+    manifest_filtered <- shiny::reactive({
       manifest <- manifest()
 
       # FIXME: For some reason line 75 cause a warning

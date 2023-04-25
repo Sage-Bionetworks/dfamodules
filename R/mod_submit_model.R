@@ -3,24 +3,20 @@
 #' @description A shiny Module.
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
-#'
-#' @noRd
-#'
 #' @importFrom shiny NS tagList
 #' @export
 
 mod_submit_model_ui <- function(id){
-  ns <- NS(id)
-  tagList(
+  ns <- shiny::NS(id)
+  shiny::tagList(
     waiter::useWaiter(),
-    actionButton(ns("submit"), "Submit to Synapse")
+    shiny::actionButton(ns("submit"), "Submit to Synapse")
 
   )
 }
 
 #' submit_model Server Functions
 #'
-#' @noRd
 #' @export
 
 mod_submit_model_server <- function(id,
@@ -32,7 +28,7 @@ mod_submit_model_server <- function(id,
                                     input_token,
                                     schema_url,
                                     base_url) {
-  moduleServer( id, function(input, output, session) {
+  shiny::moduleServer( id, function(input, output, session) {
     ns <- session$ns
 
     # FIXME: Stop writing csv, use json instead
@@ -44,19 +40,19 @@ mod_submit_model_server <- function(id,
     }
 
     # on button click submit model to synapse
-    observeEvent(input$submit, {
+    shiny::observeEvent(input$submit, {
 
       # write manifest csv
       path <- file.path(manifest_dir, "synapse_storage_manifest_dataflow.csv")
-      write.table(dfs_manifest(),
-                  path,
-                  sep = ",",
-                  row.names = FALSE)
+      utils::write.table(dfs_manifest(),
+                         path,
+                         sep = ",",
+                         row.names = FALSE)
 
-      waiter::waiter_show(html = div(
+      waiter::waiter_show(html = htmltools::div(
         style="color:#424874;",
         waiter::spin_3(),
-        h4("Submitting updated manifest to Synapse...")))
+        htmltools::h4("Submitting updated manifest to Synapse...")))
 
       # submit model to synapse
       model_submit(data_type = data_type,
@@ -75,9 +71,3 @@ mod_submit_model_server <- function(id,
 
   })
 }
-
-## To be copied in the UI
-# mod_submit_model_ui("submit_model_1")
-
-## To be copied in the server
-# mod_submit_model_server("submit_model_1")

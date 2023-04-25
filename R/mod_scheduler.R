@@ -6,43 +6,40 @@
 #' @param dateInput_label label for dateInput
 #' @param checkboxInput_label date for checkboxInput
 #'
-#' @noRd
-#'
 #' @importFrom shiny NS tagList
 #' @export
 
 mod_scheduler_ui <- function(id,
                              dateInput_label,
                              checkboxInput_label) {
-  ns <- NS(id)
-  tagList(
+  ns <- shiny::NS(id)
+  shiny::tagList(
 
     # initialize shinyjs
     shinyjs::useShinyjs(),
 
     # release scheduled input
-    dateInput(ns("date"), label = dateInput_label, value = NA),
-    checkboxInput(ns("unschedule_chk"), label = checkboxInput_label, value = FALSE))
+    shiny::dateInput(ns("date"), label = dateInput_label, value = NA),
+    shiny::checkboxInput(ns("unschedule_chk"), label = checkboxInput_label, value = FALSE))
 }
 
 #' scheduler Server Functions
 #'
-#' @noRd
 #' @export
 
 mod_scheduler_server <- function(id,
                                  reset_btn){
-  moduleServer( id, function(input, output, session){
+  shiny::moduleServer( id, function(input, output, session){
     ns <- session$ns
 
     # on checkbox click
-    observeEvent(input$unschedule_chk, {
+    shiny::observeEvent(input$unschedule_chk, {
 
       # if the checkbox is clicked:
       if(input$unschedule_chk == TRUE){
 
         # update the date input to blank out the date
-        updateDateInput(session = session, inputId = "date", value = NA)
+        shiny::updateDateInput(session = session, inputId = "date", value = NA)
 
         # use shinyjs to disable the date ui widget
         shinyjs::disable("date")
@@ -54,11 +51,11 @@ mod_scheduler_server <- function(id,
       }
     })
 
-    observeEvent(reset_btn(), {
-      updateDateInput(session = session, inputId = "date", value = NA)
+    shiny::observeEvent(reset_btn(), {
+      shiny::updateDateInput(session = session, inputId = "date", value = NA)
     })
 
-    date_out <- reactive({
+    date_out <- shiny::reactive({
 
       # if there is no date selected AND checkbox is not clicked return NULL
       if (length(input$date) == 0 & input$unschedule_chk == FALSE) {
@@ -79,13 +76,7 @@ mod_scheduler_server <- function(id,
 
     })
 
-    return(reactive({ date_out() }))
+    return(shiny::reactive({ date_out() }))
 
   })
 }
-
-## To be copied in the UI
-# mod_scheduler_ui("scheduler_1")
-
-## To be copied in the server
-# mod_scheduler_server("scheduler_1")

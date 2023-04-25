@@ -1,17 +1,13 @@
 #' Stacked Bar Plot UI Function
 #'
 #' @description A Shiny module that takes in a datafame and outputs a stacked bar plot.
-#'
 #' @param id,input,output,session Internal parameters for {shiny}.
-#'
-#' @noRd
-#'
 #' @importFrom shiny NS tagList
 #' @export
 
 mod_stacked_bar_ui <- function(id){
-  ns <- NS(id)
-  tagList(
+  ns <- shiny::NS(id)
+  shiny::tagList(
     shiny::plotOutput(ns("stacked_bar"))
   )
 }
@@ -31,8 +27,6 @@ mod_stacked_bar_ui <- function(id){
 #' @param width Width of stacked bars
 #' @param date_breaks X axis date breaks
 #' @param coord_flip Flip coordinates 90 degrees
-
-#' @noRd
 #' @export
 
 mod_stacked_bar_server <- function(id,
@@ -49,7 +43,7 @@ mod_stacked_bar_server <- function(id,
                                    date_breaks = NULL,
                                    coord_flip = FALSE) {
 
-  moduleServer( id, function(input, output, session){
+  shiny::moduleServer( id, function(input, output, session){
     ns <- session$ns
 
     # render stacked bar

@@ -7,6 +7,7 @@
 #' @param checkboxInput_label date for checkboxInput
 #'
 #' @importFrom shiny NS tagList
+#' @importFrom shinyjs useShinyjs disable enable
 #' @export
 
 mod_scheduler_ui <- function(id,

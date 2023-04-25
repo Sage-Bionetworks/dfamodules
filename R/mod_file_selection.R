@@ -71,9 +71,9 @@ mod_file_selection_server <- function(id, dataset, asset_view, input_token) {
       })
 
       ds <- dataset()
-      dfamodules:: manifest_download_to_df(asset_view = asset_view,
-                                           dataset_id = ds$id,
-                                           input_token = input_token)
+      manifest_download_to_df(asset_view = asset_view,
+                              dataset_id = ds$id,
+                              input_token = input_token)
 
     })
 

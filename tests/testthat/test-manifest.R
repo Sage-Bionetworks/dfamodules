@@ -1,5 +1,5 @@
 # read in test config
-config <- jsonlite::read_json("../../inst/testing/datatable_dashboard_config.json")
+config <- jsonlite::read_json("test_data/datatable_dashboard_config.json")
 
 # make mock synapse / submission ready manifest
 manifest_synapse <- data.frame(Component = rep("DataFlow", 4),
@@ -34,15 +34,15 @@ manifest_dfa <- data.frame(Component = rep("DataFlow", 4),
 # tests
 
 test_that("update_dfs_manifest", {
-  
+
   dfs_updates <-  list(release_scheduled = as.Date("2022-01-01"),
                        embargo = as.Date("2022-01-01"),
                        standard_compliance = TRUE,
                        data_portal = TRUE,
                        released = TRUE)
-  
+
   selected_datasets_df <- data.frame(id = c("syn1"), name = "dataset_name1")
-  
+
   expected_updated_row <- data.frame(Component = "DataFlow",
                                      contributor = as.factor("schematic - main"),
                                      entityId = "syn1",
@@ -55,7 +55,7 @@ test_that("update_dfs_manifest", {
                                      data_portal = TRUE,
                                      released = TRUE)
   expected_df <- rbind(expected_updated_row, manifest_dfa[-1,])
-  
+
   expect_equal(update_dfs_manifest(dfs_manifest = manifest_dfa,
                                    dfs_updates = dfs_updates,
                                    selected_datasets_df = selected_datasets_df),

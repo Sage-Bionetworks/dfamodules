@@ -15,7 +15,8 @@ schema_url <- "https://raw.githubusercontent.com/Sage-Bionetworks/data_flow/main
 
 test_that("storage_projects successfully returns a schematic_api object", {
   sp <- try(storage_projects(asset_view = asset_view,
-                             input_token = input_token),
+                             input_token = input_token,
+                             base_url = base_url),
             silent = FALSE)
 
   expect_true(class(sp) == "schematic_api")

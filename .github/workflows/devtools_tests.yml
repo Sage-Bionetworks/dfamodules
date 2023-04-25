@@ -14,6 +14,10 @@ jobs:
     strategy:
       matrix:
         r-version: ['3.6.3', '4.1.1']
+    
+    env:
+      SYNAPSE_PAT: ${{ secrets.SYNAPSE_PAT }}
+      SCHEMATIC_BASE_URL_AWS: ${{ secrets.SCHEMATIC_BASE_URL_AWS }}
 
     steps:
       - uses: actions/checkout@v3

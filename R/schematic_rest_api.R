@@ -369,6 +369,54 @@ visualize_component <- function(schema_url,
   )
 }
 
+#' Get all the attributes associated with a specific data model component formatted as a dataframe
+#'
+#' @param schema_url A data model URL
+#' @param node_display_name Display lable of node
+#' @param base_url URL to schematic API endpoint
+#' @export
+
+schemas_get_node_validation_rules <- function(schema_url,
+                                              node_display_name,
+                                              base_url) {
+
+  # api url
+  url <- paste0(base_url, "/v1/schemas/get_node_validation_rules")
+
+  # query parameters
+  params = list(
+    `schema_url` = schema_url,
+    `node_display_name` = node_display_name
+  )
+
+  # GET
+  res <- httr::GET(url = url, query = params)
+
+  # parse content
+  parsed <- unlist(suppressMessages(httr::content(res)))
+
+  # if the api call returns an error
+  # surface error to user
+  if (httr::http_error(res)) {
+    stop(
+      sprintf(
+        "Schematic API request failed [%s]",
+        httr::status_code(res)
+      ),
+      call. = FALSE
+    )
+  }
+
+  # return a helpful object
+  structure(
+    list(
+      content = parsed,
+      response = res
+    ),
+    class = "schematic_api"
+  )
+}
+
 # print method for schematic_api class of functions
 print.schematic_api <- function(x, ...) {
   utils::str(x$content)

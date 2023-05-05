@@ -69,3 +69,12 @@ test_that("storage_project_manifests successfully returns a schematic_api object
   expect_true(class(spm) == "schematic_api")
 
 })
+
+test_that("schemas_get_node_validation_rules returns a schematic_api object", {
+  spm <- try(schemas_get_node_validation_rules(schema_url = schema_url,
+                                               node_display_name = "Contributor",
+                                               base_url),
+             silent = FALSE)
+
+  expect_true(class(spm) == "schematic_api")
+})

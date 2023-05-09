@@ -395,6 +395,12 @@ schemas_get_node_validation_rules <- function(schema_url,
   # parse content
   parsed <- unlist(suppressMessages(httr::content(res)))
 
+  # NULL is returned if there is no restrict rule
+  # Return NA instead
+  if (is.null(parsed)) {
+    parsed <- NA
+  }
+
   # if the api call returns an error
   # surface error to user
   if (httr::http_error(res)) {

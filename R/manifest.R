@@ -107,13 +107,13 @@ update_dfs_manifest <- function(dfs_manifest,
 #' @export
 
 generate_data_flow_manifest_skeleton <- function(asset_view,
-                                                 input_token,
+                                                 access_token,
                                                  calc_num_items,
                                                  base_url = "https://schematic-dev.api.sagebionetworks.org") {
 
   # get manifests for each storage project
   dfs_manifest <- get_all_manifests(asset_view = asset_view,
-                                    input_token = input_token,
+                                    access_token = access_token,
                                     base_url = base_url,
                                     verbose = TRUE)
 
@@ -122,7 +122,7 @@ generate_data_flow_manifest_skeleton <- function(asset_view,
 
     num_items <- calculate_items_per_manifest(df = dfs_manifest,
                                               asset_view = asset_view,
-                                              input_token = input_token,
+                                              access_token = access_token,
                                               base_url = base_url)
 
     # if calc_num_itmes = false, just fill in the column with Not Applicable
@@ -153,14 +153,14 @@ generate_data_flow_manifest_skeleton <- function(asset_view,
 #'
 #' @param asset_view ID of view listing all project data assets. For example, for Synapse this would be the Synapse ID of the fileview listing all data assets for a given project.(i.e. master_fileview in config.yml)
 #' @param manifest_dataset_id Dataset ID for data flow status manifest to be updated
-#' @param input_token Synapse PAT
+#' @param access_token Synapse PAT
 #' @param base_url Base URL of schematic API (Defaults to  AWS version)
 #'
 #' @export
 
 update_data_flow_manifest <- function(asset_view,
                                       manifest_dataset_id,
-                                      input_token,
+                                      access_token,
                                       base_url) {
 
   print(paste0("Checking asset view ", asset_view, " for updates"))
@@ -172,7 +172,7 @@ update_data_flow_manifest <- function(asset_view,
       manifest_download(asset_view = asset_view,
                         dataset_id = manifest_dataset_id,
                         base_url = base_url,
-                        input_token = input_token)
+                        access_token = access_token)
     },
     error = function(e) {
       message("manifest_download failed")
@@ -193,7 +193,7 @@ update_data_flow_manifest <- function(asset_view,
   synapse_manifests <- tryCatch(
     {
       get_all_manifests(asset_view = asset_view,
-                        input_token = input_token,
+                        access_token = access_token,
                         base_url = base_url,
                         verbose = FALSE)
     },
@@ -209,14 +209,14 @@ update_data_flow_manifest <- function(asset_view,
   dataflow_manifest_updated <- update_manifest_add_datasets(dataflow_manifest = dataflow_manifest,
                                                             get_all_manifests_out = synapse_manifests,
                                                             asset_view = asset_view,
-                                                            input_token = input_token,
+                                                            access_token = access_token,
                                                             base_url = base_url)
 
   # check synapse for removed datasets
   dataflow_manifest_updated <- update_manifest_remove_datasets(dataflow_manifest = dataflow_manifest_updated,
                                                                get_all_manifests_out = synapse_manifests,
                                                                asset_view = asset_view,
-                                                               input_token = input_token,
+                                                               access_token = access_token,
                                                                base_url = base_url)
 
   # check synapse for updates to dataset_name column
@@ -225,7 +225,7 @@ update_data_flow_manifest <- function(asset_view,
                                                       update_column = "dataset_name",
                                                       asset_view = asset_view,
                                                       recalc_num_items = FALSE,
-                                                      input_token = input_token,
+                                                      access_token = access_token,
                                                       base_url = base_url)
 
   # check synapse for updates to dataset column
@@ -234,7 +234,7 @@ update_data_flow_manifest <- function(asset_view,
                                                       update_column = "dataset",
                                                       asset_view = asset_view,
                                                       recalc_num_items = TRUE,
-                                                      input_token = input_token,
+                                                      access_token = access_token,
                                                       base_url = base_url)
 
   # compare updated dataflow manifest to initial manifest
@@ -263,7 +263,7 @@ update_data_flow_manifest <- function(asset_view,
                    dataset_id = manifest_dataset_id,
                    file_name = file_path,
                    restrict_rules = TRUE,
-                   input_token = input_token,
+                   access_token = access_token,
                    manifest_record_type = "table_and_file",
                    base_url = base_url,
                    schema_url = "https://raw.githubusercontent.com/Sage-Bionetworks/data_flow/main/inst/data_flow_component.jsonld")
@@ -278,13 +278,13 @@ update_data_flow_manifest <- function(asset_view,
 #' @param dataflow_manifest A dataFlow manifest
 #' @param get_all_manifests_out The output of get_all_manifests. Also can be a dataframe that includes Component, contributor, entityId, dataset_name, and dataset.
 #' @param asset_view ID of view listing all project data assets. For example, for Synapse this would be the Synapse ID of the fileview listing all data assets for a given project.(i.e. master_fileview in config.yml)
-#' @param input_token Synapse PAT
+#' @param access_token Synapse PAT
 #' @param base_url Base URL of schematic API (Defaults to  AWS version)
 
 update_manifest_add_datasets <- function(dataflow_manifest,
                                          get_all_manifests_out,
                                          asset_view,
-                                         input_token,
+                                         access_token,
                                          base_url) {
 
   # check for new datasets by entityId
@@ -300,7 +300,7 @@ update_manifest_add_datasets <- function(dataflow_manifest,
       {
         calculate_items_per_manifest(df = new_datasets,
                                      asset_view = asset_view,
-                                     input_token = input_token,
+                                     access_token = access_token,
                                      base_url = base_url)
       },
       error = function(e) {
@@ -344,13 +344,13 @@ update_manifest_add_datasets <- function(dataflow_manifest,
 #' @param dataflow_manifest A dataFlow manifest
 #' @param get_all_manifests_out The output of get_all_manifests. Also can be a dataframe that includes Component, contributor, entityId, dataset_name, and dataset.
 #' @param asset_view ID of view listing all project data assets. For example, for Synapse this would be the Synapse ID of the fileview listing all data assets for a given project.(i.e. master_fileview in config.yml)
-#' @param input_token Synapse PAT
+#' @param access_token Synapse PAT
 #' @param base_url Base URL of schematic API (Defaults to  AWS version)
 
 update_manifest_remove_datasets <- function(dataflow_manifest,
                                             get_all_manifests_out,
                                             asset_view,
-                                            input_token,
+                                            access_token,
                                             base_url) {
 
   # check for removed datasets
@@ -374,7 +374,7 @@ update_manifest_remove_datasets <- function(dataflow_manifest,
 #' @param asset_view ID of view listing all project data assets. For example, for Synapse this would be the Synapse ID of the fileview listing all data assets for a given project.(i.e. master_fileview in config.yml)
 #' @param update_column Column name of the column to be updated
 #' @param recalc_num_items TRUE/FALSE if there is an item to be updated, should the manifest
-#' @param input_token Synapse PAT
+#' @param access_token Synapse PAT
 #' @param base_url Base URL of schematic API (Defaults to  AWS version)
 
 update_manifest_column <- function(dataflow_manifest,
@@ -382,7 +382,7 @@ update_manifest_column <- function(dataflow_manifest,
                                    update_column,
                                    asset_view,
                                    recalc_num_items = FALSE,
-                                   input_token,
+                                   access_token,
                                    base_url) {
 
   # arrange by entityId
@@ -402,7 +402,7 @@ update_manifest_column <- function(dataflow_manifest,
     if (recalc_num_items) {
       dataflow_manifest$num_items[idx] <- calculate_items_per_manifest(df = dataflow_manifest[idx,],
                                                                        asset_view = asset_view,
-                                                                       input_token = input_token,
+                                                                       access_token = access_token,
                                                                        base_url = base_url)
     }
   }

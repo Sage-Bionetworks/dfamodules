@@ -7,14 +7,14 @@
 storage_project_manifests(
   asset_view,
   project_id,
-  input_token,
+  access_token,
   base_url = "https://schematic-dev.api.sagebionetworks.org"
 )
 }
 \arguments{
 \item{asset_view}{synapse ID of master file view.}
 
-\item{input_token}{synapse PAT}
+\item{access_token}{synapse PAT}
 
 \item{base_url}{URL to schematic API endpoint}
 

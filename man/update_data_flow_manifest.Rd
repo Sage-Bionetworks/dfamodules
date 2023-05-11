@@ -7,7 +7,7 @@
 update_data_flow_manifest(
   asset_view,
   manifest_dataset_id,
-  input_token,
+  access_token,
   base_url
 )
 }
@@ -16,7 +16,7 @@ update_data_flow_manifest(
 
 \item{manifest_dataset_id}{Dataset ID for data flow status manifest to be updated}
 
-\item{input_token}{Synapse PAT}
+\item{access_token}{Synapse PAT}
 
 \item{base_url}{Base URL of schematic API (Defaults to  AWS version)}
 }

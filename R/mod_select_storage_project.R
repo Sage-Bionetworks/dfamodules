@@ -30,7 +30,7 @@ mod_select_storage_project_ui <- function(id){
 
 mod_select_storage_project_server <- function(id,
                                               asset_view,
-                                              input_token,
+                                              access_token,
                                               base_url) {
 
   shiny::moduleServer( id, function(input, output, session){
@@ -40,7 +40,7 @@ mod_select_storage_project_server <- function(id,
     # API CALL : GET STORAGE PROJECTS #######################################################################
 
     storage_project_obj <- storage_projects(asset_view = asset_view,
-                                            input_token = input_token,
+                                            access_token = access_token,
                                             base_url = base_url)
 
     # DROP DOWN LISTING STORAGE PROJECTS ####################################################################

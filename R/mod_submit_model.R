@@ -25,7 +25,7 @@ mod_submit_model_server <- function(id,
                                     asset_view,
                                     dataset_id,
                                     manifest_dir = "./manifest",
-                                    input_token,
+                                    access_token,
                                     schema_url,
                                     base_url) {
   shiny::moduleServer( id, function(input, output, session) {
@@ -60,7 +60,7 @@ mod_submit_model_server <- function(id,
                    dataset_id = dataset_id,
                    file_name = path,
                    restrict_rules = TRUE,
-                   input_token = input_token,
+                   access_token = access_token,
                    manifest_record_type = "table_and_file",
                    schema_url = schema_url,
                    base_url = base_url)

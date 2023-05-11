@@ -10,7 +10,7 @@ update_manifest_column(
   update_column,
   asset_view,
   recalc_num_items = FALSE,
-  input_token,
+  access_token,
   base_url
 )
 }
@@ -25,7 +25,7 @@ update_manifest_column(
 
 \item{recalc_num_items}{TRUE/FALSE if there is an item to be updated, should the manifest}
 
-\item{input_token}{Synapse PAT}
+\item{access_token}{Synapse PAT}
 
 \item{base_url}{Base URL of schematic API (Defaults to  AWS version)}
 }

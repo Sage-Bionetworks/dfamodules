@@ -8,7 +8,7 @@ mod_dataset_selection_server(
   id,
   storage_project_df,
   asset_view,
-  input_token,
+  access_token,
   hidden_datasets = NULL,
   base_url
 )
@@ -20,7 +20,7 @@ mod_dataset_selection_server(
 
 \item{asset_view}{Fileview containing datasets}
 
-\item{input_token}{Synapse PAT}
+\item{access_token}{Synapse PAT}
 
 \item{hidden_datasets}{vector of synIds to hide}
 

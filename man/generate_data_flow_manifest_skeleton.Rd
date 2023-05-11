@@ -6,7 +6,7 @@
 \usage{
 generate_data_flow_manifest_skeleton(
   asset_view,
-  input_token,
+  access_token,
   calc_num_items,
   base_url = "https://schematic-dev.api.sagebionetworks.org"
 )

@@ -4,7 +4,7 @@
 \alias{mod_file_selection_server}
 \title{Select a File Server Functions}
 \usage{
-mod_file_selection_server(id, dataset, asset_view, input_token)
+mod_file_selection_server(id, dataset, asset_view, access_token)
 }
 \arguments{
 \item{id}{internal shiny ID}
@@ -13,7 +13,7 @@ mod_file_selection_server(id, dataset, asset_view, input_token)
 
 \item{asset_view}{fileview synId}
 
-\item{input_token}{Syanpse PAT}
+\item{access_token}{Syanpse PAT}
 }
 \description{
 Select a File Server Functions

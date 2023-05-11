@@ -6,7 +6,7 @@
 \usage{
 get_all_manifests(
   asset_view,
-  input_token,
+  access_token,
   base_url = "https://schematic-dev.api.sagebionetworks.org",
   verbose = FALSE
 )
@@ -14,7 +14,7 @@ get_all_manifests(
 \arguments{
 \item{asset_view}{ID of view listing all project data assets. For example, for Synapse this would be the Synapse ID of the fileview listing all data assets for a given project.(i.e. master_fileview in config.yml)}
 
-\item{input_token}{Synapse PAT}
+\item{access_token}{Synapse PAT}
 
 \item{base_url}{Base URL of schematic API}
 

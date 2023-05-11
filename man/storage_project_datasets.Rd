@@ -7,7 +7,7 @@
 storage_project_datasets(
   asset_view,
   project_id,
-  input_token,
+  access_token,
   base_url = "https://schematic-dev.api.sagebionetworks.org"
 )
 }
@@ -16,7 +16,7 @@ storage_project_datasets(
 
 \item{project_id}{synapse ID of a storage project.}
 
-\item{input_token}{synapse PAT}
+\item{access_token}{synapse PAT}
 
 \item{base_url}{URL to schematic API endpoint}
 }

@@ -5,25 +5,25 @@
 # Functions follow best practice convention laid out in httr vingette
 # https://httr.r-lib.org/articles/api-packages.html
 
-#' Download a manifest
+#' Download a manifest using the dataset Synapse ID
 #'
 #' @param asset_view ID of view listing all project data assets. For example, for Synapse this would be the Synapse ID of the fileview listing all data assets for a given project.(i.e. master_fileview in config.yml)
 #' @param dataset_id Synapse ID of existing manifest
-#' @param input_token Synapse login cookie, PAT, or API key.
+#' @param access_token Synapse login cookie, PAT, or API key.
 #' @param base_url URL to schematic API endpoint
 #' @export
 
-manifest_download <- function(asset_view,
-                              dataset_id,
-                              input_token,
-                              base_url = "https://schematic-dev.api.sagebionetworks.org") {
+dataset_manifest_download <- function(asset_view,
+                                      dataset_id,
+                                      access_token,
+                                      base_url = "https://schematic-dev.api.sagebionetworks.org") {
 
   # create api url
-  url <- paste0(base_url, "/v1/manifest/download")
+  url <- paste0(base_url, "/v1/dataset/manifest/download")
 
   # set up parameters for httr::get call
   params = list(
-    `input_token` = input_token,
+    `access_token` = access_token,
     `asset_view` = asset_view,
     `dataset_id` = dataset_id,
     `as_json` = TRUE,
@@ -71,7 +71,7 @@ manifest_download <- function(asset_view,
 #' @param asset_view ID of view listing all project data assets. For example, for Synapse this would be the Synapse ID of the fileview listing all data assets for a given project.(i.e. master_fileview in config.yml)
 #' @param dataset_id Synapse ID of existing manifest
 #' @param file_name Filepath of csv to validate
-#' @param input_token Synapse login cookie, PAT, or API key
+#' @param access_token Synapse login cookie, PAT, or API key
 #' @param restrict_rules If True, validation suite will only run with in-house validation rule. If False, the Great Expectations suite will be utilized and all rules will be available.
 #' @param manifest_record_type Manifest storage type. Options: "--", "table" (default), "entity", "both".
 #' @param base_url URL to schematic API endpoint
@@ -84,7 +84,7 @@ model_submit <- function(data_type = NULL,
                          asset_view,
                          dataset_id,
                          file_name,
-                         input_token,
+                         access_token,
                          restrict_rules = TRUE,
                          manifest_record_type = "table_and_file",
                          base_url = "https://schematic-dev.api.sagebionetworks.org",
@@ -102,7 +102,7 @@ model_submit <- function(data_type = NULL,
     `manifest_record_type` = manifest_record_type,
     `restrict_rules` = restrict_rules,
     `asset_view` = asset_view,
-    `input_token` = input_token,
+    `access_token` = access_token,
     `use_schema_label` = use_schema_label
   )
 
@@ -144,14 +144,14 @@ model_submit <- function(data_type = NULL,
 #'
 #' @param asset_view synapse ID of master file view.
 #' @param project_id synapse ID of a storage project.
-#' @param input_token synapse PAT
+#' @param access_token synapse PAT
 #' @param base_url URL to schematic API endpoint
 #'
 #'@export
 
 storage_project_datasets <- function(asset_view,
                                      project_id,
-                                     input_token,
+                                     access_token,
                                      base_url = "https://schematic-dev.api.sagebionetworks.org") {
 
   # create url
@@ -161,7 +161,7 @@ storage_project_datasets <- function(asset_view,
   params <- list(
     asset_view = asset_view,
     project_id = project_id,
-    input_token = input_token)
+    access_token = access_token)
 
   # GET
   res <- httr::GET(url, query = params)
@@ -199,13 +199,13 @@ storage_project_datasets <- function(asset_view,
 #' Get all storage projects the current user has access to
 #'
 #' @param asset_view synapse ID of master file view.
-#' @param input_token synapse PAT
+#' @param access_token synapse PAT
 #' @param base_url URL to schematic API endpoint
 #'
 #' @export
 
 storage_projects <- function(asset_view,
-                             input_token,
+                             access_token,
                              base_url = "https://schematic-dev.api.sagebionetworks.org") {
 
   # create url
@@ -214,7 +214,7 @@ storage_projects <- function(asset_view,
   # set up parameters for httr::get call
   params <- list(
     asset_view = asset_view,
-    input_token = input_token
+    access_token = access_token
   )
 
   # GET
@@ -254,14 +254,14 @@ storage_projects <- function(asset_view,
 #'
 #' @param asset_view synapse ID of master file view.
 #' @param dataset_id synapse ID of a storage dataset.
-#' @param input_token synapse PAT
+#' @param access_token synapse PAT
 #' @param base_url URL to schematic API endpoint
 #'
 #' @export
 
 storage_project_manifests <- function(asset_view,
                                       project_id,
-                                      input_token,
+                                      access_token,
                                       base_url = "https://schematic-dev.api.sagebionetworks.org") {
 
   # write URL
@@ -269,7 +269,7 @@ storage_project_manifests <- function(asset_view,
 
   # set up parameters for httr::get call
   params = list(
-    `input_token` = input_token,
+    `access_token` = access_token,
     `project_id` = project_id,
     `asset_view` = asset_view
   )
@@ -381,7 +381,7 @@ print.schematic_api <- function(x, ...) {
 #
 # storage_dataset_files <- function(asset_view,
 #                                   dataset_id,
-#                                   input_token,
+#                                   access_token,
 #                                   file_names=list(),
 #                                   full_path=FALSE,
 #                                   base_url = "https://schematic-dev.api.sagebionetworks.org") {
@@ -395,7 +395,7 @@ print.schematic_api <- function(x, ...) {
 #     dataset_id = dataset_id,
 #     file_names = file_names,
 #     full_path = full_path,
-#     input_token = input_token)
+#     access_token = access_token)
 #
 #   # GET
 #   res <- httr::GET(url, query = params)

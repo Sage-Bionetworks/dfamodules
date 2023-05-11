@@ -36,11 +36,11 @@ mod_file_selection_ui <- function(id){
 #' @param id internal shiny ID
 #' @param dataset dataset folder synId
 #' @param asset_view fileview synId
-#' @param input_token Syanpse PAT
+#' @param access_token Syanpse PAT
 #'
 #' @export
 
-mod_file_selection_server <- function(id, dataset, asset_view, input_token) {
+mod_file_selection_server <- function(id, dataset, asset_view, access_token) {
 
   shiny::moduleServer( id, function(input, output, session) {
 
@@ -73,7 +73,7 @@ mod_file_selection_server <- function(id, dataset, asset_view, input_token) {
       ds <- dataset()
       manifest_download_to_df(asset_view = asset_view,
                               dataset_id = ds$id,
-                              input_token = input_token)
+                              access_token = access_token)
 
     })
 

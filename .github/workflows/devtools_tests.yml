@@ -1,9 +1,5 @@
 name: Devtools Tests
 on:
-  push:
-    branches:
-      - main
-      - dev*
   pull_request:
     branches:
       - main
@@ -13,7 +9,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        r-version: ['3.6.3', '4.1.1']
+        r-version: ['4.1.1']
     
     env:
       SYNAPSE_PAT: ${{ secrets.SYNAPSE_PAT }}
@@ -27,7 +23,7 @@ jobs:
           r-version: ${{ matrix.r-version }}
       - name: Install dependencies
         run: |
-          install.packages(c("remotes", "rcmdcheck"))
+          install.packages(c("remotes", "rcmdcheck", "devtools"))
           remotes::install_deps(dependencies = TRUE)
         shell: Rscript {0}
       - name: Check

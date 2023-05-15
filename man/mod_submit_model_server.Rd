@@ -11,7 +11,7 @@ mod_submit_model_server(
   asset_view,
   dataset_id,
   manifest_dir = "./manifest",
-  input_token,
+  access_token,
   schema_url,
   base_url
 )

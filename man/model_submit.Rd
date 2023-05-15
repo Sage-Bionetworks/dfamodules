@@ -9,7 +9,7 @@ model_submit(
   asset_view,
   dataset_id,
   file_name,
-  input_token,
+  access_token,
   restrict_rules = TRUE,
   manifest_record_type = "table_and_file",
   base_url = "https://schematic-dev.api.sagebionetworks.org",
@@ -27,7 +27,7 @@ model_submit(
 
 \item{file_name}{Filepath of csv to validate}
 
-\item{input_token}{Synapse login cookie, PAT, or API key}
+\item{access_token}{Synapse login cookie, PAT, or API key}
 
 \item{restrict_rules}{If True, validation suite will only run with in-house validation rule. If False, the Great Expectations suite will be utilized and all rules will be available.}
 

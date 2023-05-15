@@ -43,7 +43,7 @@ mod_dataset_selection_ui <- function(id){
 #' @param id Internal parameter for {shiny}
 #' @param storage_project_df Dataframe containing the columns `id` and `name`
 #' @param asset_view Fileview containing datasets
-#' @param input_token Synapse PAT
+#' @param access_token Synapse PAT
 #' @param hidden_datasets vector of synIds to hide
 #' @param base_url Schematic REST API base url
 #'
@@ -52,7 +52,7 @@ mod_dataset_selection_ui <- function(id){
 mod_dataset_selection_server <- function(id,
                                          storage_project_df,
                                          asset_view,
-                                         input_token,
+                                         access_token,
                                          hidden_datasets = NULL,
                                          base_url) {
 
@@ -77,7 +77,7 @@ mod_dataset_selection_server <- function(id,
 
       storage_project_datasets_obj <- storage_project_datasets(asset_view = asset_view,
                                                                project_id = storage_project_df()$id,
-                                                               input_token = input_token,
+                                                               access_token = access_token,
                                                                base_url = base_url)
 
       storage_project_datasets_obj$content

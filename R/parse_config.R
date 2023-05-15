@@ -1,3 +1,83 @@
+##### GENERATE CONFIG #####
+
+#' Parse config to get columns types
+#'
+#' @param schema_url URL of a Schematic data model schema
+#' @param display_names Vector of display names to use in dashboard
+#' @param icon Display `Valid_Values = TRUE/FALSE` attributes as icons in dashboard
+#' @param na_replace Named list indicating strings to replace NA with `na_replace <- list(attribute_1 = "na string 1", attribute_2 = "na string 2")`
+#' @param base_url Schematic REST API base URL
+#'
+#' @export
+
+generate_dashboard_config <- function(schema_url,
+                                      display_names = NULL,
+                                      icon = TRUE,
+                                      na_replace = NULL,
+                                      base_url) {
+
+  # GET VISUALIZE/COMPONENT
+  vc_out <- visualize_component(schema_url,
+                                "DataFlow",
+                                base_url)
+  attributes_df <- vc_out$content
+
+  # GET VALIDATION RULES FOR EACH ATTRIBUTE
+  attributes_df$type <- unlist(sapply(attributes_df$Label, USE.NAMES = FALSE, function(lab) {
+    schematic_obj <- schemas_get_node_validation_rules(schema_url,
+                                                       lab,
+                                                       base_url)
+    return(schematic_obj$content)
+  }))
+
+  # ADD DISPLAY NAMES
+  # if null infer names from attribute_df
+  if (is.null(display_names)) {
+    display_names <- .simple_cap(gsub("_|-", " ", attributes_df$Attribute))
+  }
+
+  attributes_df$display_name <- display_names
+
+  # SET TYPE=ICON
+  # if icon = TRUE
+  if (icon) {
+
+    # find logical columns
+    log_cols <- grepl("TRUE", attributes_df$`Valid Values`) &  grepl("FALSE", attributes_df$`Valid Values`)
+
+    # change type to icon
+    attributes_df[log_cols, "type"] <- "icon"
+  }
+
+  # SET REPLACEMENT STRINGS FOR NA
+  if (!is.null(na_replace)) {
+
+    attributes_df$na_replace <- sapply(1:nrow(attributes_df), function(i) {
+      # pull out attribute
+      attribute <- attributes_df$Attribute[i]
+      # if attribute is in na_replace list, add na_replace string to attribute_df
+      if (attribute %in% names(na_replace)) {
+        return(na_replace[[grep(attribute, names(na_replace))]])
+
+      } else {
+        # else return NA
+        return(NA)
+      }
+    })
+
+  }
+
+  # make a large list
+  config <- purrr::transpose(attributes_df)
+  names(config) <- attributes_df$Attribute
+
+  # return config
+  return(config)
+
+}
+
+##### PARSE CONFIG #####
+
 #' Parse config to get columns types
 #'
 #' @param config datatable_dashboard_config.json as a datatable (`jsonlite::read_json("inst/datatable_dashboard_config.json")`)
@@ -30,7 +110,7 @@ get_colname_by_type <- function(type,
 
 get_renamed_colnames <- function(config) {
   # create a vector of display column names
-  new_col_names <- purrr::map(config, "col_name")
+  new_col_names <- purrr::map(config, "display_name")
 
   purrr::flatten_chr(new_col_names)
 }
@@ -44,6 +124,8 @@ get_renamed_colnames <- function(config) {
 get_na_replace_colnames <- function(config) {
   # create a vector of display column names
   col_names <- purrr::map(config, "na_replace")
+  # remove_na
+  col_names <- col_names[!is.na(col_names)]
   names(purrr::flatten(col_names))
 }
 

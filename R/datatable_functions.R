@@ -73,14 +73,6 @@ style_dashboard <- function(prepped_manifest,
                                      searching = FALSE,
                                      columnDefs = defs))
 
-  # FIXME: this is still hardcoded
-  if (as.logical(toupper(config$release_scheduled$color_past_due))) {
-
-    dt <- DT::formatStyle(table = dt,
-                          config$release_scheduled$col_name, "past_due",
-                          backgroundColor = DT::styleEqual("pd", "#FF9CA0"))
-  }
-
   dt
 }
 
@@ -93,12 +85,7 @@ style_dashboard <- function(prepped_manifest,
 #'
 
 prep_manifest_dash <- function(df,
-                               past_due_col,
                                config) {
-
-  # create past_due column for highlighting release_scheduled
-  today <- Sys.Date()
-  df$past_due <- ifelse(df[[past_due_col]] < today, "pd", NA)
 
   # convert TRUE / FALSE to icon html
 
@@ -108,9 +95,9 @@ prep_manifest_dash <- function(df,
 
   # convert certain columns to factors
   # enables drop down selection style filtering for column
-  df <- convert_column_type(df = df,
-                            col_names = get_colname_by_type(config, type = "drop_down_filter"),
-                            type = "factor")
+  # df <- convert_column_type(df = df,
+  #                           col_names = get_colname_by_type(config, type = "drop_down_filter"),
+  #                           type = "factor")
 
   # rearrange dataframe based on config order (any columns not in config are moved to end of dataframe)
   expected_colnames <- names(config)

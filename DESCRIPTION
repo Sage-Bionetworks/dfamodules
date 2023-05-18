@@ -1,6 +1,6 @@
 Package: dfamodules
 Title: Modules for the Data Flow App
-Version: 23.05.2
+Version: 23.05.3
 Authors@R: 
     person("Loren", "Wolfe", email = "loren.wolfe@sagebase.org", role = c("aut", "cre"))
 Description: Modules and functions for the Data Flow App.

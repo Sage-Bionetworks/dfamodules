@@ -28,7 +28,6 @@ mod_datatable_dashboard_server <- function(id, df, config){
 
     output$datatable_out <- DT::renderDataTable({
       create_dashboard(df(),
-                       "release_scheduled",
                        config)
     })
 

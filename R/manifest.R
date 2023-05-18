@@ -12,13 +12,13 @@ prep_manifest_dfa <- function(manifest,
   manifest[ manifest == "Not Applicable" ] <- NA
 
   # convert contribute and dataset to factor
-  manifest <- convert_column_type(df = manifest,
-                                  col_names = get_colname_by_type("drop_down_filter", config),
-                                  type = "factor")
+  # manifest <- convert_column_type(df = manifest,
+  #                                 col_names = get_colname_by_type("drop_down_filter", config),
+  #                                 type = "factor")
 
   # num_items to integer column
   manifest <- convert_column_type(df = manifest,
-                                  col_names = get_colname_by_type("integer", config),
+                                  col_names = get_colname_by_type("int", config),
                                   type = "integer")
 
   # release_scheduled and embargo to date columns

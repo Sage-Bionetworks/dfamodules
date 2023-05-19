@@ -11,11 +11,9 @@
 #'
 
 create_dashboard <- function(df,
-                             past_due_col,
                              config) {
 
   prepped_df <- prep_manifest_dash(df,
-                                   past_due_col,
                                    config)
 
   style_dashboard(prepped_df, config)

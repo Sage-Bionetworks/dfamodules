@@ -44,6 +44,7 @@ generate_dashboard_config <- function(schema_url,
 
   attributes_df$display_name <- display_names
 
+
   # SET TYPE=ICON
   # if icon = TRUE
   if (icon) {

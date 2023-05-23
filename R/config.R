@@ -39,8 +39,10 @@ generate_dashboard_config <- function(schema_url,
     attributes_df <- dplyr::arrange(attributes_df, match(Attribute, names(display_names)))
 
     # Assign display names
-    attributes_df$display_name <- ifelse(attributes_df$Attribute %in% names(display_names), unlist(display_names), NA)
+    display_name <- ifelse(attributes_df$Attribute %in% names(display_names), unlist(display_names), NA)
   }
+
+  attributes_df$display_name
 
   # SET TYPE=ICON
   # if icon = TRUE

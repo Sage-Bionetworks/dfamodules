@@ -36,6 +36,8 @@ style_dashboard <- function(prepped_manifest,
   # define center styling for icon columns
   center_list <- list(className = 'dt-center', targets = icon_idx)
 
+  defs <- list(center_list)
+
   # hide columns where display_name = NA
   display_names <- purrr::map(config, "display_name")
   hide_cols <- names(display_names[is.na(display_names)])
@@ -43,15 +45,9 @@ style_dashboard <- function(prepped_manifest,
   if (length(hide_cols) > 0) {
     hide_idx <- match(hide_cols, names(prepped_manifest))
     hide_list <- list(targets = hide_idx, visible = FALSE)
-  } else {
-    hide_list <- NULL
+    # append to defs
+    defs <- append(defs, hide_list)
   }
-
-
-  defs <- list(
-    center_list,
-    hide_list)
-
 
   # define styling for na_replacement
   na_replace_defs <- get_na_replace_defs(prepped_manifest,

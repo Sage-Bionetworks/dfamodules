@@ -34,20 +34,17 @@ style_dashboard <- function(prepped_manifest,
   icon_idx <- match(get_colname_by_type("icon", config), names(prepped_manifest))
 
   # define center styling for icon columns
-  center_list <- list(className = 'dt-center', targets = icon_idx)
+  center_list <- list(targets = icon_idx, className = 'dt-center')
 
-  defs <- list(center_list)
+  # hide columns where display_name = NA and that are not in config
+  display_names <- purrr::map_chr(config, "display_name")
+  hide_cols <- c(names(display_names[is.na(display_names)]),
+                 setdiff(names(prepped_manifest), names(config)))
+  hide_idx <- match(hide_cols, names(prepped_manifest))
+  hide_list <- list(targets = hide_idx, visible = FALSE)
 
-  # hide columns where display_name = NA
-  display_names <- purrr::map(config, "display_name")
-  hide_cols <- names(display_names[is.na(display_names)])
-
-  if (length(hide_cols) > 0) {
-    hide_idx <- match(hide_cols, names(prepped_manifest))
-    hide_list <- list(targets = hide_idx, visible = FALSE)
-    # append to defs
-    defs <- append(defs, hide_list)
-  }
+  defs <- list(center_list,
+               hide_list)
 
   # define styling for na_replacement
   na_replace_defs <- get_na_replace_defs(prepped_manifest,

@@ -36,22 +36,21 @@ style_dashboard <- function(prepped_manifest,
   # define center styling for icon columns
   center_list <- list(className = 'dt-center', targets = icon_idx)
 
-  # hide columns that are not included in the config
-  hide_cols <- setdiff(names(prepped_manifest), names(config))
+  # hide columns where display_name = NA
+  display_names <- purrr::map(config, "display_name")
+  hide_cols <- names(display_names[is.na(display_names)])
   hide_idx <- match(hide_cols, names(prepped_manifest))
   hide_list <- list(targets = hide_idx, visible = FALSE)
 
-  # capture icon and center styling in single variable
   defs <- list(
     center_list,
     hide_list)
+
 
   # define styling for na_replacement
   na_replace_defs <- get_na_replace_defs(prepped_manifest,
                                          config)
 
-
-  # combine the two lists
   defs <- append(defs, na_replace_defs)
 
   # get column names for datatable display

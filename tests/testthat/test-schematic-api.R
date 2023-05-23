@@ -7,7 +7,7 @@ asset_view <- "syn50896957"
 project_id <- "syn50896931"
 dataset_id <- "syn51219090"
 access_token <- Sys.getenv("SYNAPSE_PAT")
-base_url <- Sys.getenv("SCHEMATIC_BASE_URL_AWS")
+base_url <- "https://schematic.api.sagebionetworks.org" # production rest api instance
 testing_manifest_path <- "test_data/synapse_storage_manifest_dataflow.csv"
 schema_url <- "https://raw.githubusercontent.com/Sage-Bionetworks/data_flow/main/inst/data_flow_component.jsonld"
 

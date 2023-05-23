@@ -3,7 +3,7 @@
 #' Parse config to get columns types
 #'
 #' @param schema_url URL of a Schematic data model schema
-#' @param display_names Vector of display names to use in dashboard
+#' @param display_names A named list of display names to use in dashboard. Dashboard is ordered by this list. Attributes not included are hidden from the dashboard.
 #' @param icon Display `Valid_Values = TRUE/FALSE` attributes as icons in dashboard
 #' @param na_replace Named list indicating strings to replace NA with `na_replace <- list(attribute_1 = "na string 1", attribute_2 = "na string 2")`
 #' @param base_url Schematic REST API base URL
@@ -30,13 +30,17 @@ generate_dashboard_config <- function(schema_url,
     return(schematic_obj$content)
   }))
 
-  # ADD DISPLAY NAMES
+  # ADD DISPLAY NAMES / REORDER COLS
   # if null infer names from attribute_df
   if (is.null(display_names)) {
     display_names <- .simple_cap(gsub("_|-", " ", attributes_df$Attribute))
-  }
+  } else {
+    # reorder columns based on display names
+    attributes_df <- dplyr::arrange(attributes_df, match(Attribute, names(display_names)))
 
-  attributes_df$display_name <- display_names
+    # Assign display names
+    attributes_df$display_name <- ifelse(attributes_df$Attribute %in% names(display_names), unlist(display_names), NA)
+  }
 
   # SET TYPE=ICON
   # if icon = TRUE
@@ -67,7 +71,7 @@ generate_dashboard_config <- function(schema_url,
 
   }
 
-  # make a large list
+  # make a list
   config <- purrr::transpose(attributes_df)
   names(config) <- attributes_df$Attribute
 

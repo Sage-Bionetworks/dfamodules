@@ -15,7 +15,7 @@ generate_dashboard_config(
 \arguments{
 \item{schema_url}{URL of a Schematic data model schema}
 
-\item{display_names}{Vector of display names to use in dashboard}
+\item{display_names}{A named list of display names to use in dashboard. Dashboard is ordered by this list. Attributes not included are hidden from the dashboard.}
 
 \item{icon}{Display \code{Valid_Values = TRUE/FALSE} attributes as icons in dashboard}
 

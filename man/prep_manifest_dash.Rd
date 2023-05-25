@@ -4,7 +4,7 @@
 \alias{prep_manifest_dash}
 \title{Prepare a dataframe for a dashboard style datatable}
 \usage{
-prep_manifest_dash(df, past_due_col, config)
+prep_manifest_dash(df, config)
 }
 \arguments{
 \item{df}{A dataframe with the columns \code{Contributor}, \code{Dataset_Name}, \code{Dataset_Type}, \code{Num_Items}, \code{Release_Scheduled}, \code{Embargo}, \code{Standard_Compliance}, \code{QC_Compliance},\code{PHI_Detection_Compliance}, \code{Access_Controls_Compliance}, \code{Data_Portal}, \code{Released}, \code{past_due}}

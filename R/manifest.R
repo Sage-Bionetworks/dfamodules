@@ -148,6 +148,62 @@ generate_data_flow_manifest_skeleton <- function(asset_view,
   return(dfs_manifest)
 }
 
+#' Generate a data flow status manifest skeleton. Fills in the component, contributor, data type, number of items, and dataset name columns.
+#'
+#' @param dataflow_manifest_chunk Some rows of a data flow manifest. Generally will be `contributor`, `entityId`, `Component`, `dataset`, `dataset_name`
+#' @param schema_url URL of DataFlow schema jsonld (if on GitHub must be raw file)
+#' @param na_replace String to use in place of NA. Defaults to "Not Applicable". Enter NULL for `NA`.
+#' @param base_url Base URL of schematic API
+#'
+#' @export
+
+fill_dataflow_manifest <- function(dataflow_manifest_chunk,
+                                   schema_url,
+                                   na_replace = "Not Applicable",
+                                   base_url) {
+
+  # set NA if no replacement string provided
+  if (is.null(na_replace)) {
+    na_replace <- NA
+  }
+
+  # get attribute_df
+  vc_out <- visualize_component(schema_url,
+                                "DataFlow",
+                                base_url)
+  attributes_df <- vc_out$content
+
+  # find attributes that are not present in provided manifest chunk
+  missing_attributes_df <- attributes_df[!attributes_df$Attribute %in% names(dataflow_manifest_chunk),]
+
+  # fill in missing attributes
+  # TRUE/FALSE or Not Applicable
+  # Add NA_variable
+
+  missing_attributes_filled <- lapply(1:nrow(missing_attributes_df), function(i) {
+    if (grepl("TRUE", missing_attributes_df[i, "Valid Values"])) {
+      column_fill <- data.frame(rep("FALSE", nrow(dataflow_manifest_chunk)))
+    } else {
+      column_fill <- data.frame(rep(na_replace, nrow(dataflow_manifest_chunk)))
+    }
+
+    names(column_fill) <- missing_attributes_df$Attribute[i]
+
+    column_fill
+  }) %>%
+    dplyr::bind_cols()
+
+  # bind manifest chunks
+  dataflow_manifest <- cbind(dataflow_manifest_chunk, missing_attributes_filled)
+
+  # update empty cells to "Not Applicable"
+  dataflow_manifest[ dataflow_manifest == "" ] <- na_replace
+
+  # return filled columns with original manifest chunk
+  return(dataflow_manifest)
+}
+
+
 #' Check synapse for updates to data flow status manifest
 #'
 #' @param asset_view ID of view listing all project data assets. For example, for Synapse this would be the Synapse ID of the fileview listing all data assets for a given project.(i.e. master_fileview in config.yml)

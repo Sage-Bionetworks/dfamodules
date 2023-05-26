@@ -200,6 +200,7 @@ fill_dataflow_manifest <- function(dataflow_manifest_chunk,
 #'
 #' @param asset_view ID of view listing all project data assets. For example, for Synapse this would be the Synapse ID of the fileview listing all data assets for a given project.(i.e. master_fileview in config.yml)
 #' @param manifest_dataset_id Dataset ID for data flow status manifest to be updated
+#' @param na_replace Replacement string for NA cells
 #' @param access_token Synapse PAT
 #' @param base_url Base URL of schematic API (Defaults to  AWS version)
 #'

@@ -8,6 +8,7 @@ update_manifest_add_datasets(
   dataflow_manifest,
   get_all_manifests_out,
   asset_view,
+  na_replace,
   access_token,
   base_url
 )

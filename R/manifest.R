@@ -97,55 +97,47 @@ update_dfs_manifest <- function(dfs_manifest,
 
 #' Generate a data flow status manifest skeleton. Fills in the component, contributor, data type, number of items, and dataset name columns.
 #'
-#' @param storage_project_list List output from `storage_projects` schematic endpoint
 #' @param asset_view ID of view listing all project data assets. For example, for Synapse this would be the Synapse ID of the fileview listing all data assets for a given project.(i.e. master_fileview in config.yml)
-#' @param dataset_id Synapse ID of existing manifest
+#' @param schema_url URL of a dataFlow schema
+#' @param na_replace NA replacement string
 #' @param calc_num_items TRUE/FALSE. Calculate the number of items in each manifest.
+#' @param access_token A Synapse PAT
 #' @param base_url Base URL of schematic API
 #'
 #' @export
 
-generate_data_flow_manifest_skeleton <- function(asset_view,
-                                                 access_token,
-                                                 calc_num_items,
-                                                 base_url = "https://schematic-dev.api.sagebionetworks.org") {
+generate_dataflow_manifest <- function(asset_view,
+                                       schema_url,
+                                       na_replace,
+                                       calc_num_items,
+                                       access_token,
+                                       base_url = "https://schematic-dev.api.sagebionetworks.org") {
 
   # get manifests for each storage project
-  dfs_manifest <- get_all_manifests(asset_view = asset_view,
-                                    access_token = access_token,
-                                    base_url = base_url,
-                                    verbose = TRUE)
+  dataflow_manifest_chunk <- get_all_manifests(asset_view = asset_view,
+                                               access_token = access_token,
+                                               base_url = base_url,
+                                               verbose = TRUE)
 
   # count rows in each manifest listed
   if (calc_num_items) {
 
-    num_items <- calculate_items_per_manifest(df = dfs_manifest,
-                                              asset_view = asset_view,
-                                              access_token = access_token,
-                                              base_url = base_url)
+    dataflow_manifest_chunk$num_items <- calculate_items_per_manifest(df = dataflow_manifest_chunk,
+                                                                      asset_view = asset_view,
+                                                                      access_token = access_token,
+                                                                      base_url = base_url)
 
     # if calc_num_itmes = false, just fill in the column with Not Applicable
   } else {
-    num_items <- rep("Not Applicable", nrow(dfs_manifest))
+    dataflow_manifest_chunk$num_items <- rep(na_replace, nrow(dataflow_manifest_chunk))
   }
 
-  # add to manifest
-  dfs_manifest$num_items <- num_items
+  dataflow_manifest <- fill_dataflow_manifest(dataflow_manifest_chunk = dataflow_manifest_chunk,
+                                              schema_url = schema_url,
+                                              na_replace = na_replace,
+                                              base_url = base_url)
 
-  # add missing columns
-  # FIXME: Remove hardcoded column names
-  # This function will break if dataflow schema changes
-  # Source column names from schema?
-  dfs_manifest$release_scheduled <- rep("Not Applicable", nrow(dfs_manifest))
-  dfs_manifest$embargo <- rep("Not Applicable", nrow(dfs_manifest))
-  dfs_manifest$standard_compliance <- rep(FALSE, nrow(dfs_manifest))
-  dfs_manifest$data_portal <- rep(FALSE, nrow(dfs_manifest))
-  dfs_manifest$released <- rep(FALSE, nrow(dfs_manifest))
-
-  # update empty cells to "Not Applicable"
-  dfs_manifest[ dfs_manifest == "" ] <- "Not Applicable"
-
-  return(dfs_manifest)
+  return(dataflow_manifest)
 }
 
 #' Generate a data flow status manifest skeleton. Fills in the component, contributor, data type, number of items, and dataset name columns.
@@ -159,7 +151,7 @@ generate_data_flow_manifest_skeleton <- function(asset_view,
 
 fill_dataflow_manifest <- function(dataflow_manifest_chunk,
                                    schema_url,
-                                   na_replace = "Not Applicable",
+                                   na_replace = NULL,
                                    base_url) {
 
   # set NA if no replacement string provided
@@ -215,6 +207,7 @@ fill_dataflow_manifest <- function(dataflow_manifest_chunk,
 
 update_data_flow_manifest <- function(asset_view,
                                       manifest_dataset_id,
+                                      na_replace = NULL,
                                       access_token,
                                       base_url) {
 
@@ -224,10 +217,10 @@ update_data_flow_manifest <- function(asset_view,
   # get current data flow manifest
   dataflow_manifest_obj <- tryCatch(
     {
-      manifest_download(asset_view = asset_view,
-                        dataset_id = manifest_dataset_id,
-                        base_url = base_url,
-                        access_token = access_token)
+      dataset_manifest_download(asset_view = asset_view,
+                                dataset_id = manifest_dataset_id,
+                                base_url = base_url,
+                                access_token = access_token)
     },
     error = function(e) {
       message("manifest_download failed")
@@ -265,6 +258,7 @@ update_data_flow_manifest <- function(asset_view,
                                                             get_all_manifests_out = synapse_manifests,
                                                             asset_view = asset_view,
                                                             access_token = access_token,
+                                                            na_replace = "Not Applicable",
                                                             base_url = base_url)
 
   # check synapse for removed datasets
@@ -339,6 +333,7 @@ update_data_flow_manifest <- function(asset_view,
 update_manifest_add_datasets <- function(dataflow_manifest,
                                          get_all_manifests_out,
                                          asset_view,
+                                         na_replace,
                                          access_token,
                                          base_url) {
 
@@ -364,22 +359,13 @@ update_manifest_add_datasets <- function(dataflow_manifest,
       }
     )
 
-    # fill data flow manifest rows for missing datasets
-    # FIXME: Remove hardcoded column names
-    # This function will break if dataflow schema changes
-    # Source column names from schema?
-    new_datasets$release_scheduled <- rep("Not Applicable", nrow(new_datasets))
-    new_datasets$embargo <- rep("Not Applicable", nrow(new_datasets))
-    new_datasets$standard_compliance <- rep(FALSE, nrow(new_datasets))
-    new_datasets$data_portal <- rep(FALSE, nrow(new_datasets))
-    new_datasets$released <- rep(FALSE, nrow(new_datasets))
     new_datasets$num_items <- num_items
 
-    # remove uuid col (prep for rbind)
-    if (any(grepl("Uuid", names(dataflow_manifest)))) {
-      uuid_idx <- grep("Uuid", names(dataflow_manifest))
-      dataflow_manifest <- dataflow_manifest[, -uuid_idx]
-    }
+    # fill data flow manifest rows for missing datasets
+    new_datasets <- fill_dataflow_manifest(dataflow_manifest_chunk = new_datasets,
+                                           schema_url = schema_url,
+                                           na_replace = na_replace,
+                                           base_url = base_url)
 
     # bind together new dataset rows and data flow manifest
     dataflow_manifest <- rbind(dataflow_manifest, new_datasets)

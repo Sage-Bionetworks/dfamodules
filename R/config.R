@@ -35,6 +35,11 @@ generate_dashboard_config <- function(schema_url,
   if (is.null(display_names)) {
     display_names <- .simple_cap(gsub("_|-", " ", attributes_df$Attribute))
   } else {
+    # check provided display names
+    if (nrow(attributes_df) != length(display_names)) {
+      missing <- attributes_df[!attributes_df$Attribute %in% names(display_names), ]
+      stop(paste0("Missing display name for attribute(s): ", paste0(missing$Attribute, collapse = ", ")))
+    }
     # reorder columns based on display names
     attributes_df <- dplyr::arrange(attributes_df, match(Attribute, names(display_names)))
 

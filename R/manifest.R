@@ -209,6 +209,7 @@ fill_dataflow_manifest <- function(dataflow_manifest_chunk,
 update_data_flow_manifest <- function(asset_view,
                                       manifest_dataset_id,
                                       na_replace = NULL,
+                                      schema_url,
                                       access_token,
                                       base_url) {
 

@@ -258,8 +258,9 @@ update_data_flow_manifest <- function(asset_view,
   dataflow_manifest_updated <- update_manifest_add_datasets(dataflow_manifest = dataflow_manifest,
                                                             get_all_manifests_out = synapse_manifests,
                                                             asset_view = asset_view,
-                                                            access_token = access_token,
                                                             na_replace = "Not Applicable",
+                                                            schema_url = schema_url,
+                                                            access_token = access_token,
                                                             base_url = base_url)
 
   # check synapse for removed datasets
@@ -335,6 +336,7 @@ update_manifest_add_datasets <- function(dataflow_manifest,
                                          get_all_manifests_out,
                                          asset_view,
                                          na_replace,
+                                         schema_url,
                                          access_token,
                                          base_url) {
 

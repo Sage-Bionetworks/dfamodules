@@ -11,11 +11,9 @@
 #'
 
 create_dashboard <- function(df,
-                             past_due_col,
                              config) {
 
   prepped_df <- prep_manifest_dash(df,
-                                   past_due_col,
                                    config)
 
   style_dashboard(prepped_df, config)
@@ -36,24 +34,22 @@ style_dashboard <- function(prepped_manifest,
   icon_idx <- match(get_colname_by_type("icon", config), names(prepped_manifest))
 
   # define center styling for icon columns
-  center_list <- list(className = 'dt-center', targets = icon_idx)
+  center_list <- list(targets = icon_idx, className = 'dt-center')
 
-  # hide columns that are not included in the config
-  hide_cols <- setdiff(names(prepped_manifest), names(config))
+  # hide columns where display_name = NA and that are not in config
+  display_names <- purrr::map_chr(config, "display_name")
+  hide_cols <- c(names(display_names[is.na(display_names)]),
+                 setdiff(names(prepped_manifest), names(config)))
   hide_idx <- match(hide_cols, names(prepped_manifest))
   hide_list <- list(targets = hide_idx, visible = FALSE)
 
-  # capture icon and center styling in single variable
-  defs <- list(
-    center_list,
-    hide_list)
+  defs <- list(center_list,
+               hide_list)
 
   # define styling for na_replacement
   na_replace_defs <- get_na_replace_defs(prepped_manifest,
                                          config)
 
-
-  # combine the two lists
   defs <- append(defs, na_replace_defs)
 
   # get column names for datatable display
@@ -73,14 +69,6 @@ style_dashboard <- function(prepped_manifest,
                                      searching = FALSE,
                                      columnDefs = defs))
 
-  # FIXME: this is still hardcoded
-  if (as.logical(toupper(config$release_scheduled$color_past_due))) {
-
-    dt <- DT::formatStyle(table = dt,
-                          config$release_scheduled$col_name, "past_due",
-                          backgroundColor = DT::styleEqual("pd", "#FF9CA0"))
-  }
-
   dt
 }
 
@@ -93,12 +81,7 @@ style_dashboard <- function(prepped_manifest,
 #'
 
 prep_manifest_dash <- function(df,
-                               past_due_col,
                                config) {
-
-  # create past_due column for highlighting release_scheduled
-  today <- Sys.Date()
-  df$past_due <- ifelse(df[[past_due_col]] < today, "pd", NA)
 
   # convert TRUE / FALSE to icon html
 
@@ -108,9 +91,9 @@ prep_manifest_dash <- function(df,
 
   # convert certain columns to factors
   # enables drop down selection style filtering for column
-  df <- convert_column_type(df = df,
-                            col_names = get_colname_by_type(config, type = "drop_down_filter"),
-                            type = "factor")
+  # df <- convert_column_type(df = df,
+  #                           col_names = get_colname_by_type(config, type = "drop_down_filter"),
+  #                           type = "factor")
 
   # rearrange dataframe based on config order (any columns not in config are moved to end of dataframe)
   expected_colnames <- names(config)

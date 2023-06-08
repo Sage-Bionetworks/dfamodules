@@ -97,3 +97,15 @@ rearrange_dataframe <- function(df,
   dplyr::bind_cols(exected_df, other_df)
 
 }
+
+#' Convert a string so that first letter is capitalized
+#'
+#' @param x A string or vector of strings
+
+.simple_cap <- function(x) {
+  sapply(x, USE.NAMES = FALSE, function(i) {
+    s <- strsplit(i, " ")[[1]]
+    paste(toupper(substring(s, 1, 1)), substring(s, 2),
+          sep = "", collapse = " ")
+  })
+}

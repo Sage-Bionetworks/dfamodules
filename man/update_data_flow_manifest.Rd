@@ -7,6 +7,7 @@
 update_data_flow_manifest(
   asset_view,
   manifest_dataset_id,
+  na_replace = NULL,
   access_token,
   base_url
 )
@@ -15,6 +16,8 @@ update_data_flow_manifest(
 \item{asset_view}{ID of view listing all project data assets. For example, for Synapse this would be the Synapse ID of the fileview listing all data assets for a given project.(i.e. master_fileview in config.yml)}
 
 \item{manifest_dataset_id}{Dataset ID for data flow status manifest to be updated}
+
+\item{na_replace}{Replacement string for NA cells}
 
 \item{access_token}{Synapse PAT}
 

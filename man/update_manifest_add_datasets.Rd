@@ -9,6 +9,7 @@ update_manifest_add_datasets(
   get_all_manifests_out,
   asset_view,
   na_replace,
+  schema_url,
   access_token,
   base_url
 )

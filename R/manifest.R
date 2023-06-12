@@ -319,7 +319,7 @@ update_data_flow_manifest <- function(asset_view,
                    access_token = access_token,
                    manifest_record_type = "table_and_file",
                    base_url = base_url,
-                   schema_url = "https://raw.githubusercontent.com/Sage-Bionetworks/data_flow/main/inst/data_flow_component.jsonld")
+                   schema_url = schema_url)
   } else {
     print("No updates to manifest required at this time")
   }

@@ -2,9 +2,10 @@
 ## Functions that build on those defined in schematic_rest_api.R ##
 ###################################################################
 
-#' Call `storage/project/manifests` Schematic endpoint for a given asset_view
+#' Call `storage/project/manifests` Schematic endpoint for every project in a given asset_view
 #'
 #' @param asset_view ID of view listing all project data assets. For example, for Synapse this would be the Synapse ID of the fileview listing all data assets for a given project.(i.e. master_fileview in config.yml)
+#' @param na_replace NA replacement string
 #' @param access_token Synapse PAT
 #' @param base_url Base URL of schematic API
 #' @param verbose T/F for console messages
@@ -12,6 +13,7 @@
 #' @export
 
 get_all_manifests <- function(asset_view,
+                              na_replace = NULL,
                               access_token,
                               base_url = "https://schematic-dev.api.sagebionetworks.org",
                               verbose = FALSE) {
@@ -56,8 +58,14 @@ get_all_manifests <- function(asset_view,
     }
   })
 
+  all_manifests <- do.call("rbind", synapse_manifests_list)
+
+  if ( !is.null(na_replace) ) {
+    all_manifests[ is.na(all_manifests) | all_manifests == "" ] <- na_replace
+  }
+
   # return dataframe
-  return(do.call("rbind", synapse_manifests_list))
+  return(all_manifests)
 }
 
 

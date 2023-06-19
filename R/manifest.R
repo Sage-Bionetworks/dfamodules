@@ -209,6 +209,7 @@ fill_dataflow_manifest <- function(dataflow_manifest_chunk,
 update_data_flow_manifest <- function(asset_view,
                                       manifest_dataset_id,
                                       na_replace = NULL,
+                                      schema_url,
                                       access_token,
                                       base_url) {
 
@@ -242,6 +243,7 @@ update_data_flow_manifest <- function(asset_view,
   synapse_manifests <- tryCatch(
     {
       get_all_manifests(asset_view = asset_view,
+                        na_replace = na_replace,
                         access_token = access_token,
                         base_url = base_url,
                         verbose = FALSE)
@@ -258,8 +260,9 @@ update_data_flow_manifest <- function(asset_view,
   dataflow_manifest_updated <- update_manifest_add_datasets(dataflow_manifest = dataflow_manifest,
                                                             get_all_manifests_out = synapse_manifests,
                                                             asset_view = asset_view,
-                                                            access_token = access_token,
                                                             na_replace = "Not Applicable",
+                                                            schema_url = schema_url,
+                                                            access_token = access_token,
                                                             base_url = base_url)
 
   # check synapse for removed datasets
@@ -316,7 +319,7 @@ update_data_flow_manifest <- function(asset_view,
                    access_token = access_token,
                    manifest_record_type = "table_and_file",
                    base_url = base_url,
-                   schema_url = "https://raw.githubusercontent.com/Sage-Bionetworks/data_flow/main/inst/data_flow_component.jsonld")
+                   schema_url = schema_url)
   } else {
     print("No updates to manifest required at this time")
   }
@@ -335,6 +338,7 @@ update_manifest_add_datasets <- function(dataflow_manifest,
                                          get_all_manifests_out,
                                          asset_view,
                                          na_replace,
+                                         schema_url,
                                          access_token,
                                          base_url) {
 

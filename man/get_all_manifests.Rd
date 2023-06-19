@@ -2,10 +2,11 @@
 % Please edit documentation in R/api_wrappers.R
 \name{get_all_manifests}
 \alias{get_all_manifests}
-\title{Call \code{storage/project/manifests} Schematic endpoint for a given asset_view}
+\title{Call \code{storage/project/manifests} Schematic endpoint for every project in a given asset_view}
 \usage{
 get_all_manifests(
   asset_view,
+  na_replace = NULL,
   access_token,
   base_url = "https://schematic-dev.api.sagebionetworks.org",
   verbose = FALSE
@@ -14,6 +15,8 @@ get_all_manifests(
 \arguments{
 \item{asset_view}{ID of view listing all project data assets. For example, for Synapse this would be the Synapse ID of the fileview listing all data assets for a given project.(i.e. master_fileview in config.yml)}
 
+\item{na_replace}{NA replacement string}
+
 \item{access_token}{Synapse PAT}
 
 \item{base_url}{Base URL of schematic API}
@@ -21,5 +24,5 @@ get_all_manifests(
 \item{verbose}{T/F for console messages}
 }
 \description{
-Call \code{storage/project/manifests} Schematic endpoint for a given asset_view
+Call \code{storage/project/manifests} Schematic endpoint for every project in a given asset_view
 }

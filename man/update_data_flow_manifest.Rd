@@ -8,6 +8,7 @@ update_data_flow_manifest(
   asset_view,
   manifest_dataset_id,
   na_replace = NULL,
+  schema_url,
   access_token,
   base_url
 )

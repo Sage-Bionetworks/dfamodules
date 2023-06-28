@@ -60,9 +60,7 @@ mod_dataset_selection_server <- function(id,
 
     ns <- session$ns
 
-    ## DISPLAY STORAGE PROJECT DATASETS  ###########################################################
-    # call schematic API - get datasets for selected storage project
-
+    # GET DATASETS FOR SELECTED STORAGE PROJECT  ###############################
     datasets <- shiny::reactive({
 
       # show waiter
@@ -75,20 +73,27 @@ mod_dataset_selection_server <- function(id,
       # on exit - hide waiter
       on.exit(waiter::waiter_hide())
 
+      # call schematic API storage/project/datasets
       storage_project_datasets_obj <- storage_project_datasets(asset_view = asset_view,
                                                                project_id = storage_project_df()$id,
                                                                access_token = access_token,
                                                                base_url = base_url)
 
+      # return content
       storage_project_datasets_obj$content
     })
 
 
-    # render data table with scroll bar, no pagination, and filtering
+    #  RENDER TABLE ###########################################################
     output$dataset_tbl <- DT::renderDataTable({
+
+      # VALIDATE RETURNED OBJECT  ##############################################
+      # if there are no datasets returned, show message
       shiny::validate(
         shiny::need(nrow(datasets()) > 0, "No datasets available")
       )
+
+      # data table with scroll bar, no pagination, and filtering
       DT::datatable(datasets(),
                     selection = "multiple",
                     option = list(scrollY = 500,
@@ -98,7 +103,7 @@ mod_dataset_selection_server <- function(id,
                     filter = list(position = 'top', clear = TRUE))
     })
 
-    # SUBSET DATAFRAME
+    # CREATE RETURNED DATAFRAME OF SELECTED DATASETS  ##########################
     selected_datasets <- shiny::reactive({
 
       # get selected rows from datatable
@@ -109,7 +114,7 @@ mod_dataset_selection_server <- function(id,
       df[selected,]
     })
 
-    # RETURN DATA ON CLICK
+    # RETURN DATA ON CLICK  ####################################################
     shiny::eventReactive(input$submit_btn, {
 
       return(selected_datasets())

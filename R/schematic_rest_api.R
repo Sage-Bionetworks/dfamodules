@@ -182,9 +182,13 @@ storage_project_datasets <- function(asset_view,
     )
   }
 
+
   # return parsed matrix as dataframe
   parsed_df <-data.frame(parsed)
-  names(parsed_df) <- c("id", "name")
+
+  if ( nrow(parsed_df > 0) ) {
+    names(parsed_df) <- c("id", "name")
+  }
 
   # return a helpful object
   structure(

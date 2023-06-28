@@ -86,6 +86,9 @@ mod_dataset_selection_server <- function(id,
 
     # render data table with scroll bar, no pagination, and filtering
     output$dataset_tbl <- DT::renderDataTable({
+      shiny::validate(
+        shiny::need(nrow(datasets()) > 0, "No datasets available")
+      )
       DT::datatable(datasets(),
                     selection = "multiple",
                     option = list(scrollY = 500,

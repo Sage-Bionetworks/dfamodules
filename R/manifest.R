@@ -317,7 +317,7 @@ update_data_flow_manifest <- function(asset_view,
                    file_name = file_path,
                    restrict_rules = TRUE,
                    access_token = access_token,
-                   manifest_record_type = "table_and_file",
+                   manifest_record_type = "file_only",
                    base_url = base_url,
                    schema_url = schema_url)
   } else {

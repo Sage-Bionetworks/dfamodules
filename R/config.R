@@ -14,6 +14,7 @@ generate_dashboard_config <- function(schema_url,
                                       display_names = NULL,
                                       icon = TRUE,
                                       na_replace = NULL,
+                                      add_filters = NULL,
                                       base_url) {
 
   # GET VISUALIZE/COMPONENT
@@ -73,6 +74,24 @@ generate_dashboard_config <- function(schema_url,
       }
     })
 
+  }
+
+  # ADD ADDITIONAL FILTER WIDGET INFO
+  if (!is.null(add_filters)) {
+
+    attributes_df$create_filter <- sapply(1:nrow(attributes_df), function(i) {
+      # pull out attribute
+      attribute <- attributes_df$Attribute[i]
+      base_filters <- c("contributor", "dataset", "release_scheduled")
+      all_filters <- c(add_filters, base_filters)
+      # if attribute is in filters vector, mark TRUE
+      if (attribute %in% all_filters) {
+        return(TRUE)
+      } else {
+        # else return NA
+        return(FALSE)
+      }
+    })
   }
 
   # make a list

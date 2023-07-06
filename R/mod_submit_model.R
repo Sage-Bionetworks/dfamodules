@@ -61,7 +61,7 @@ mod_submit_model_server <- function(id,
                    file_name = path,
                    restrict_rules = TRUE,
                    access_token = access_token,
-                   manifest_record_type = "table_and_file",
+                   manifest_record_type = "file_only",
                    schema_url = schema_url,
                    base_url = base_url)
 

@@ -77,22 +77,22 @@ generate_dashboard_config <- function(schema_url,
   }
 
   # ADD ADDITIONAL FILTER WIDGET INFO
-  if (!is.null(add_filters)) {
+  attributes_df$create_filter <- sapply(1:nrow(attributes_df), function(i) {
+    # pull out attribute
+    attribute <- attributes_df$Attribute[i]
 
-    attributes_df$create_filter <- sapply(1:nrow(attributes_df), function(i) {
-      # pull out attribute
-      attribute <- attributes_df$Attribute[i]
-      base_filters <- c("contributor", "dataset", "release_scheduled")
-      all_filters <- c(add_filters, base_filters)
-      # if attribute is in filters vector, mark TRUE
-      if (attribute %in% all_filters) {
-        return(TRUE)
-      } else {
-        # else return NA
-        return(FALSE)
-      }
-    })
-  }
+    # assemble filter names based on function input
+    # base filter options are contributor, dataset, release_scheduled
+    filter_attributes <- c("contributor", "dataset", "release_scheduled")
+
+    if (!is.null(add_filters)) {
+      filter_attributes <- c(add_filters, filter_attributes)
+    }
+
+    # if attribute is in filters vector, mark TRUE
+    return(ifelse(attribute %in% filter_attributes, TRUE, FALSE))
+  })
+
 
   # make a list
   config <- purrr::transpose(attributes_df)

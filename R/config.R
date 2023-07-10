@@ -49,17 +49,13 @@ generate_dashboard_config <- function(schema_url,
 
   attributes_df$display_name <- display_names
 
+  # ID BOOLEAN ATTRIBUTES
+  log_cols <- grepl("TRUE", attributes_df$`Valid Values`) & grepl("FALSE", attributes_df$`Valid Values`)
 
-  # SET TYPE=ICON
-  # if icon = TRUE
-  if (icon) {
+  # if icon = T set to "icon"
+  # else set to "boolean"
 
-    # find logical columns
-    log_cols <- grepl("TRUE", attributes_df$`Valid Values`) &  grepl("FALSE", attributes_df$`Valid Values`)
-
-    # change type to icon
-    attributes_df[log_cols, "type"] <- "icon"
-  }
+  attributes_df[log_cols, "type"] <- ifelse(icon == TRUE, "icon", "boolean")
 
   # SET REPLACEMENT STRINGS FOR NA
   if (!is.null(na_replace)) {

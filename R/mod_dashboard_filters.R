@@ -4,7 +4,8 @@
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
-#'
+#' @export
+
 
 mod_dashboard_filters_ui <- function(id){
   ns <- NS(id)
@@ -15,7 +16,8 @@ mod_dashboard_filters_ui <- function(id){
 
 #' dashboard_filters Server Functions
 #'
-#'
+#' @export
+
 mod_dashboard_filters_server <- function(id, dashboard_config, manifest){
   moduleServer( id, function(input, output, session){
     ns <- session$ns

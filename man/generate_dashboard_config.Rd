@@ -9,6 +9,7 @@ generate_dashboard_config(
   display_names = NULL,
   icon = TRUE,
   na_replace = NULL,
+  add_filters = NULL,
   base_url
 )
 }

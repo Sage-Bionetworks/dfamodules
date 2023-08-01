@@ -28,7 +28,7 @@ generate_dashboard_config <- function(schema_url,
     schematic_obj <- schemas_get_node_validation_rules(schema_url,
                                                        lab,
                                                        base_url)
-    return(schematic_obj$content)
+    return(paste0(schematic_obj$content, collapse = ", "))
   }))
 
   # ADD DISPLAY NAMES / REORDER COLS

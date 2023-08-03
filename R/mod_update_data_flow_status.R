@@ -40,6 +40,14 @@ mod_update_data_flow_status_ui <- function(id){
                           choices = list("TRUE" = TRUE, "FALSE" = FALSE),
                           selected = NA),
 
+      shiny::selectizeInput(ns("status"),
+                         label = shiny::h4("Status"),
+                         choices = list("Not Scheduled" = "not_scheduled",
+                                        "Quarantine" = "quarantine",
+                                        "Released" = "released"),
+                         multiple = TRUE,
+                         options = list(maxItems = 1)),
+
       shiny::br(),
 
       # reset button
@@ -81,7 +89,8 @@ mod_update_data_flow_status_server <- function(id){
            embargo = embargo(),
            standard_compliance = input$standard_compliance,
            data_portal = input$data_portal,
-           released = input$released)
+           released = input$released,
+           status = input$status)
     })
 
 

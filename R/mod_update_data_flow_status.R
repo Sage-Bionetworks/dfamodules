@@ -40,12 +40,13 @@ mod_update_data_flow_status_ui <- function(id){
                           choices = list("TRUE" = TRUE, "FALSE" = FALSE),
                           selected = NA),
 
-      shiny::selectInput(ns("status"),
+      shiny::selectizeInput(ns("status"),
                          label = shiny::h4("Status"),
                          choices = list("Not Scheduled" = "not_scheduled",
                                         "Quarantine" = "quarantine",
                                         "Released" = "released"),
-                         selected = character(0)),
+                         multiple = TRUE,
+                         options = list(maxItems = 1),
 
       shiny::br(),
 

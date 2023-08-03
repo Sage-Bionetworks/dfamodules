@@ -72,7 +72,7 @@ mod_dashboard_filters_server <- function(id, dashboard_config, manifest){
         widget_type <- dashboard_config[[a]]$type
 
         # remove IsNA if present
-        widget_type <- sub(", IsNA", "", "widget_type")
+        widget_type <- sub(", IsNA", "", widget_type)
 
         label <- dashboard_config[[a]]$display_name
         id <- paste0(dashboard_config[[a]]$Attribute, "_filter")

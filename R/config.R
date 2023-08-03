@@ -83,7 +83,7 @@ generate_dashboard_config <- function(schema_url,
 
     # assemble filter names based on function input
     # base filter options are contributor, dataset, release_scheduled
-    filter_attributes <- c("contributor", "dataset", "release_scheduled")
+    filter_attributes <- c("contributor", "dataset", "release_scheduled", "status")
 
     if (!is.null(add_filters)) {
       filter_attributes <- c(add_filters, filter_attributes)

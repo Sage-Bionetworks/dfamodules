@@ -45,7 +45,7 @@ mod_update_data_flow_status_ui <- function(id){
                          choices = list("Not Scheduled" = "not_scheduled",
                                         "Quarantine" = "quarantine",
                                         "Released" = "released"),
-                         selected = NA),
+                         selected = character(0)),
 
       shiny::br(),
 

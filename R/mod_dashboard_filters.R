@@ -106,7 +106,7 @@ mod_dashboard_filters_server <- function(id, dashboard_config, manifest){
           radioButtons(ns(id),
                        label = label,
                        choices = c("TRUE", "FALSE"),
-                       selected = character(0),
+                       selected = "FALSE",
                        width = "75%")
         } else {
           stop("Data type ", widget_type, " not supported at this time")

@@ -46,7 +46,7 @@ mod_update_data_flow_status_ui <- function(id){
                                         "Quarantine" = "quarantine",
                                         "Released" = "released"),
                          multiple = TRUE,
-                         options = list(maxItems = 1),
+                         options = list(maxItems = 1)),
 
       shiny::br(),
 

@@ -105,8 +105,8 @@ mod_dashboard_filters_server <- function(id, dashboard_config, manifest){
         } else if (widget_type == "boolean" | widget_type == "icon") {
           radioButtons(ns(id),
                        label = label,
-                       choices = c("TRUE", "FALSE", "null"),
-                       selected = "null",
+                       choices = c("TRUE", "FALSE"),
+                       selected = character(0),
                        width = "75%")
         } else {
           stop("Data type ", widget_type, " not supported at this time")

@@ -40,12 +40,12 @@ mod_update_data_flow_status_ui <- function(id){
                           choices = list("TRUE" = TRUE, "FALSE" = FALSE),
                           selected = NA),
 
-      shiny::checkboxGroupInput(ns("status"),
-                                label = shiny::h4("Status"),
-                                choices = list("Not Scheduled" = "not_scheduled",
-                                               "Quarantine" = "quarantine",
-                                               "Released" = "released"),
-                                selected = c("not_scheduled", "quarantine", "released")),
+      shiny::selectInput(ns("status"),
+                         label = shiny::h4("Status"),
+                         choices = list("Not Scheduled" = "not_scheduled",
+                                        "Quarantine" = "quarantine",
+                                        "Released" = "released"),
+                         selected = NA),
 
       shiny::br(),
 

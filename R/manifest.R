@@ -11,11 +11,6 @@ prep_manifest_dfa <- function(manifest,
   # convert "Not Applicable" to NA
   manifest[ manifest == "Not Applicable" ] <- NA
 
-  # convert contribute and dataset to factor
-  # manifest <- convert_column_type(df = manifest,
-  #                                 col_names = get_colname_by_type("drop_down_filter", config),
-  #                                 type = "factor")
-
   # num_items to integer column
   manifest <- convert_column_type(df = manifest,
                                   col_names = get_colname_by_type("int", config),

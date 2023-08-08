@@ -1,6 +1,4 @@
-#########################################################
-## Functions that create stylized datatable dashboards ##
-#########################################################
+## FUNCTIONS TO CREATE A STYALIZED DASHBOARD FROM A DATAFLOW MANIFEST ##########
 
 #' Create a dashboard style datatable
 #'
@@ -13,9 +11,13 @@
 create_dashboard <- function(df,
                              config) {
 
+  ## PREP MANIFEST FOR DASHBOARD ###############################################
+  # create icons, reorder columns
   prepped_df <- prep_manifest_dash(df,
                                    config)
 
+  ## STYLE DASHBOARD ###########################################################
+  # center icon columns, hide columns, insert na replacement text, add display names
   style_dashboard(prepped_df, config)
 }
 
@@ -30,34 +32,43 @@ create_dashboard <- function(df,
 style_dashboard <- function(prepped_manifest,
                             config) {
 
+  ## CENTER ICONS ##############################################################
   # get icon col index
-  icon_idx <- match(get_colname_by_type("icon", config), names(prepped_manifest))
+  icon_idx <- match(get_colname_by_type("icon", config),
+                    names(prepped_manifest))
 
   # define center styling for icon columns
   center_list <- list(targets = icon_idx, className = 'dt-center')
 
+  ## HIDE COLUMNS  #############################################################
   # hide columns where display_name = NA and that are not in config
   display_names <- purrr::map_chr(config, "display_name")
+
   hide_cols <- c(names(display_names[is.na(display_names)]),
                  setdiff(names(prepped_manifest), names(config)))
+
   hide_idx <- match(hide_cols, names(prepped_manifest))
+
   hide_list <- list(targets = hide_idx, visible = FALSE)
 
+  ## CREATE LIST OF COLUMN DEFINITIONS  ########################################
   defs <- list(center_list,
                hide_list)
 
-  # define styling for na_replacement
+  ## CREATE NA REPLACEMENT COL DEFINITIONS #####################################
   na_replace_defs <- get_na_replace_defs(prepped_manifest,
                                          config)
 
   defs <- append(defs, na_replace_defs)
 
+  ## CREATE COLUMN NAMES  ######################################################
   # get column names for datatable display
   colnames <- get_renamed_colnames(config)
+
   # put empty string in front to account for rownum column
   colnames <- c("", colnames)
 
-  # create datatable
+  ## CREATE DATA TABLE   #######################################################
   dt <- DT::datatable(prepped_manifest,
                       escape = FALSE,
                       selection = "none",
@@ -83,36 +94,30 @@ style_dashboard <- function(prepped_manifest,
 prep_manifest_dash <- function(df,
                                config) {
 
+  ## CONVERT ICON COLUMNS ######################################################
   # convert TRUE / FALSE to icon html
 
   df <- convert_column_type(df = df,
                             col_names = get_colname_by_type(config, type = "icon"),
                             type = "icon")
 
-  # convert certain columns to factors
-  # enables drop down selection style filtering for column
-  # df <- convert_column_type(df = df,
-  #                           col_names = get_colname_by_type(config, type = "drop_down_filter"),
-  #                           type = "factor")
-
-  # rearrange dataframe based on config order (any columns not in config are moved to end of dataframe)
+  ## REARRANGE DATAFRAME #######################################################
+  # order based on config
+  # columns not in config are moved to the end of the dataframe
   expected_colnames <- names(config)
+
   df <- rearrange_dataframe(df, expected_colnames)
 
   return(df)
 }
 
-
-## HELPERS ##############################################################################
-
-#' NA replacement - datatable custom JS
+#' Dynamically create custom NA replacement text
 #'
-#' @param col_index target columns index
-#' @param na_replacement text to replace NA
+#' @param col_index target column index
+#' @param na_replacement NA replacement string
 #'
 #' @importFrom glue glue
 #' @export
-#'
 
 dt_replace_na <- function(col_index,
                           na_replacement) {

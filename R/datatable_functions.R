@@ -100,8 +100,9 @@ prep_manifest_dash <- function(df,
 
   df <- rearrange_dataframe(df, expected_colnames)
 
-  ## CREATE COLUMN NAMES  ######################################################
+  ## RENAME COLUMN NAMES  ######################################################
   # get column names for datatable display
+  # FIXME: Not sure why using colnames parameter in DT::datatable broke
   colnames <- purrr::map(config, "display_name")
 
   # if colnames isn't null, arrange in order of dataframe

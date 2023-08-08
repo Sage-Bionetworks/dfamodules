@@ -25,7 +25,7 @@ generate_dashboard_config <- function(schema_url,
 
   # GET VALIDATION RULES FOR EACH ATTRIBUTE ####################################
   # call schemas_get_validation_rules schematic for each attribute in attributes_df
-  attributes_df$type <- unlist(
+  attributes_df$validation_rules <- unlist(
 
     sapply(attributes_df$Label, USE.NAMES = FALSE, function(lab) {
 
@@ -33,9 +33,15 @@ generate_dashboard_config <- function(schema_url,
                                                          lab,
                                                          base_url)
 
+      # collapse multiple validation rules into a comma separated string
+      validation_rules <- paste0(schematic_obj$content, collapse = ", ")
 
-      return(paste0(schematic_obj$content, collapse = ", "))
+      return(validation_rules)
     }))
+
+  # PARSE VALIDATION RULES FOR TYPE  ###########################################
+  # remove IsNA
+  attributes_df$type <- sub(", IsNA", "", attributes_df$validation_rules)
 
   # ADD DISPLAY NAMES / REORDER COLS  ##########################################
   # if null infer names from attribute_df

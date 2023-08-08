@@ -61,19 +61,11 @@ style_dashboard <- function(prepped_manifest,
 
   defs <- append(defs, na_replace_defs)
 
-  ## CREATE COLUMN NAMES  ######################################################
-  # get column names for datatable display
-  colnames <- get_renamed_colnames(config)
-
-  # put empty string in front to account for rownum column
-  colnames <- c("", colnames)
-
   ## CREATE DATA TABLE   #######################################################
   dt <- DT::datatable(prepped_manifest,
                       escape = FALSE,
                       selection = "none",
                       filter = "none",
-                      colnames = colnames,
                       options = list(scrollX = TRUE,
                                      scrollY = 500,
                                      bPaginate = FALSE,
@@ -107,6 +99,16 @@ prep_manifest_dash <- function(df,
   expected_colnames <- names(config)
 
   df <- rearrange_dataframe(df, expected_colnames)
+
+  ## CREATE COLUMN NAMES  ######################################################
+  # get column names for datatable display
+  colnames <- purrr::map(config, "display_name")
+
+  # if colnames isn't null, arrange in order of dataframe
+  if (!is.null(colnames)) {
+    display_colnames <- as.character(ifelse(is.na(colnames), names(colnames), colnames))
+    names(df) <- display_colnames
+  }
 
   return(df)
 }

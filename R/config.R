@@ -17,31 +17,51 @@ generate_dashboard_config <- function(schema_url,
                                       add_filters = NULL,
                                       base_url) {
 
-  # GET VISUALIZE/COMPONENT
+  # GET VISUALIZE/COMPONENT ####################################################
   vc_out <- visualize_component(schema_url,
                                 "DataFlow",
                                 base_url)
   attributes_df <- vc_out$content
 
-  # GET VALIDATION RULES FOR EACH ATTRIBUTE
-  attributes_df$type <- unlist(sapply(attributes_df$Label, USE.NAMES = FALSE, function(lab) {
-    schematic_obj <- schemas_get_node_validation_rules(schema_url,
-                                                       lab,
-                                                       base_url)
-    return(paste0(schematic_obj$content, collapse = ", "))
-  }))
+  # GET VALIDATION RULES FOR EACH ATTRIBUTE ####################################
+  # call schemas_get_validation_rules schematic for each attribute in attributes_df
+  attributes_df$validation_rules <- unlist(
 
-  # ADD DISPLAY NAMES / REORDER COLS
+    sapply(attributes_df$Label, USE.NAMES = FALSE, function(lab) {
+
+      schematic_obj <- schemas_get_node_validation_rules(schema_url,
+                                                         lab,
+                                                         base_url)
+
+      # collapse multiple validation rules into a comma separated string
+      validation_rules <- paste0(schematic_obj$content, collapse = ", ")
+
+      return(validation_rules)
+    }))
+
+  # PARSE VALIDATION RULES FOR TYPE  ###########################################
+  # remove IsNA
+  attributes_df$type <- sub(", IsNA", "", attributes_df$validation_rules)
+
+  # ADD DISPLAY NAMES / REORDER COLS  ##########################################
   # if null infer names from attribute_df
   if (is.null(display_names)) {
+
+    # capitalize and insert spaces where there are "_" and "-"
     display_names <- .simple_cap(gsub("_|-", " ", attributes_df$Attribute))
+
   } else {
-    # check provided display names
+
+    # check provided display names match length of attributes_df
     if (nrow(attributes_df) != length(display_names)) {
+
+      # throw error
       missing <- attributes_df[!attributes_df$Attribute %in% names(display_names), ]
+
       stop(paste0("Missing display name for attribute(s): ", paste0(missing$Attribute, collapse = ", ")))
     }
-    # reorder columns based on display names
+
+    # reorder columns based on user input display names
     attributes_df <- dplyr::arrange(attributes_df, match(Attribute, names(display_names)))
 
     # Assign display names
@@ -50,8 +70,9 @@ generate_dashboard_config <- function(schema_url,
 
   attributes_df$display_name <- display_names
 
-  # ID BOOLEAN ATTRIBUTES
-  log_cols <- grepl("TRUE", attributes_df$`Valid Values`) & grepl("FALSE", attributes_df$`Valid Values`)
+  # MARK BOOLEAN ATTRIBUTES ####################################################
+  # find attributes that have TRUE/FALSE set as valid values
+  log_cols <- grepl("TRUE", toupper(attributes_df$`Valid Values`) & grepl("FALSE", toupper(attributes_df$`Valid Values`)))
 
   # if icon = T set to "icon"
   # else set to "boolean"

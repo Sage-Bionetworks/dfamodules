@@ -48,20 +48,21 @@ mod_dashboard_filters_server <- function(id, dashboard_config, manifest){
       # get single attribute config
       attribute_config <- dashboard_config[names(dashboard_config) %in% a][[a]]
 
+
       # if attribute is a date, get max and min
-      if (type == "date" | type == "int") {
+      if (attribute_config$type == "date" | attribute_config$type == "int") {
         min <- min(manifest[[a]], na.rm = TRUE)
         max <- max(manifest[[a]], na.rm = TRUE)
 
         # if attribute is a string, get unique entries
-      } else if (type == "str") {
+      } else if (attribute_config$type == "str") {
         choices <- unique(manifest[[a]])
       }
 
       return(list(min = min,
                   max = max,
                   choices = choices,
-                  type = type))
+                  type = attribute_config$type))
 
     })
 

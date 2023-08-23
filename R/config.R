@@ -72,7 +72,7 @@ generate_dashboard_config <- function(schema_url,
 
   # MARK BOOLEAN ATTRIBUTES ####################################################
   # find attributes that have TRUE/FALSE set as valid values
-  log_cols <- grepl("TRUE", toupper(attributes_df$`Valid Values`) & grepl("FALSE", toupper(attributes_df$`Valid Values`)))
+  log_cols <- grepl("TRUE", toupper(attributes_df$`Valid Values`)) & grepl("FALSE", toupper(attributes_df$`Valid Values`))
 
   # if icon = T set to "icon"
   # else set to "boolean"
@@ -121,7 +121,6 @@ generate_dashboard_config <- function(schema_url,
 
   # return config
   return(config)
-
 }
 
 ##### PARSE CONFIG #####

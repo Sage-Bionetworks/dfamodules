@@ -11,7 +11,8 @@ mod_dashboard_filters_ui <- function(id){
   ns <- NS(id)
   tagList(
     uiOutput(ns("filters")),
-    actionButton(ns("apply_filter_btn"), "Apply filters")
+    actionButton(ns("apply_filter_btn"), "Apply filters"),
+    actionButton(ns("clear_filter_btn"), "Clear filters")
   )
 }
 
@@ -23,6 +24,9 @@ mod_dashboard_filters_server <- function(id, dashboard_config, manifest){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
 
+    # store manifest in reactiveVal
+    # this reactiveVal is modified when apply_filter_btn or clear_filter_btn
+    # are clicked
     filtered_manifest <- reactiveVal(manifest)
 
     # pull out filter configuration details
@@ -134,6 +138,7 @@ mod_dashboard_filters_server <- function(id, dashboard_config, manifest){
     })
 
     ## SUBSET MANIFEST  ########################################################
+    # on click of apply_filter_btn - subset manifest
 
     observeEvent(input$apply_filter_btn, {
       # for each filter attribute
@@ -187,6 +192,13 @@ mod_dashboard_filters_server <- function(id, dashboard_config, manifest){
 
       # # subset manifest
       filtered_manifest(manifest[keep_rows, ])
+    })
+
+    ## CLEAR FILTERS
+    # on click of clear_filter_btn - clear filters and display full manifest
+
+    observeEvent(input$clear_filter_btn, {
+      filtered_manifest(manifest)
     })
 
 

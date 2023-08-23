@@ -10,7 +10,8 @@
 mod_dashboard_filters_ui <- function(id){
   ns <- NS(id)
   tagList(
-    uiOutput(ns("filters"))
+    uiOutput(ns("filters")),
+    actionButton(ns("apply_filter_btn"), "Apply filters")
   )
 }
 
@@ -21,6 +22,8 @@ mod_dashboard_filters_ui <- function(id){
 mod_dashboard_filters_server <- function(id, dashboard_config, manifest){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
+
+    filtered_manifest <- reactiveVal(manifest)
 
     # pull out filter configuration details
     is_filter <- unlist(purrr::map(dashboard_config, "create_filter"))
@@ -132,8 +135,7 @@ mod_dashboard_filters_server <- function(id, dashboard_config, manifest){
 
     ## SUBSET MANIFEST  ########################################################
 
-    filtered_manifest <- reactive({
-
+    observeEvent(input$apply_filter_btn, {
       # for each filter attribute
       # output T/F vector indicating which rows meet filter criteria
       filter_list <- lapply(1:length(filter_attributes), function(i) {
@@ -184,10 +186,11 @@ mod_dashboard_filters_server <- function(id, dashboard_config, manifest){
       keep_rows <- rowSums(filter_tbl, na.rm = TRUE) == ncol(filter_tbl)
 
       # # subset manifest
-      manifest[keep_rows, ]
+      filtered_manifest(manifest[keep_rows, ])
     })
 
-    return(filtered_manifest)
+
+    return(reactive({filtered_manifest()}))
   })
 }
 

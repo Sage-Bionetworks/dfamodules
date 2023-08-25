@@ -2,15 +2,15 @@
 % Please edit documentation in R/datatable_functions.R
 \name{dt_replace_na}
 \alias{dt_replace_na}
-\title{NA replacement - datatable custom JS}
+\title{Dynamically create custom NA replacement text}
 \usage{
 dt_replace_na(col_index, na_replacement)
 }
 \arguments{
-\item{col_index}{target columns index}
+\item{col_index}{target column index}
 
-\item{na_replacement}{text to replace NA}
+\item{na_replacement}{NA replacement string}
 }
 \description{
-NA replacement - datatable custom JS
+Dynamically create custom NA replacement text
 }

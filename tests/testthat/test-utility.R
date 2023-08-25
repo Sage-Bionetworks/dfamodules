@@ -32,7 +32,7 @@ test_that("convert_column_type", {
                                     col_names = "logic",
                                     type = "logical")
 
-  expected_output <- data.frame(int = as.integer(1),
+  expected_output <- data.frame(int = as.numeric(1),
                                 factor = as.factor("dog"),
                                 logic = TRUE,
                                 char = "1",

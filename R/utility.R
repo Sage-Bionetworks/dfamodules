@@ -49,7 +49,7 @@ convert_column_type <- function(df,
   } else if (type == "logical") {
     df[col_names] <- sapply(df[,col_names], as.logical)
   } else if (type == "integer") {
-    df[col_names] <- sapply(df[,col_names], as.integer)
+    df[col_names] <- sapply(df[,col_names], as.numeric)
   } else if (type == "icon") {
     df[col_names] <- sapply(df[,col_names], true_false_icon)
   } else {

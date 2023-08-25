@@ -10,7 +10,9 @@
 mod_dashboard_filters_ui <- function(id){
   ns <- NS(id)
   tagList(
-    uiOutput(ns("filters"))
+    uiOutput(ns("filters")),
+    actionButton(ns("apply_filter_btn"), "Apply filters"),
+    actionButton(ns("clear_filter_btn"), "Clear filters")
   )
 }
 
@@ -18,9 +20,14 @@ mod_dashboard_filters_ui <- function(id){
 #'
 #' @export
 
-mod_dashboard_filters_server <- function(id, dashboard_config, manifest){
-  moduleServer( id, function(input, output, session){
+mod_dashboard_filters_server <- function(id, dashboard_config, manifest) {
+  moduleServer( id, function(input, output, session) {
     ns <- session$ns
+
+    # store manifest in reactiveVal
+    # this reactiveVal is modified when apply_filter_btn or clear_filter_btn
+    # are clicked
+    filtered_manifest <- reactiveVal(manifest)
 
     # pull out filter configuration details
     is_filter <- unlist(purrr::map(dashboard_config, "create_filter"))
@@ -41,23 +48,20 @@ mod_dashboard_filters_server <- function(id, dashboard_config, manifest){
       # get single attribute config
       attribute_config <- dashboard_config[names(dashboard_config) %in% a][[a]]
 
-      # remove IsNA for now
-      type <- sub(", IsNA", "", attribute_config$type)
-
       # if attribute is a date, get max and min
-      if (type == "date" | type == "int") {
+      if (attribute_config$type == "date" | attribute_config$type == "int") {
         min <- min(manifest[[a]], na.rm = TRUE)
         max <- max(manifest[[a]], na.rm = TRUE)
 
         # if attribute is a string, get unique entries
-      } else if (type == "str") {
+      } else if (attribute_config$type == "str") {
         choices <- unique(manifest[[a]])
       }
 
       return(list(min = min,
                   max = max,
                   choices = choices,
-                  type = type))
+                  type = attribute_config$type))
 
     })
 
@@ -70,9 +74,6 @@ mod_dashboard_filters_server <- function(id, dashboard_config, manifest){
 
         # parse dashboard config
         widget_type <- dashboard_config[[a]]$type
-
-        # remove IsNA if present
-        widget_type <- sub(", IsNA", "", widget_type)
 
         label <- dashboard_config[[a]]$display_name
         id <- paste0(dashboard_config[[a]]$Attribute, "_filter")
@@ -131,9 +132,9 @@ mod_dashboard_filters_server <- function(id, dashboard_config, manifest){
     })
 
     ## SUBSET MANIFEST  ########################################################
+    # on click of apply_filter_btn - subset manifest
 
-    filtered_manifest <- reactive({
-
+    observeEvent(input$apply_filter_btn, {
       # for each filter attribute
       # output T/F vector indicating which rows meet filter criteria
       filter_list <- lapply(1:length(filter_attributes), function(i) {
@@ -184,12 +185,58 @@ mod_dashboard_filters_server <- function(id, dashboard_config, manifest){
       keep_rows <- rowSums(filter_tbl, na.rm = TRUE) == ncol(filter_tbl)
 
       # # subset manifest
-      manifest[keep_rows, ]
+      filtered_manifest(manifest[keep_rows, ])
     })
 
-    return(filtered_manifest)
+    ## CLEAR FILTERS
+    # on click of clear_filter_btn - clear filters and display full manifest
+
+    observeEvent(input$clear_filter_btn, {
+
+      lapply(filter_attributes, function(a) {
+
+        # parse dashboard config
+        widget_type <- dashboard_config[[a]]$type
+
+        label <- dashboard_config[[a]]$display_name
+        id <- paste0(dashboard_config[[a]]$Attribute, "_filter")
+
+        # for strings create selectInput widget
+        if (widget_type == "str") {
+          shiny::updateSelectInput(session = session,
+                                   inputId = id,
+                                   selected = filter_config[[a]]$choices)
+
+          # for dates create dateRangeInput widgets
+        } else if (widget_type == "date") {
+          shiny::updateDateRangeInput(session = session,
+                                      inputId = id,
+                                      start = filter_config[[a]]$min,
+                                      end = filter_config[[a]]$max)
+
+          # for integers create sliderInput
+        } else if (widget_type == "int") {
+          shiny::updateSliderInput(session = session,
+                                   inputId = id,
+                                   value = c(filter_config[[a]]$min, filter_config[[a]]$max))
+
+          # for booleans create radio button input
+        } else if (widget_type == "boolean" | widget_type == "icon") {
+          shiny::updateRadioButtons(session = session,
+                                    inputId = id,
+                                    selected = "FALSE")
+        }
+
+        # Revert dashboard manifest to original / unfiltered
+        filtered_manifest(manifest)
+      })
+    })
+
+    return(reactive({filtered_manifest()}))
+
   })
 }
+
 
 ## To be copied in the UI
 # mod_dashboard_filters_ui("dashboard_filters_1")

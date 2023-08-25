@@ -1,5 +1,27 @@
+schema_url <- "https://raw.githubusercontent.com/Sage-Bionetworks/dfamodules/fix-test/tests/testthat/test_data/data_model/dataflow_component.jsonld"
+schematic_api_url <- "https://schematic.api.sagebionetworks.org"
+
 # read in test config
-config <- jsonlite::read_json("test_data/datatable_dashboard_config.json")
+config <- generate_dashboard_config(schema_url = schema_url,
+                                    display_names = list(contributor = "Contributor",
+                                                         entityId = "Synapse ID",
+                                                         dataset = "Data Type",
+                                                         dataset_name = "Dataset Folder Name",
+                                                         num_items = "Number of Items in Manifest",
+                                                         status = "Data Flow Status",
+                                                         release_scheduled = "Release Date",
+                                                         embargo = "Embargo",
+                                                         standard_compliance = "QC Checks",
+                                                         released = "Released",
+                                                         data_portal = "Data Portal",
+                                                         Component = NA),
+                                    icon = TRUE,
+                                    na_replace = list(num_items = "No Manifest",
+                                                      release_scheduled = "Not Scheduled",
+                                                      embargo = "No Embargo",
+                                                      dataset = "No Manifest"),
+                                    add_filter = c("num_items", "data_portal"),
+                                    base_url = schematic_api_url)
 
 # make mock synapse / submission ready manifest
 manifest_synapse <- data.frame(Component = rep("DataFlow", 4),
@@ -8,6 +30,7 @@ manifest_synapse <- data.frame(Component = rep("DataFlow", 4),
                                dataset_name = paste0("dataset_name", 1:4),
                                dataset = rep("Biospecimen", 4),
                                num_items = c(rep("Not Applicable", 3), "1"),
+                               status = c("not_scheduled", "not_scheduled", "quarantine", "quarantine"),
                                release_scheduled = c(rep("Not Applicable", 2),
                                                      rep("2050-01-01", 2)),
                                embargo = c(rep("Not Applicable", 2),
@@ -23,6 +46,7 @@ manifest_dfa <- data.frame(Component = rep("DataFlow", 4),
                            dataset_name = paste0("dataset_name", 1:4),
                            dataset = rep("Biospecimen", 4),
                            num_items = c(rep(NA, 3), 1),
+                           status = c("not_scheduled", "not_scheduled", "quarantine", "quarantine"),
                            release_scheduled = c(rep(as.Date(NA), 2),
                                                  rep(as.Date("2050-01-01"), 2)),
                            embargo = c(rep(as.Date(NA), 2),

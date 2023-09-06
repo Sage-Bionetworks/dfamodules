@@ -62,6 +62,8 @@ mod_datatable_filters_server <- function(id,
 
     # CHANGE "NA" TO NA --------
     selected_datasets_modified <- shiny::reactive({
+
+      req(input$dataset_select)
       # replace string "NA" with true NA
       datasets <- input$dataset_select
       datasets[datasets == "NA"] <- NA

@@ -373,12 +373,6 @@ visualize_component <- function(schema_url,
   # GET
   res <- httr::GET(url = url, query = params)
 
-  # check that application returns json
-  # even when json = TRUE, http_type = "text/csv"
-  # if (httr::http_type(res) != "application/json") {
-  #   stop("API did not return json", call. = FALSE)
-  # }
-
   # pull out content from request
   parsed <- suppressMessages(httr::content(res))
 

@@ -13,7 +13,9 @@ jobs:
     
     env:
       SYNAPSE_PAT: ${{ secrets.SYNAPSE_PAT }}
-      SCHEMATIC_BASE_URL_AWS: ${{ secrets.SCHEMATIC_BASE_URL_AWS }}
+      SCHEMATIC_URL_DEV: https://schematic-dev.api.sagebionetworks.org
+      SCHEMATIC_URL_STAGING: https://schematic-staging.api.sagebionetworks.org
+      SCHEMATIC_URL_PROD: https://schematic.api.sagebionetworks.org
 
     steps:
       - uses: actions/checkout@v3
@@ -25,6 +27,23 @@ jobs:
         run: |
           install.packages(c("remotes", "rcmdcheck", "devtools"))
           remotes::install_deps(dependencies = TRUE)
+        shell: Rscript {0}
+      - name: Add schematic base URL to Renviron
+        run: |
+    
+          refName <- Sys.getenv("GITHUB_REF_NAME")
+          
+          if (grepl("v[0-9]+.[0-9]+.[0-9]+", refName)) {
+            message("Testing using production schematic API instance")
+            renviron <- "DFA_SCHEMATIC_API_URL = '${{ env.SCHEMATIC_URL_PROD }}'"
+            } else if (refName == "main") {
+              renviron <- "DFA_SCHEMATIC_API_URL = '${{ env.SCHEMATIC_URL_STAGING }}'"
+              message("Testing using staging schematic API instance")
+          } else {
+            appName <- paste(appName, "testing", sep = "-")
+            renviron <- "DFA_SCHEMATIC_API_URL = '${{ env.SCHEMATIC_URL_DEV }}'"
+            message("Testing using dev schematic API instance")
+          }
         shell: Rscript {0}
       - name: Check
         run: rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error")

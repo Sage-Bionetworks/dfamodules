@@ -32,6 +32,7 @@ dataset_manifest_download <- function(asset_view,
 
   # set up parameters for httr::get call
   params <- list(
+    `access_token` = access_token,
     `asset_view` = asset_view,
     `dataset_id` = dataset_id,
     `as_json` = TRUE,
@@ -39,11 +40,7 @@ dataset_manifest_download <- function(asset_view,
   )
 
   # run GET
-  res <- httr::GET(
-    url = url,
-    httr::add_headers(Authorization = sprintf("Bearer %s", access_token)),
-    query = params
-  )
+  res <- httr::GET(url = url, query = params)
 
   # pull out content from request
   parsed <- suppressMessages(
@@ -122,6 +119,7 @@ model_submit <- function(data_type = NULL,
     `manifest_record_type` = manifest_record_type,
     `restrict_rules` = restrict_rules,
     `asset_view` = asset_view,
+    `access_token` = access_token,
     `use_schema_label` = use_schema_label
   )
 
@@ -132,7 +130,6 @@ model_submit <- function(data_type = NULL,
   # POST
   res <- httr::POST(
     url = url,
-    httr::add_headers(Authorization = sprintf("Bearer %s", access_token)),
     query = params,
     body = files
   )
@@ -189,16 +186,13 @@ storage_project_datasets <- function(asset_view,
 
   # set up parameters for httr::get call
   params <- list(
-    `asset_view` = asset_view,
-    `project_id` = project_id
+    asset_view = asset_view,
+    project_id = project_id,
+    access_token = access_token
   )
 
   # GET
-  res <- httr::GET(
-    url = url,
-    httr::add_headers(Authorization = sprintf("Bearer %s", access_token)),
-    query = params
-  )
+  res <- httr::GET(url, query = params)
 
   # pull out content from request
   parsed <- suppressMessages(
@@ -258,15 +252,12 @@ storage_projects <- function(asset_view,
 
   # set up parameters for httr::get call
   params <- list(
-    asset_view = asset_view
+    asset_view = asset_view,
+    access_token = access_token
   )
 
   # GET
-  res <- httr::GET(
-    url = url,
-    httr::add_headers(Authorization = sprintf("Bearer %s", access_token)),
-    query = params
-  )
+  res <- httr::GET(url, query = params)
 
   # pull out content from request
   parsed <- suppressMessages(
@@ -328,16 +319,13 @@ storage_project_manifests <- function(asset_view,
 
   # set up parameters for httr::get call
   params <- list(
+    `access_token` = access_token,
     `project_id` = project_id,
     `asset_view` = asset_view
   )
 
   # GET
-  res <- httr::GET(
-    url = url,
-    httr::add_headers(Authorization = sprintf("Bearer %s", access_token)),
-    query = params
-  )
+  res <- httr::GET(url = url, query = params)
 
   # pull out content from request
   parsed <- suppressMessages(
@@ -409,6 +397,12 @@ visualize_component <- function(schema_url,
 
   # GET
   res <- httr::GET(url = url, query = params)
+
+  # check that application returns json
+  # even when json = TRUE, http_type = "text/csv"
+  # if (httr::http_type(res) != "application/json") {
+  #   stop("API did not return json", call. = FALSE)
+  # }
 
   # pull out content from request
   parsed <- suppressMessages(httr::content(res))

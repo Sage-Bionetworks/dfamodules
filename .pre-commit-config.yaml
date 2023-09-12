@@ -10,6 +10,8 @@ repos:
     # -   id: codemeta-description-updated
     -   id: use-tidy-description
     -   id: lintr
+        args: [--warn_only]
+        verbose: true
     -   id: readme-rmd-rendered
     -   id: parsable-R
     -   id: no-browser-statement

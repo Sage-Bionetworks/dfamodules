@@ -25,6 +25,11 @@ dataset_manifest_download <- function(asset_view,
   # create api url
   url <- paste0(base_url, "/v1/dataset/manifest/download")
 
+  # set up header w token
+  headers <- c(
+    `access_token` = access_token
+  )
+
   # set up parameters for httr::get call
   params <- list(
     `asset_view` = asset_view,
@@ -104,6 +109,11 @@ model_submit <- function(data_type = NULL,
   # create url
   url <- paste0(base_url, "/v1/model/submit")
 
+  # set up header w token
+  headers <- c(
+    `access_token` = access_token
+  )
+
   # set up parameters for httr::get call
   params <- list(
     `schema_url` = schema_url,
@@ -172,6 +182,11 @@ storage_project_datasets <- function(asset_view,
   # create url
   url <- paste0(base_url, "/v1/storage/project/datasets")
 
+  # set up header w token
+  headers <- c(
+    `access_token` = access_token
+  )
+
   # set up parameters for httr::get call
   params <- list(
     `asset_view` = asset_view,
@@ -235,6 +250,11 @@ storage_projects <- function(asset_view,
                                "https://schematic.api.sagebionetworks.org") {
   # create url
   url <- paste0(base_url, "/v1/storage/projects")
+
+  # set up header w token
+  headers <- c(
+    `access_token` = access_token
+  )
 
   # set up parameters for httr::get call
   params <- list(
@@ -300,6 +320,11 @@ storage_project_manifests <- function(asset_view,
                                         )) {
   # write URL
   url <- paste0(base_url, "/v1/storage/project/manifests")
+
+  # set up header w token
+  headers <- c(
+    `access_token` = access_token
+  )
 
   # set up parameters for httr::get call
   params <- list(

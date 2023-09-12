@@ -43,10 +43,8 @@ jobs:
             renviron <- "DFA_SCHEMATIC_API_URL = '${{ env.SCHEMATIC_URL_DEV }}'"
             message("Testing using dev schematic API instance")
           }
-
-          # write .Renviron
-          writeLines(renviron, ".Renviron") 
           
+          writeLines(renviron, ".Renviron") 
         shell: Rscript {0}
       - name: Check
         run: rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error")

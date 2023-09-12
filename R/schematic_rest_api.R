@@ -25,14 +25,8 @@ dataset_manifest_download <- function(asset_view,
   # create api url
   url <- paste0(base_url, "/v1/dataset/manifest/download")
 
-  # set up header w token
-  headers <- c(
-    `access_token` = access_token
-  )
-
   # set up parameters for httr::get call
   params <- list(
-    `access_token` = access_token,
     `asset_view` = asset_view,
     `dataset_id` = dataset_id,
     `as_json` = TRUE,
@@ -40,7 +34,11 @@ dataset_manifest_download <- function(asset_view,
   )
 
   # run GET
-  res <- httr::GET(url = url, query = params)
+  res <- httr::GET(
+    url = url,
+    httr::add_headers(Authorization = sprintf("Bearer %s", access_token)),
+    query = params
+  )
 
   # pull out content from request
   parsed <- suppressMessages(
@@ -106,11 +104,6 @@ model_submit <- function(data_type = NULL,
   # create url
   url <- paste0(base_url, "/v1/model/submit")
 
-  # set up header w token
-  headers <- c(
-    `access_token` = access_token
-  )
-
   # set up parameters for httr::get call
   params <- list(
     `schema_url` = schema_url,
@@ -131,6 +124,7 @@ model_submit <- function(data_type = NULL,
   res <- httr::POST(
     url = url,
     query = params,
+    httr::add_headers(Authorization = sprintf("Bearer %s", access_token)),
     body = files
   )
 
@@ -179,20 +173,20 @@ storage_project_datasets <- function(asset_view,
   # create url
   url <- paste0(base_url, "/v1/storage/project/datasets")
 
-  # set up header w token
-  headers <- c(
-    `access_token` = access_token
-  )
-
   # set up parameters for httr::get call
   params <- list(
     asset_view = asset_view,
-    project_id = project_id,
-    access_token = access_token
+    project_id = project_id
   )
 
   # GET
-  res <- httr::GET(url, query = params)
+  res <- httr::GET(url,
+    httr::add_headers(Authorization = sprintf(
+      "Bearer %s",
+      access_token
+    )),
+    query = params
+  )
 
   # pull out content from request
   parsed <- suppressMessages(
@@ -245,19 +239,19 @@ storage_projects <- function(asset_view,
   # create url
   url <- paste0(base_url, "/v1/storage/projects")
 
-  # set up header w token
-  headers <- c(
-    `access_token` = access_token
-  )
-
   # set up parameters for httr::get call
   params <- list(
-    asset_view = asset_view,
-    access_token = access_token
+    asset_view = asset_view
   )
 
   # GET
-  res <- httr::GET(url, query = params)
+  res <- httr::GET(url,
+    httr::add_headers(Authorization = sprintf(
+      "Bearer %s",
+      access_token
+    )),
+    query = params
+  )
 
   # pull out content from request
   parsed <- suppressMessages(
@@ -312,20 +306,21 @@ storage_project_manifests <- function(asset_view,
   # write URL
   url <- paste0(base_url, "/v1/storage/project/manifests")
 
-  # set up header w token
-  headers <- c(
-    `access_token` = access_token
-  )
-
   # set up parameters for httr::get call
   params <- list(
-    `access_token` = access_token,
     `project_id` = project_id,
     `asset_view` = asset_view
   )
 
   # GET
-  res <- httr::GET(url = url, query = params)
+  res <- httr::GET(
+    url = url,
+    httr::add_headers(Authorization = sprintf(
+      "Bearer %s",
+      access_token
+    )),
+    query = params
+  )
 
   # pull out content from request
   parsed <- suppressMessages(

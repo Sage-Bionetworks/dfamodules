@@ -6,6 +6,11 @@
 \usage{
 mod_scheduler_server(id, reset_btn)
 }
+\arguments{
+\item{id}{shiny id}
+
+\item{reset_btn}{reset button input}
+}
 \description{
 scheduler Server Functions
 }

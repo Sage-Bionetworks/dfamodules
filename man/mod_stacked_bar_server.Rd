@@ -21,7 +21,7 @@ mod_stacked_bar_server(
 )
 }
 \arguments{
-\item{id}{Shiny ID to call server module}
+\item{id}{shiny id}
 
 \item{df}{A data frame containing data to plot}
 

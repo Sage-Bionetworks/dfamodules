@@ -2,30 +2,28 @@
 #'
 #' @description A Shiny module that displays the files in a given dataset in a selectable DT::datatable
 #'
-#' @param id,input,output,session Internal parameters for {shiny}.
+#' @param id shiny id
 #' @importFrom shiny NS tagList
 #' @export
 
-mod_file_selection_ui <- function(id){
+mod_file_selection_ui <- function(id) {
   ns <- shiny::NS(id)
   shiny::tagList(
-
     shiny::fluidRow(
       waiter::use_waiter(),
-      shiny::column(width = 12,
-                    # Action button that opens file selector
-                    # TODO: eventually this will become a toggle similar to data_curator dashboard
-                    shiny::div(
-                      id = ns("select_files_wrapper"),
-                      shinydashboard::box(
-                        width = NULL,
-                        title = "Select Files",
-
-                        shiny::actionButton(ns("getfiles_btn"), "Get Files"),
-
-                        DT::DTOutput(ns("manifest_tbl"))
-                      )
-                    )
+      shiny::column(
+        width = 12,
+        # Action button that opens file selector
+        # TODO: eventually this will become a toggle similar to data_curator dashboard
+        shiny::div(
+          id = ns("select_files_wrapper"),
+          shinydashboard::box(
+            width = NULL,
+            title = "Select Files",
+            shiny::actionButton(ns("getfiles_btn"), "Get Files"),
+            DT::DTOutput(ns("manifest_tbl"))
+          )
+        )
       )
     )
   )
@@ -33,7 +31,7 @@ mod_file_selection_ui <- function(id){
 
 #' Select a File Server Functions
 #'
-#' @param id internal shiny ID
+#' @param id shiny id
 #' @param dataset dataset folder synId
 #' @param asset_view fileview synId
 #' @param access_token Syanpse PAT
@@ -41,17 +39,18 @@ mod_file_selection_ui <- function(id){
 #' @export
 
 mod_file_selection_server <- function(id, dataset, asset_view, access_token) {
-
-  shiny::moduleServer( id, function(input, output, session) {
-
+  shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    w <- Waiter$new(id = ns("select_files_wrapper"),
-                    html = htmltools::div(
-                      style="color:#424874;",
-                      waiter::spin_3(),
-                      htmltools::h4("Retrieving manifest...")),
-                    color = waiter::transparent(.8))
+    w <- Waiter$new(
+      id = ns("select_files_wrapper"),
+      html = htmltools::div(
+        style = "color:#424874;",
+        waiter::spin_3(),
+        htmltools::h4("Retrieving manifest...")
+      ),
+      color = waiter::transparent(.8)
+    )
 
 
     # ON CLICK GET MANIFEST FOR SELECTED DATASET ############################################################
@@ -61,7 +60,6 @@ mod_file_selection_server <- function(id, dataset, asset_view, access_token) {
     # change that dataset you need to click "Show file level view" again
 
     manifest <- shiny::eventReactive(input$getfiles_btn, {
-
       # show waiter
       w$show()
 
@@ -71,30 +69,37 @@ mod_file_selection_server <- function(id, dataset, asset_view, access_token) {
       })
 
       ds <- dataset()
-      manifest_download_to_df(asset_view = asset_view,
-                              dataset_id = ds$id,
-                              access_token = access_token)
-
+      manifest_download_to_df(
+        asset_view = asset_view,
+        dataset_id = ds$id,
+        access_token = access_token
+      )
     })
 
     # DISPLAY MANIFEST AS TABLE #############################################################################
 
     output$manifest_tbl <- DT::renderDataTable({
       DT::datatable(manifest(),
-                    option = list(scrollY = 500,
-                                  scrollX = TRUE,
-                                  scrollCollapse = TRUE,
-                                  bPaginate = FALSE,
-                                  dom = "t"),
-                    filter = list(position = 'top', clear = TRUE))
+        option = list(
+          scrollY = 500,
+          scrollX = TRUE,
+          scrollCollapse = TRUE,
+          bPaginate = FALSE,
+          dom = "t"
+        ),
+        filter = list(position = "top", clear = TRUE)
+      )
     })
 
     # return a list containing the downloaded manifest and rows selected
 
     return(list(
-      manifest = shiny::reactive({ manifest() }),
-      selected_rows = shiny::reactive({ input$manifest_tbl_rows_selected })
+      manifest = shiny::reactive({
+        manifest()
+      }),
+      selected_rows = shiny::reactive({
+        input$manifest_tbl_rows_selected
+      })
     ))
-
   })
 }

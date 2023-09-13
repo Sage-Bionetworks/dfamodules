@@ -7,7 +7,7 @@
 mod_dataset_selection_ui(id)
 }
 \arguments{
-\item{id, input, output, session}{Internal parameters for {shiny}.}
+\item{id}{shiny id}
 }
 \description{
 A Shiny module that displays the datasets in a given asset view in a selectable DT::datatable

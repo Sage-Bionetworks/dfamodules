@@ -17,13 +17,19 @@ update_manifest_add_datasets(
 \arguments{
 \item{dataflow_manifest}{A dataFlow manifest}
 
-\item{get_all_manifests_out}{The output of get_all_manifests. Also can be a dataframe that includes Component, contributor, entityId, dataset_name, and dataset.}
+\item{get_all_manifests_out}{The output of get_all_manifests.
+Also can be a dataframe that includes Component, contributor,
+entityId, dataset_name, and dataset.}
 
-\item{asset_view}{ID of view listing all project data assets. For example, for Synapse this would be the Synapse ID of the fileview listing all data assets for a given project.(i.e. master_fileview in config.yml)}
+\item{asset_view}{ID of view listing all project data assets}
+
+\item{na_replace}{NA replacement text}
+
+\item{schema_url}{A data model URL}
 
 \item{access_token}{Synapse PAT}
 
-\item{base_url}{Base URL of schematic API (Defaults to  AWS version)}
+\item{base_url}{Base URL of schematic API}
 }
 \description{
 Update manifest with new datasets found in Synapse

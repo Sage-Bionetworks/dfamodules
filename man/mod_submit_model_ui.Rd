@@ -7,7 +7,7 @@
 mod_submit_model_ui(id)
 }
 \arguments{
-\item{id, input, output, session}{Internal parameters for {shiny}.}
+\item{id}{shiny id}
 }
 \description{
 A shiny Module.

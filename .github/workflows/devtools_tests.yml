@@ -46,7 +46,7 @@ jobs:
 
           # write .Renviron
           writeLines(renviron, ".Renviron") 
-          
+
         shell: Rscript {0}
       - name: Check
         run: rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error")

@@ -7,7 +7,7 @@
 mod_stacked_bar_ui(id)
 }
 \arguments{
-\item{id, input, output, session}{Internal parameters for {shiny}.}
+\item{id}{shiny id}
 }
 \description{
 A Shiny module that takes in a datafame and outputs a stacked bar plot.

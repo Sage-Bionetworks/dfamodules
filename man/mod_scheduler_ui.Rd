@@ -7,7 +7,7 @@
 mod_scheduler_ui(id, dateInput_label, checkboxInput_label)
 }
 \arguments{
-\item{id, input, output, session}{Internal parameters for {shiny}.}
+\item{id}{shiny id}
 
 \item{dateInput_label}{label for dateInput}
 

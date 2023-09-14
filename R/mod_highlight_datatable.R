@@ -2,25 +2,24 @@
 #'
 #' @description A shiny Module.
 #'
-#' @param id,input,output,session Internal parameters for {shiny}.
+#' @param id shiny id
 #'
 #' @importFrom shiny NS tagList
 #' @export
 
-mod_highlight_datatable_ui <- function(id){
+mod_highlight_datatable_ui <- function(id) {
   ns <- shiny::NS(id)
   shiny::tagList(
-
     DT::DTOutput(ns("highlight_tbl")),
   )
 }
 
 #' Datatable that highlights based on a given input Server
 #'
-#' @param id internal Shiny ID
+#' @param id shiny id
 #' @param df a dataframe
 #' @param selection a vector of IDs to match on
-#' @param df_match_columns column name to match on
+#' @param df_match_colname column name to match on
 #'
 #'
 #' @export
@@ -28,8 +27,8 @@ mod_highlight_datatable_ui <- function(id){
 mod_highlight_datatable_server <- function(id,
                                            df,
                                            selection,
-                                           df_match_colname){
-  shiny::moduleServer( id, function(input, output, session){
+                                           df_match_colname) {
+  shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
     # create selected TRUE/FALSE idx
@@ -49,26 +48,32 @@ mod_highlight_datatable_server <- function(id,
     })
 
     output$highlight_tbl <- DT::renderDataTable({
-
       # datatable with x and y scrollbar, no pagination
       # hiding the selection index column
       dt <- DT::datatable(manifest_w_idx(),
-                          escape = FALSE,
-                          selection = "none",
-                          filter = "top",
-                          options = list(scrollX = TRUE,
-                                         scrollY = 800,
-                                         bPaginate = FALSE,
-                                         columnDefs = list(list(targets = hide_idx(),
-                                                                visible = FALSE))))
+        escape = FALSE,
+        selection = "none",
+        filter = "top",
+        options = list(
+          scrollX = TRUE,
+          scrollY = 800,
+          bPaginate = FALSE,
+          columnDefs = list(list(
+            targets = hide_idx(),
+            visible = FALSE
+          ))
+        )
+      )
 
       # add conditional styling based on hidden column
-      dt <- DT::formatStyle(table = dt,
-                            "selection_idx", target = "row",
-                            backgroundColor = DT::styleEqual(TRUE, "#ffe2ad"))
+      dt <- DT::formatStyle(
+        table = dt,
+        "selection_idx", target = "row",
+        backgroundColor = DT::styleEqual(TRUE, "#ffe2ad")
+      )
 
       dt
-      })
+    })
   })
 }
 

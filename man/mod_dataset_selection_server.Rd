@@ -14,7 +14,7 @@ mod_dataset_selection_server(
 )
 }
 \arguments{
-\item{id}{Internal parameter for {shiny}}
+\item{id}{shiny id}
 
 \item{storage_project_df}{Dataframe containing the columns \code{id} and \code{name}}
 

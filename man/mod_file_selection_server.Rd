@@ -7,7 +7,7 @@
 mod_file_selection_server(id, dataset, asset_view, access_token)
 }
 \arguments{
-\item{id}{internal shiny ID}
+\item{id}{shiny id}
 
 \item{dataset}{dataset folder synId}
 

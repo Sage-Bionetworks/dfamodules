@@ -7,9 +7,9 @@
 mod_datatable_filters_server(id, manifest)
 }
 \arguments{
-\item{id}{internal Shiny ID}
+\item{id}{shiny id}
 
-\item{manifest}{a dataFlow manifest}
+\item{manifest}{A data flow manifest.}
 }
 \value{
 a filtered dataframe

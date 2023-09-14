@@ -13,8 +13,28 @@ mod_submit_model_server(
   manifest_dir = "./manifest",
   access_token,
   schema_url,
-  base_url
+  base_url = paste0("https://", "schematic.api.sagebionetworks", ".org")
 )
+}
+\arguments{
+\item{id}{shiny id}
+
+\item{dfs_manifest}{a manifest}
+
+\item{data_type}{manifest component type}
+
+\item{asset_view}{an ID of a file view listing all project data assets}
+
+\item{dataset_id}{the ID of the dataset that contains manifest}
+
+\item{manifest_dir}{directory where manifest is stored}
+
+\item{access_token}{a Synapse Personal Access Token}
+
+\item{schema_url}{A data model URL}
+
+\item{base_url}{a Schematic API base URL. Default is
+\verb{https://schematic.api.sagebionetworks.org}}
 }
 \description{
 submit_model Server Functions

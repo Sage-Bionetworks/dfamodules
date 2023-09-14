@@ -7,7 +7,7 @@
 mod_file_selection_ui(id)
 }
 \arguments{
-\item{id, input, output, session}{Internal parameters for {shiny}.}
+\item{id}{shiny id}
 }
 \description{
 A Shiny module that displays the files in a given dataset in a selectable DT::datatable

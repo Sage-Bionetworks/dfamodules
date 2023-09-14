@@ -7,6 +7,8 @@
 mod_datatable_dashboard_server(id, df, config)
 }
 \arguments{
+\item{id}{shiny id}
+
 \item{df}{dataframe containing data to be displayed in dashboard}
 
 \item{config}{config in \code{inst/datatable_dashboard_config.json}}

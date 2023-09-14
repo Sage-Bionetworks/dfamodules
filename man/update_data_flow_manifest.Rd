@@ -20,6 +20,8 @@ update_data_flow_manifest(
 
 \item{na_replace}{Replacement string for NA cells}
 
+\item{schema_url}{A data model URL}
+
 \item{access_token}{Synapse PAT}
 
 \item{base_url}{Base URL of schematic API (Defaults to  AWS version)}

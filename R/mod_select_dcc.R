@@ -11,21 +11,25 @@ mod_select_dcc_ui <- function(id,
                               dcc_config) {
   ns <- shiny::NS(id)
   shiny::tagList(
+    shinydashboard::box(
+      title = "Select a DCC",
 
-    # DCC dropdown
-    selectInput(ns("select_dcc"),
-      "Select a DCC",
-      choices = setNames(
-        dcc_config$synapse_asset_view,
-        dcc_config$project_name
+      # DCC dropdown
+      shiny::selectInput(
+        inputId = ns("select_dcc"),
+        label = NULL,
+        choices = setNames(
+          dcc_config$synapse_asset_view,
+          dcc_config$project_name
+        )
+      ),
+
+      # Button to initiate selection
+      shiny::actionButton(
+        inputId = ns("submit_btn"),
+        label = "Select Project"
       )
-    ),
-
-    # Button to initiate selection
-    shiny::actionButton(
-      ns("submit_btn"),
-      "Select Project"
-    ),
+    )
   )
 }
 
@@ -40,10 +44,10 @@ mod_select_dcc_server <- function(id,
     ns <- session$ns
 
     # check that inputs are not reactive
-    if (is.reactive(dcc_config)) {
+    if (shiny::is.reactive(dcc_config)) {
       stop("dcc_config must not be a reactive")
     }
-    if (is.reactive(access_token)) {
+    if (shiny::is.reactive(access_token)) {
       stop("access_token must not be a reactive")
     }
 
@@ -66,7 +70,7 @@ mod_select_dcc_server <- function(id,
     }
 
     # update selectInput with available dccs
-    updateSelectInput(
+    shiny::updateSelectInput(
       session = session,
       inputId = "select_dcc",
       choices = asset_views
@@ -75,7 +79,7 @@ mod_select_dcc_server <- function(id,
     # on button click return:
     # 1) selected dcc
     # 2) the button click
-    eventReactive(input$submit_btn, {
+    shiny::eventReactive(input$submit_btn, {
       list(
         selected_dcc = asset_views[asset_views == input$select_dcc],
         btn_click = input$submit_btn

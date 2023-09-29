@@ -2,13 +2,12 @@
 % Please edit documentation in R/schematic_rest_api.R
 \name{visualize_component}
 \alias{visualize_component}
-\title{Get all the attributes associated with a specific data model component
-formatted as a dataframe}
+\title{Get all the attributes associated with a specific data model component formatted as a dataframe}
 \usage{
 visualize_component(
   schema_url,
   component = "DataFlow",
-  base_url = "https://schematic.api.sagebionetworks.org"
+  base_url = "https://schematic-dev.api.sagebionetworks.org"
 )
 }
 \arguments{
@@ -19,6 +18,5 @@ visualize_component(
 \item{base_url}{URL to schematic API endpoint}
 }
 \description{
-Get all the attributes associated with a specific data model component
-formatted as a dataframe
+Get all the attributes associated with a specific data model component formatted as a dataframe
 }

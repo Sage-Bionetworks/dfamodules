@@ -8,13 +8,11 @@ dataset_manifest_download(
   asset_view,
   dataset_id,
   access_token,
-  base_url = paste0("https://", "schematic.api.sagebionetworks.org")
+  base_url = "https://schematic-dev.api.sagebionetworks.org"
 )
 }
 \arguments{
-\item{asset_view}{ID of view listing all project data assets. For example,
-for Synapse this would be the Synapse ID of the fileview listing all data
-assets for a given project.(i.e. master_fileview in config.yml)}
+\item{asset_view}{ID of view listing all project data assets. For example, for Synapse this would be the Synapse ID of the fileview listing all data assets for a given project.(i.e. master_fileview in config.yml)}
 
 \item{dataset_id}{Synapse ID of existing manifest}
 

@@ -72,7 +72,9 @@ mod_select_dcc_server <- function(id,
       choices = asset_views
     )
 
-    # on button click return
+    # on button click return:
+    # 1) selected dcc
+    # 2) the button click
     eventReactive(input$submit_btn, {
       list(
         selected_dcc = asset_views[asset_views == input$select_dcc],
@@ -81,9 +83,3 @@ mod_select_dcc_server <- function(id,
     })
   })
 }
-
-## To be copied in the UI
-# mod_select_storage_project_ui("select_storage_project_1")
-
-## To be copied in the server
-# mod_select_storage_project_server("select_storage_project_1")

@@ -11,6 +11,7 @@ mod_select_dcc_ui <- function(id,
                               dcc_config) {
   ns <- shiny::NS(id)
   shiny::tagList(
+
     shinydashboard::box(
       title = "Select a DCC",
 
@@ -77,11 +78,11 @@ mod_select_dcc_server <- function(id,
     )
 
     # on button click return:
-    # 1) selected dcc
+    # 1) selected dcc configuration
     # 2) the button click
     shiny::eventReactive(input$submit_btn, {
       list(
-        selected_dcc = asset_views[asset_views == input$select_dcc],
+        selected_dcc_config = dcc_config[dcc_config$synapse_asset_view == input$select_dcc,],
         btn_click = input$submit_btn
       )
     })

@@ -41,7 +41,9 @@ mod_select_dcc_ui <- function(id,
 mod_select_dcc_server <- function(id,
                                   dcc_config,
                                   access_token,
-                                  parent = NULL) {
+                                  parent = NULL,
+                                  menuItem_id = "tabs",
+                                  selected_tabItem_id = "tab_dashboard") {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -78,9 +80,14 @@ mod_select_dcc_server <- function(id,
       choices = asset_views
     )
 
-    # if there is only one asset_view available, go straight to dash
+    # if there is only one asset_view available, go straight to dash by
+    # updating the selected tabItem
     if (length(asset_views) == 1 & !is.null(parent)) {
-      shinydashboard::updateTabItems(session = parent, "tabs", "tab_dashboard")
+      shinydashboard::updateTabItems(session = parent,
+                                     menuItem_id,
+                                     selected_tabItem_id)
+
+      # click submit btn to pass config/btn click
       shinyjs::click("submit_btn")
     }
 

@@ -83,13 +83,14 @@ mod_select_dcc_server <- function(id,
     # if there is only one asset_view available, go straight to dash by
     # updating the selected tabItem
     if (length(asset_views) == 1 & !is.null(parent)) {
+      shinyjs::click("submit_btn")
+    }
+
+    shiny::observeEvent(input$submit_btn, {
       shinydashboard::updateTabItems(session = parent,
                                      menuItem_id,
                                      selected_tabItem_id)
-
-      # click submit btn to pass config/btn click
-      shinyjs::click("submit_btn")
-    }
+    })
 
     # on button click return:
     # 1) selected dcc configuration

@@ -25,12 +25,20 @@ mod_datatable_dashboard_server <- function(id, df, config) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
+    # check that inputs are not reactive
+    if (!shiny::is.reactive(df)) {
+      stop("df must be a reactive")
+    }
+    if (!shiny::is.reactive(config)) {
+      stop("config must be a reactive")
+    }
+
     # render datatable
 
     output$datatable_out <- DT::renderDataTable({
       create_dashboard(
         df(),
-        config
+        config()
       )
     })
   })

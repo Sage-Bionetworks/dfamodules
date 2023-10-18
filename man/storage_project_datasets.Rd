@@ -2,13 +2,13 @@
 % Please edit documentation in R/schematic_rest_api.R
 \name{storage_project_datasets}
 \alias{storage_project_datasets}
-\title{Gets all datasets in a given storage project}
+\title{Gets all datasets in folder under a given storage project that the current user has access to.}
 \usage{
 storage_project_datasets(
   asset_view,
   project_id,
   access_token,
-  base_url = paste0("https://", "schematic.api.", "sagebionetworks.org")
+  base_url = "https://schematic-dev.api.sagebionetworks.org"
 )
 }
 \arguments{
@@ -21,5 +21,5 @@ storage_project_datasets(
 \item{base_url}{URL to schematic API endpoint}
 }
 \description{
-Gets all datasets in a given storage project
+Gets all datasets in folder under a given storage project that the current user has access to.
 }

@@ -11,18 +11,17 @@ model_submit(
   file_name,
   access_token,
   restrict_rules = TRUE,
-  manifest_record_type = "file_only",
-  base_url = paste0("https://", "schematic.api.sagebionetworks.org"),
-  schema_url,
+  manifest_record_type = "table_and_file",
+  base_url = "https://schematic-dev.api.sagebionetworks.org",
+  schema_url =
+    "https://raw.githubusercontent.com/Sage-Bionetworks/data_flow/main/inst/data_flow_component.jsonld",
   use_schema_label = TRUE
 )
 }
 \arguments{
 \item{data_type}{Type of dataset. Set to None for no validation check}
 
-\item{asset_view}{ID of view listing all project data assets. For example,
-for Synapse this would be the Synapse ID of the fileview listing all data
-assets for a given project.(i.e. master_fileview in config.yml)}
+\item{asset_view}{ID of view listing all project data assets. For example, for Synapse this would be the Synapse ID of the fileview listing all data assets for a given project.(i.e. master_fileview in config.yml)}
 
 \item{dataset_id}{Synapse ID of existing manifest}
 
@@ -30,19 +29,13 @@ assets for a given project.(i.e. master_fileview in config.yml)}
 
 \item{access_token}{Synapse login cookie, PAT, or API key}
 
-\item{restrict_rules}{If True, validation suite will only run with in-house
-validation rule. If False, the Great Expectations suite will be utilized and
-all rules will be available.}
+\item{restrict_rules}{If True, validation suite will only run with in-house validation rule. If False, the Great Expectations suite will be utilized and all rules will be available.}
 
-\item{manifest_record_type}{Manifest storage type. Options: "--", "table"
-(default), "entity", "both".}
+\item{manifest_record_type}{Manifest storage type. Options: "--", "table" (default), "entity", "both".}
 
 \item{base_url}{URL to schematic API endpoint}
 
 \item{schema_url}{URL to a schema jsonld}
-
-\item{use_schema_label}{Store attributes using the schema label
-(true, default) or store attributes using the display label (false).}
 }
 \value{
 TRUE if successful upload or validate errors if not.

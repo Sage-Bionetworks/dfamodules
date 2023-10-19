@@ -55,11 +55,8 @@ mod_dataset_selection_server <- function(id,
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-
-
     # GET DATASETS FOR SELECTED STORAGE PROJECT  ###############################
     datasets <- shiny::reactive({
-
       req(storage_project_id())
 
       # show waiter
@@ -91,7 +88,6 @@ mod_dataset_selection_server <- function(id,
       selected_datasets()
     })
 
-
     #  RENDER TABLE ###########################################################
     output$dataset_tbl <- DT::renderDataTable({
       # validate returned object
@@ -99,7 +95,8 @@ mod_dataset_selection_server <- function(id,
       req(datasets())
       shiny::validate(
         shiny::need(
-          nrow(datasets()) > 0, "No datasets available")
+          nrow(datasets()) > 0, "No datasets available"
+        )
       )
 
       # data table with scroll bar, no pagination, and filtering
@@ -123,8 +120,6 @@ mod_dataset_selection_server <- function(id,
       # subset
       return(datasets()[selected, ])
     })
-
-
 
     # RETURN DATA ON CLICK  ####################################################
     shiny::eventReactive(input$submit_btn, {

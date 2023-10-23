@@ -38,7 +38,7 @@ mod_dataset_selection_ui <- function(id) {
 #' Select a Dataset Server Function
 #'
 #' @param id shiny id
-#' @param storage_project_df Dataframe containing the columns `id` and `name`
+#' @param storage_project_id Reactive value of a storage project ID
 #' @param asset_view Fileview containing datasets
 #' @param access_token Synapse PAT
 #' @param hidden_datasets vector of synIds to hide

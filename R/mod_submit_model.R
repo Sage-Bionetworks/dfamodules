@@ -72,13 +72,13 @@ mod_submit_model_server <- function(id,
       # submit model to synapse
       model_submit(
         data_type = data_type,
-        asset_view = asset_view,
-        dataset_id = dataset_id,
+        asset_view = asset_view(),
+        dataset_id = dataset_id(),
         file_name = path,
         restrict_rules = TRUE,
         access_token = access_token,
         manifest_record_type = "file_only",
-        schema_url = schema_url,
+        schema_url = schema_url(),
         base_url = base_url
       )
 

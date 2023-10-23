@@ -38,7 +38,7 @@ mod_dataset_selection_ui <- function(id) {
 #' Select a Dataset Server Function
 #'
 #' @param id shiny id
-#' @param storage_project_df Dataframe containing the columns `id` and `name`
+#' @param storage_project_id Reactive value of a storage project ID
 #' @param asset_view Fileview containing datasets
 #' @param access_token Synapse PAT
 #' @param hidden_datasets vector of synIds to hide
@@ -47,7 +47,7 @@ mod_dataset_selection_ui <- function(id) {
 #' @export
 
 mod_dataset_selection_server <- function(id,
-                                         storage_project_df,
+                                         storage_project_id,
                                          asset_view,
                                          access_token,
                                          hidden_datasets = NULL,
@@ -57,6 +57,8 @@ mod_dataset_selection_server <- function(id,
 
     # GET DATASETS FOR SELECTED STORAGE PROJECT  ###############################
     datasets <- shiny::reactive({
+      req(storage_project_id())
+
       # show waiter
       waiter::waiter_show(
         id = ns("select_dataset_wrapper"),
@@ -72,23 +74,29 @@ mod_dataset_selection_server <- function(id,
 
       # call schematic API storage/project/datasets
       storage_project_datasets_obj <- storage_project_datasets(
-        asset_view = asset_view,
-        project_id = storage_project_df()$id,
+        asset_view = asset_view(),
+        project_id = storage_project_id(),
         access_token = access_token,
         base_url = base_url
       )
 
       # return content
-      storage_project_datasets_obj$content
+      return(storage_project_datasets_obj$content)
     })
 
+    output$tst <- renderPrint({
+      selected_datasets()
+    })
 
     #  RENDER TABLE ###########################################################
     output$dataset_tbl <- DT::renderDataTable({
-      # VALIDATE RETURNED OBJECT  ##############################################
+      # validate returned object
       # if there are no datasets returned, show message
+      req(datasets())
       shiny::validate(
-        shiny::need(nrow(datasets()) > 0, "No datasets available")
+        shiny::need(
+          nrow(datasets()) > 0, "No datasets available"
+        )
       )
 
       # data table with scroll bar, no pagination, and filtering
@@ -110,8 +118,7 @@ mod_dataset_selection_server <- function(id,
       selected <- input$dataset_tbl_rows_selected
 
       # subset
-      df <- datasets()
-      df[selected, ]
+      return(datasets()[selected, ])
     })
 
     # RETURN DATA ON CLICK  ####################################################

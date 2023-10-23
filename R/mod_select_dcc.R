@@ -2,7 +2,8 @@
 #'
 #' @description A shiny module. Outputs a selectInput dropdown of Synapse storage project names to the UI.
 #'
-#' @param id,input,output,session Internal parameters for {shiny}.
+#' @param id module id
+#' @param dcc_config DCC configuration file sourced from Sage-Bionetworks/data_flow_config
 #'
 #' @importFrom shiny NS tagList
 #' @export
@@ -34,7 +35,14 @@ mod_select_dcc_ui <- function(id,
   )
 }
 
-# Select a DCC Module Server
+#' Select a DCC Module Server
+#'
+#' @param id module ID
+#' @param dcc_config DCC configuration file sourced from Sage-Bionetworks/data_flow_config
+#' @param access_token Synapse PAT
+#' @param parent parent session object
+#' @param menuItem_id ID of shinydashboard menuItem
+#' @param selected_tabItem_id ID of shinydashboard tabItem to click to
 #'
 #' @export
 

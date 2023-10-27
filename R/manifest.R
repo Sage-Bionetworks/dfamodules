@@ -7,28 +7,19 @@
 
 prep_manifest_dfa <- function(manifest,
                               config) {
-  # convert "Not Applicable" to NA
-  manifest[manifest == "Not Applicable"] <- NA
+  # convert various forms of "Not Applicable" to NA
+  manifest[manifest == "Not Applicable"| manifest == "Not applicable" | manifest == "not applicable"] <- NA
 
-  # convert contribute and dataset to factor
-  # manifest <- convert_column_type(df = manifest,
-  #                                 col_names = get_colname_by_type("drop_down_filter", config),
-  #                                 type = "factor")
-
-  # num_items to integer column
-  manifest <- convert_column_type(
-    df = manifest,
-    col_names = get_colname_by_type("integer", config),
-    type = "integer"
-  )
-
-  # release_scheduled and embargo to date columns
+  # dates come in from Synapse as char
+  # convert to date type
+  # use config file to source date attributes
   manifest <- convert_column_type(
     df = manifest,
     col_names = get_colname_by_type("date", config),
     type = "date"
   )
 
+  # return the manifest
   return(manifest)
 }
 

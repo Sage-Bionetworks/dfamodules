@@ -4,7 +4,7 @@
 \alias{get_renamed_colnames}
 \title{Parse config to get display column names for dashboard}
 \usage{
-get_renamed_colnames(config)
+get_renamed_colnames(config, flatten = TRUE)
 }
 \arguments{
 \item{config}{datatable_dashboard_config.json as a datatable (\code{jsonlite::read_json("inst/datatable_dashboard_config.json")})}

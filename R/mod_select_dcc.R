@@ -1,9 +1,11 @@
 #' Select a DCC UI
 #'
-#' @description A shiny module. Outputs a selectInput dropdown of Synapse storage project names to the UI.
+#' @description A shiny module. Outputs a selectInput dropdown of Synapse
+#' storage project names to the UI.
 #'
 #' @param id module id
-#' @param dcc_config DCC configuration file sourced from Sage-Bionetworks/data_flow_config
+#' @param dcc_config DCC configuration file sourced from
+#' `Sage-Bionetworks/data_flow_config`
 #'
 #' @importFrom shiny NS tagList
 #' @export
@@ -38,20 +40,15 @@ mod_select_dcc_ui <- function(id,
 #' Select a DCC Module Server
 #'
 #' @param id module ID
-#' @param dcc_config DCC configuration file sourced from Sage-Bionetworks/data_flow_config
+#' @param dcc_config DCC configuration file sourced from
+#' `Sage-Bionetworks/data_flow_config`
 #' @param access_token Synapse PAT
-#' @param parent parent session object
-#' @param menuItem_id ID of shinydashboard menuItem
-#' @param selected_tabItem_id ID of shinydashboard tabItem to click to
 #'
 #' @export
 
 mod_select_dcc_server <- function(id,
                                   dcc_config,
-                                  access_token,
-                                  parent = NULL,
-                                  menuItem_id = "tabs",
-                                  selected_tabItem_id = "tab_dashboard") {
+                                  access_token) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -90,15 +87,9 @@ mod_select_dcc_server <- function(id,
 
     # if there is only one asset_view available, go straight to dash by
     # updating the selected tabItem
-    if (length(asset_views) == 1 & !is.null(parent)) {
+    if (length(asset_views) == 1) {
       shinyjs::click("submit_btn")
     }
-
-    shiny::observeEvent(input$submit_btn, {
-      shinydashboard::updateTabItems(session = parent,
-                                     menuItem_id,
-                                     selected_tabItem_id)
-    })
 
     # on button click return:
     # 1) selected dcc configuration

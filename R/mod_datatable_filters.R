@@ -50,7 +50,7 @@ mod_datatable_filters_ui <- function(id,
         multiple = TRUE
       ),
       shiny::dateRangeInput(ns("release_scheduled_daterange"),
-        label = "Filter by release scheduled date range",
+        label = "Filter by scheduled release date",
         start = release_daterange[1],
         end = release_daterange[2]
       ),
@@ -98,13 +98,13 @@ mod_datatable_filters_server <- function(id,
       filtered <- manifest %>%
         dplyr::filter(
           contributor %in% input$contributor_select,
-          dataset %in% selected_datasets_modified(),
-          release_scheduled >=
+          dataset_type %in% selected_datasets_modified(),
+          scheduled_release_date >=
             input$release_scheduled_daterange[1] &
-            release_scheduled <=
+            scheduled_release_date <=
               input$release_scheduled_daterange[2] |
-            is.na(release_scheduled),
-          data_flow_status %in% input$choose_status_checkbox
+            is.na(scheduled_release_date),
+          status %in% input$choose_status_checkbox
         )
 
 

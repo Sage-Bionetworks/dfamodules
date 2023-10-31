@@ -53,16 +53,27 @@ style_dashboard <- function(prepped_manifest,
   defs <- append(defs, na_replace_defs)
 
   # get column names for datatable display
-  colnames <- get_renamed_colnames(config)
+  display_names <- get_renamed_colnames(
+    config,
+    flatten = FALSE)
+
+  # order display names based on manifest order
+  display_names <- display_names[
+    order(
+      match(
+        names(display_names), names(prepped_manifest)
+      )
+    )]
+
   # put empty string in front to account for rownum column
-  colnames <- c("", colnames)
+  display_names <- c("", display_names)
 
   # create datatable
   dt <- DT::datatable(prepped_manifest,
                       escape = FALSE,
                       selection = "none",
                       filter = "none",
-                      colnames = colnames,
+                      colnames = as.character(display_names),
                       options = list(scrollX = TRUE,
                                      scrollY = 500,
                                      bPaginate = FALSE,
@@ -74,32 +85,27 @@ style_dashboard <- function(prepped_manifest,
 
 #' Prepare a dataframe for a dashboard style datatable
 #'
-#' @param df A dataframe with the columns `Contributor`, `Dataset_Name`, `Dataset_Type`, `Num_Items`, `Release_Scheduled`, `Embargo`, `Standard_Compliance`, `QC_Compliance`,`PHI_Detection_Compliance`, `Access_Controls_Compliance`, `Data_Portal`, `Released`, `past_due`
+#' @param manifest data flow manifest
 #' @param config Config for datatable dashboard module in `inst/datatable_dashboard_config.json`
 #'
 #' @export
 #'
 
-prep_manifest_dash <- function(df,
+prep_manifest_dash <- function(manifest,
                                config) {
 
   # convert TRUE / FALSE to icon html
 
-  df <- convert_column_type(df = df,
-                            col_names = get_colname_by_type(config, type = "icon"),
-                            type = "icon")
-
-  # convert certain columns to factors
-  # enables drop down selection style filtering for column
-  # df <- convert_column_type(df = df,
-  #                           col_names = get_colname_by_type(config, type = "drop_down_filter"),
-  #                           type = "factor")
+  manifest <- convert_column_type(
+    df = manifest,
+    col_names = get_colname_by_type(config, type = "icon"),
+    type = "icon")
 
   # rearrange dataframe based on config order (any columns not in config are moved to end of dataframe)
-  expected_colnames <- names(config)
-  df <- rearrange_dataframe(df, expected_colnames)
+  # expected_colnames <- names(config)
+  # prepped_manifest <- rearrange_dataframe(manifest, expected_colnames)
 
-  return(df)
+  return(manifest)
 }
 
 

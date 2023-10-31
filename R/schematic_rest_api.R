@@ -2,14 +2,12 @@
 ## Schematic API Functions ##
 #############################
 
-# Functions follow best practice convention laid out in httr vignette
+# Functions follow best practice convention laid out in httr vingette
 # https://httr.r-lib.org/articles/api-packages.html
 
 #' Download a manifest using the dataset Synapse ID
 #'
-#' @param asset_view ID of view listing all project data assets. For example,
-#' for Synapse this would be the Synapse ID of the fileview listing all data
-#' assets for a given project.(i.e. master_fileview in config.yml)
+#' @param asset_view ID of view listing all project data assets. For example, for Synapse this would be the Synapse ID of the fileview listing all data assets for a given project.(i.e. master_fileview in config.yml)
 #' @param dataset_id Synapse ID of existing manifest
 #' @param access_token Synapse login cookie, PAT, or API key.
 #' @param base_url URL to schematic API endpoint
@@ -18,15 +16,13 @@
 dataset_manifest_download <- function(asset_view,
                                       dataset_id,
                                       access_token,
-                                      base_url = paste0(
-                                        "https://",
-                                        "schematic.api.sagebionetworks.org"
-                                      )) {
+                                      base_url = "https://schematic-dev.api.sagebionetworks.org") {
   # create api url
   url <- paste0(base_url, "/v1/dataset/manifest/download")
 
   # set up parameters for httr::get call
   params <- list(
+    `access_token` = access_token,
     `asset_view` = asset_view,
     `dataset_id` = dataset_id,
     `as_json` = TRUE,
@@ -34,16 +30,16 @@ dataset_manifest_download <- function(asset_view,
   )
 
   # run GET
-  res <- httr::GET(
-    url = url,
-    httr::add_headers(Authorization = sprintf("Bearer %s", access_token)),
-    query = params
-  )
+  res <- httr::GET(url = url, query = params)
+
+  # check that application returns json
+  # even when json = TRUE, http_type = "text/csv"
+  # if (httr::http_type(res) != "application/json") {
+  #   stop("API did not return json", call. = FALSE)
+  # }
 
   # pull out content from request
-  parsed <- suppressMessages(
-    jsonlite::fromJSON(httr::content(res, as = "text"))
-  )
+  parsed <- suppressMessages(jsonlite::fromJSON(httr::content(res, as = "text")))
 
   # if the api call returns an error
   # surface error to user
@@ -71,21 +67,14 @@ dataset_manifest_download <- function(asset_view,
 #' schematic rest api to submit metadata
 #'
 #' @param data_type Type of dataset. Set to None for no validation check
-#' @param asset_view ID of view listing all project data assets. For example,
-#' for Synapse this would be the Synapse ID of the fileview listing all data
-#' assets for a given project.(i.e. master_fileview in config.yml)
+#' @param asset_view ID of view listing all project data assets. For example, for Synapse this would be the Synapse ID of the fileview listing all data assets for a given project.(i.e. master_fileview in config.yml)
 #' @param dataset_id Synapse ID of existing manifest
 #' @param file_name Filepath of csv to validate
 #' @param access_token Synapse login cookie, PAT, or API key
-#' @param restrict_rules If True, validation suite will only run with in-house
-#' validation rule. If False, the Great Expectations suite will be utilized and
-#' all rules will be available.
-#' @param manifest_record_type Manifest storage type. Options: "--", "table"
-#' (default), "entity", "both".
+#' @param restrict_rules If True, validation suite will only run with in-house validation rule. If False, the Great Expectations suite will be utilized and all rules will be available.
+#' @param manifest_record_type Manifest storage type. Options: "--", "table" (default), "entity", "both".
 #' @param base_url URL to schematic API endpoint
 #' @param schema_url URL to a schema jsonld
-#' @param use_schema_label Store attributes using the schema label
-#' (true, default) or store attributes using the display label (false).
 #'
 #' @returns TRUE if successful upload or validate errors if not.
 #' @export
@@ -96,12 +85,9 @@ model_submit <- function(data_type = NULL,
                          file_name,
                          access_token,
                          restrict_rules = TRUE,
-                         manifest_record_type = "file_only",
-                         base_url = paste0(
-                           "https://",
-                           "schematic.api.sagebionetworks.org"
-                         ),
-                         schema_url,
+                         manifest_record_type = "table_and_file",
+                         base_url = "https://schematic-dev.api.sagebionetworks.org",
+                         schema_url = "https://raw.githubusercontent.com/Sage-Bionetworks/data_flow/main/inst/data_flow_component.jsonld",
                          use_schema_label = TRUE) {
   # create url
   url <- paste0(base_url, "/v1/model/submit")
@@ -126,7 +112,6 @@ model_submit <- function(data_type = NULL,
   res <- httr::POST(
     url = url,
     query = params,
-    httr::add_headers(Authorization = sprintf("Bearer %s", access_token)),
     body = files
   )
 
@@ -155,7 +140,7 @@ model_submit <- function(data_type = NULL,
   )
 }
 
-#' Gets all datasets in a given storage project
+#' Gets all datasets in folder under a given storage project that the current user has access to.
 #'
 #' @param asset_view synapse ID of master file view.
 #' @param project_id synapse ID of a storage project.
@@ -167,33 +152,22 @@ model_submit <- function(data_type = NULL,
 storage_project_datasets <- function(asset_view,
                                      project_id,
                                      access_token,
-                                     base_url = paste0(
-                                       "https://",
-                                       "schematic.api.",
-                                       "sagebionetworks.org"
-                                     )) {
+                                     base_url = "https://schematic-dev.api.sagebionetworks.org") {
   # create url
   url <- paste0(base_url, "/v1/storage/project/datasets")
 
   # set up parameters for httr::get call
   params <- list(
     asset_view = asset_view,
-    project_id = project_id
+    project_id = project_id,
+    access_token = access_token
   )
 
   # GET
-  res <- httr::GET(url,
-    httr::add_headers(Authorization = sprintf(
-      "Bearer %s",
-      access_token
-    )),
-    query = params
-  )
+  res <- httr::GET(url, query = params)
 
   # pull out content from request
-  parsed <- suppressMessages(
-    jsonlite::fromJSON(httr::content(res, as = "text"))
-  )
+  parsed <- suppressMessages(jsonlite::fromJSON(httr::content(res, as = "text")))
 
   # if the api call returns an error
   # surface error to user
@@ -236,29 +210,21 @@ storage_project_datasets <- function(asset_view,
 
 storage_projects <- function(asset_view,
                              access_token,
-                             base_url =
-                               "https://schematic.api.sagebionetworks.org") {
+                             base_url = "https://schematic-dev.api.sagebionetworks.org") {
   # create url
   url <- paste0(base_url, "/v1/storage/projects")
 
   # set up parameters for httr::get call
   params <- list(
-    asset_view = asset_view
+    asset_view = asset_view,
+    access_token = access_token
   )
 
   # GET
-  res <- httr::GET(url,
-    httr::add_headers(Authorization = sprintf(
-      "Bearer %s",
-      access_token
-    )),
-    query = params
-  )
+  res <- httr::GET(url, query = params)
 
   # pull out content from request
-  parsed <- suppressMessages(
-    jsonlite::fromJSON(httr::content(res, as = "text"))
-  )
+  parsed <- suppressMessages(jsonlite::fromJSON(httr::content(res, as = "text")))
 
   # if the api call returns an error
   # surface error to user
@@ -290,7 +256,7 @@ storage_projects <- function(asset_view,
 #' /storage/project/manifests
 #'
 #' @param asset_view synapse ID of master file view.
-#' @param project_id synapse ID of a storage dataset.
+#' @param dataset_id synapse ID of a storage dataset.
 #' @param access_token synapse PAT
 #' @param base_url URL to schematic API endpoint
 #'
@@ -299,35 +265,22 @@ storage_projects <- function(asset_view,
 storage_project_manifests <- function(asset_view,
                                       project_id,
                                       access_token,
-                                      base_url =
-                                        paste0(
-                                          "https://",
-                                          "schematic.api.",
-                                          "sagebionetworks.org"
-                                        )) {
+                                      base_url = "https://schematic-dev.api.sagebionetworks.org") {
   # write URL
   url <- paste0(base_url, "/v1/storage/project/manifests")
 
   # set up parameters for httr::get call
   params <- list(
+    `access_token` = access_token,
     `project_id` = project_id,
     `asset_view` = asset_view
   )
 
   # GET
-  res <- httr::GET(
-    url = url,
-    httr::add_headers(Authorization = sprintf(
-      "Bearer %s",
-      access_token
-    )),
-    query = params
-  )
+  res <- httr::GET(url = url, query = params)
 
   # pull out content from request
-  parsed <- suppressMessages(
-    jsonlite::fromJSON(httr::content(res, as = "text"))
-  )
+  parsed <- suppressMessages(jsonlite::fromJSON(httr::content(res, as = "text")))
 
   # if the api call returns an error
   # surface error to user
@@ -347,14 +300,7 @@ storage_project_manifests <- function(asset_view,
 
   # if dataframe has content, name columns
   if (nrow(parsed_df) > 0) {
-    names(parsed_df) <- c(
-      "dataset_id",
-      "manifest_id",
-      "data_type",
-      "folder_name",
-      "file_name"
-    )
-
+    names(parsed_df) <- c("dataset_id", "manifest_id", "data_type", "folder_name", "file_name")
     # drop redundant data type column
     parsed_df <- parsed_df[, -6]
   }
@@ -370,8 +316,7 @@ storage_project_manifests <- function(asset_view,
 }
 
 
-#' Get all the attributes associated with a specific data model component
-#' formatted as a dataframe
+#' Get all the attributes associated with a specific data model component formatted as a dataframe
 #'
 #' @param schema_url A data model URL
 #' @param component Component of the data model to explore
@@ -380,8 +325,7 @@ storage_project_manifests <- function(asset_view,
 
 visualize_component <- function(schema_url,
                                 component = "DataFlow",
-                                base_url =
-                                  "https://schematic.api.sagebionetworks.org") {
+                                base_url = "https://schematic-dev.api.sagebionetworks.org") {
   # create api url
   url <- paste0(base_url, "/v1/visualize/component")
 
@@ -394,6 +338,12 @@ visualize_component <- function(schema_url,
 
   # GET
   res <- httr::GET(url = url, query = params)
+
+  # check that application returns json
+  # even when json = TRUE, http_type = "text/csv"
+  # if (httr::http_type(res) != "application/json") {
+  #   stop("API did not return json", call. = FALSE)
+  # }
 
   # pull out content from request
   parsed <- suppressMessages(httr::content(res))
@@ -420,8 +370,7 @@ visualize_component <- function(schema_url,
   )
 }
 
-#' Get all the attributes associated with a specific data model component
-#' formatted as a dataframe
+#' Get all the attributes associated with a specific data model component formatted as a dataframe
 #'
 #' @param schema_url A data model URL
 #' @param node_display_name Display lable of node
@@ -479,3 +428,54 @@ print.schematic_api <- function(x, ...) {
   utils::str(x$content)
   invisible(x)
 }
+
+## ARCHIVE  ####################################################################
+#
+# THIS FUNCTION IS UNTESTED AND NOT USED ANYMORE
+#
+# storage_dataset_files <- function(asset_view,
+#                                   dataset_id,
+#                                   access_token,
+#                                   file_names=list(),
+#                                   full_path=FALSE,
+#                                   base_url = "https://schematic-dev.api.sagebionetworks.org") {
+#
+#   # create url
+#   url <- paste0(base_url, "/v1/storage/dataset/files")
+#
+#   # set up parameters for httr::get call
+#   params <- list(
+#     asset_view = asset_view,
+#     dataset_id = dataset_id,
+#     file_names = file_names,
+#     full_path = full_path,
+#     access_token = access_token)
+#
+#   # GET
+#   res <- httr::GET(url, query = params)
+#
+#   # pull out content from request
+#   parsed <- jsonlite::fromJSON(httr::content(res, as = "text"))
+#
+#   # if the api call returns an error
+#   # surface error to user
+#   if (httr::http_error(res)) {
+#     stop(
+#       sprintf(
+#         "Schematic API request failed [%s]\n%s",
+#         httr::status_code(res),
+#         parsed$detail
+#       ),
+#       call. = FALSE
+#     )
+#   }
+#
+#   # return a helpful object
+#   structure(
+#     list(
+#       content = parsed,
+#       response = res
+#     ),
+#     class = "schematic_api"
+#   )
+# }

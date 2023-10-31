@@ -116,11 +116,16 @@ get_colname_by_type <- function(type,
 #'
 #' @export
 
-get_renamed_colnames <- function(config) {
+get_renamed_colnames <- function(config,
+                                 flatten = TRUE) {
   # create a vector of display column names
   new_col_names <- purrr::map(config, "display_name")
 
-  purrr::flatten_chr(new_col_names)
+  if (flatten) {
+    new_col_names <- purrr::flatten_chr(new_col_names)
+  }
+
+  return(new_col_names)
 }
 
 #' Parse config to get columns with na_replace specified

@@ -16,7 +16,11 @@ mod_select_storage_project_ui <- function(id) {
       width = NULL,
 
       # Project dropdown
-      shiny::uiOutput(ns("project_selector")),
+      shiny::selectInput(
+        inputId = ns("selected_project"),
+        label = NULL,
+        choices = "downloading data...",
+        selectize = FALSE), # must be false or for some reason cannot reference `input$selected_project`
 
       # Button to initiate project selection
       shiny::actionButton(
@@ -48,37 +52,31 @@ mod_select_storage_project_server <- function(id,
     ns <- session$ns
 
     # API CALL : GET STORAGE PROJECTS #######################################################################
+    # UPDATE STORAGE PROJECT DROP DOWN W API RES ##############################
+    observe({
+      req(asset_view())
 
-    storage_project_obj <- storage_projects(
-      asset_view = asset_view,
-      access_token = access_token,
-      base_url = base_url
-    )
+      sp_obj <- storage_projects(
+        asset_view = asset_view(),
+        access_token = access_token,
+        base_url = base_url)
 
-    # DROP DOWN LISTING STORAGE PROJECTS ####################################################################
+      choices <- setNames(
+        sp_obj$content$id,
+        sp_obj$content$name
+      )
 
-    # render ui for storage project drop down
-    output$project_selector <- shiny::renderUI({
-      shiny::selectInput(
-        inputId = ns("selected_project"),
-        label = NULL,
-        choices = storage_project_obj$content[, "name"],
-        selectize = FALSE
-      ) # must be false or for some reason cannot reference `input$selected_project`
-    })
+      shiny::updateSelectInput(
+        session = session,
+        inputId = "selected_project",
+        choices = choices
+      )
+      })
 
-    # SUBSET STORAGE PROJECT DATAFRAME BY SELECTED PROJECT  ##############################################################
-
-    selected_project_df <- shiny::reactive({
-      shiny::req(input$selected_project)
-
-      storage_project_obj$content[match(input$selected_project, storage_project_obj$content[, "name"]), ]
-    })
-
-    # RETURN SELECTED PROJECT  ##############################################################
+    # # RETURN SELECTED PROJECT  ##############################################################
 
     shiny::eventReactive(input$submit_btn, {
-      return(selected_project_df())
+      return(input$selected_project)
     })
   })
 }

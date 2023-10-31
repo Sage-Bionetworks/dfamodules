@@ -7,7 +7,7 @@
 storage_projects(
   asset_view,
   access_token,
-  base_url = "https://schematic.api.sagebionetworks.org"
+  base_url = "https://schematic-dev.api.sagebionetworks.org"
 )
 }
 \arguments{

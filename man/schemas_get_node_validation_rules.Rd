@@ -2,8 +2,7 @@
 % Please edit documentation in R/schematic_rest_api.R
 \name{schemas_get_node_validation_rules}
 \alias{schemas_get_node_validation_rules}
-\title{Get all the attributes associated with a specific data model component
-formatted as a dataframe}
+\title{Get all the attributes associated with a specific data model component formatted as a dataframe}
 \usage{
 schemas_get_node_validation_rules(schema_url, node_display_name, base_url)
 }
@@ -15,6 +14,5 @@ schemas_get_node_validation_rules(schema_url, node_display_name, base_url)
 \item{base_url}{URL to schematic API endpoint}
 }
 \description{
-Get all the attributes associated with a specific data model component
-formatted as a dataframe
+Get all the attributes associated with a specific data model component formatted as a dataframe
 }

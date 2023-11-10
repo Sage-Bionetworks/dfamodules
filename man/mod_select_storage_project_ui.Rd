@@ -7,8 +7,9 @@
 mod_select_storage_project_ui(id)
 }
 \arguments{
-\item{id, input, output, session}{Internal parameters for {shiny}.}
+\item{id}{shiny id}
 }
 \description{
-A shiny module. Outputs a selectInput dropdown of Synapse storage project names to the UI.
+A shiny module. Outputs a selectInput dropdown of Synapse
+storage project names to the UI.
 }

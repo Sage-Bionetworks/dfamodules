@@ -112,7 +112,6 @@ model_submit <- function(data_type = NULL,
     `manifest_record_type` = manifest_record_type,
     `restrict_rules` = restrict_rules,
     `asset_view` = asset_view,
-    `access_token` = access_token,
     `use_schema_label` = use_schema_label
   )
 

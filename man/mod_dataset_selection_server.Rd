@@ -6,7 +6,7 @@
 \usage{
 mod_dataset_selection_server(
   id,
-  storage_project_df,
+  storage_project_id,
   asset_view,
   access_token,
   hidden_datasets = NULL,
@@ -14,9 +14,9 @@ mod_dataset_selection_server(
 )
 }
 \arguments{
-\item{id}{Internal parameter for {shiny}}
+\item{id}{shiny id}
 
-\item{storage_project_df}{Dataframe containing the columns \code{id} and \code{name}}
+\item{storage_project_id}{Reactive value of a storage project ID}
 
 \item{asset_view}{Fileview containing datasets}
 

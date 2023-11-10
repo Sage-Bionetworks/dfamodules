@@ -7,7 +7,7 @@
 mod_datatable_dashboard_ui(id)
 }
 \arguments{
-\item{id, input, output, session}{Internal parameters for {shiny}.}
+\item{id}{shiny id}
 }
 \description{
 A shiny module that displays a DataFlow manifest as a dashboard

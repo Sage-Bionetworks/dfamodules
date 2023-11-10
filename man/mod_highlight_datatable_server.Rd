@@ -7,13 +7,13 @@
 mod_highlight_datatable_server(id, df, selection, df_match_colname)
 }
 \arguments{
-\item{id}{internal Shiny ID}
+\item{id}{shiny id}
 
 \item{df}{a dataframe}
 
 \item{selection}{a vector of IDs to match on}
 
-\item{df_match_columns}{column name to match on}
+\item{df_match_colname}{column name to match on}
 }
 \description{
 Datatable that highlights based on a given input Server

@@ -7,7 +7,7 @@
 mod_update_data_flow_status_ui(id)
 }
 \arguments{
-\item{id, input, output, session}{Internal parameters for {shiny}.}
+\item{id}{shiny id}
 }
 \description{
 A shiny Module.

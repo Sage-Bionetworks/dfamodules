@@ -14,8 +14,18 @@ mod_datatable_filters_ui(
 )
 }
 \arguments{
-\item{id, input, output, session}{Internal parameters for {shiny}.}
+\item{id}{shiny id}
+
+\item{width}{filter width}
+
+\item{contributor_choices}{vector of choices for contributor filter}
+
+\item{dataset_choices}{vector of choices for dataset filter}
+
+\item{release_daterange}{vector containing max/min for release dateRange}
+
+\item{status_choices}{vector of choices for status filter}
 }
 \description{
-A shiny Module that renders filters for the dataFlow manifest
+A shiny Module that renders filters for the data flow manifest.
 }

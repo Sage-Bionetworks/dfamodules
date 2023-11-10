@@ -15,18 +15,21 @@ generate_dashboard_config <- function(schema_url,
                                       icon = TRUE,
                                       na_replace = NULL,
                                       base_url) {
-
   # GET VISUALIZE/COMPONENT
-  vc_out <- visualize_component(schema_url,
-                                "DataFlow",
-                                base_url)
+  vc_out <- visualize_component(
+    schema_url,
+    "DataFlow",
+    base_url
+  )
   attributes_df <- vc_out$content
 
   # GET VALIDATION RULES FOR EACH ATTRIBUTE
   attributes_df$type <- unlist(sapply(attributes_df$Label, USE.NAMES = FALSE, function(lab) {
-    schematic_obj <- schemas_get_node_validation_rules(schema_url,
-                                                       lab,
-                                                       base_url)
+    schematic_obj <- schemas_get_node_validation_rules(
+      schema_url,
+      lab,
+      base_url
+    )
     return(schematic_obj$content)
   }))
 
@@ -41,7 +44,7 @@ generate_dashboard_config <- function(schema_url,
       stop(paste0("Missing display name for attribute(s): ", paste0(missing$Attribute, collapse = ", ")))
     }
     # reorder columns based on display names
-    attributes_df <- dplyr::arrange(attributes_df, match(Attribute, names(display_names)))
+    attributes_df <- dplyr::arrange(attributes_df, match(attributes_df$Attribute, names(display_names)))
 
     # Assign display names
     display_names <- ifelse(attributes_df$Attribute %in% names(display_names), unlist(display_names), NA)
@@ -53,9 +56,8 @@ generate_dashboard_config <- function(schema_url,
   # SET TYPE=ICON
   # if icon = TRUE
   if (icon) {
-
     # find logical columns
-    log_cols <- grepl("TRUE", attributes_df$`Valid Values`) &  grepl("FALSE", attributes_df$`Valid Values`)
+    log_cols <- grepl("TRUE", attributes_df$`Valid Values`) & grepl("FALSE", attributes_df$`Valid Values`)
 
     # change type to icon
     attributes_df[log_cols, "type"] <- "icon"
@@ -63,20 +65,17 @@ generate_dashboard_config <- function(schema_url,
 
   # SET REPLACEMENT STRINGS FOR NA
   if (!is.null(na_replace)) {
-
     attributes_df$na_replace <- sapply(1:nrow(attributes_df), function(i) {
       # pull out attribute
       attribute <- attributes_df$Attribute[i]
       # if attribute is in na_replace list, add na_replace string to attribute_df
       if (attribute %in% names(na_replace)) {
         return(na_replace[[grep(attribute, names(na_replace))]])
-
       } else {
         # else return NA
         return(NA)
       }
     })
-
   }
 
   # make a list
@@ -85,7 +84,6 @@ generate_dashboard_config <- function(schema_url,
 
   # return config
   return(config)
-
 }
 
 ##### PARSE CONFIG #####
@@ -99,19 +97,17 @@ generate_dashboard_config <- function(schema_url,
 
 get_colname_by_type <- function(type,
                                 config) {
-
   # get all elements with 'type'
   type_list <- purrr::map(config, "type")
   types <- unlist(type_list)
 
-  #subset types (a names list) where the entry  == type
+  # subset types (a names list) where the entry  == type
   col_names <- names(types[types == type])
 
   # remove NA
   col_names <- col_names[!is.na(col_names)]
 
   return(col_names)
-
 }
 
 #' Parse config to get display column names for dashboard
@@ -120,11 +116,16 @@ get_colname_by_type <- function(type,
 #'
 #' @export
 
-get_renamed_colnames <- function(config) {
+get_renamed_colnames <- function(config,
+                                 flatten = TRUE) {
   # create a vector of display column names
   new_col_names <- purrr::map(config, "display_name")
 
-  purrr::flatten_chr(new_col_names)
+  if (flatten) {
+    new_col_names <- purrr::flatten_chr(new_col_names)
+  }
+
+  return(new_col_names)
 }
 
 #' Parse config to get columns with na_replace specified
@@ -150,7 +151,6 @@ get_na_replace_colnames <- function(config) {
 
 get_na_replace_defs <- function(prepped_dataframe,
                                 config) {
-
   # get na_replace columns
   na_replace_cols <- get_na_replace_colnames(config)
 
@@ -160,8 +160,10 @@ get_na_replace_defs <- function(prepped_dataframe,
   defs <- lapply(seq_along(na_replace_cols), function(i) {
     colname <- na_replace_cols[i]
     replacement <- config[[colname]]$na_replace
-    dt_replace_na(na_replace_idx[i],
-                  replacement)
+    dt_replace_na(
+      na_replace_idx[i],
+      replacement
+    )
   })
 
   return(defs)

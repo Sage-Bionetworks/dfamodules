@@ -6,6 +6,9 @@
 \usage{
 mod_update_data_flow_status_server(id)
 }
+\arguments{
+\item{id}{shiny id}
+}
 \description{
 update_data_flow_status Server Functions
 }

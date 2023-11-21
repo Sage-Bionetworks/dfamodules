@@ -41,9 +41,12 @@ dataset_manifest_download <- function(asset_view,
   )
 
   # pull out content from request
-  parsed <- suppressMessages(
-    jsonlite::fromJSON(httr::content(res, as = "text"))
+  # need to use RJSONIO to get around NANs being returned by schematic
+  parsed_list <- suppressMessages(
+    RJSONIO::fromJSON(httr::content(res, "text"), nullValue = NA)
   )
+
+  parsed <- dplyr::bind_rows(parsed_list)
 
   # if the api call returns an error
   # surface error to user

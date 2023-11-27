@@ -41,12 +41,14 @@ dataset_manifest_download <- function(asset_view,
   )
 
   # pull out content from request
-  # need to use RJSONIO to get around NANs being returned by schematic
-  parsed_list <- suppressMessages(
-    RJSONIO::fromJSON(httr::content(res, "text"), nullValue = NA)
-  )
+  text_content <- httr::content(res, "text")
 
-  parsed <- dplyr::bind_rows(parsed_list)
+  # manually remove NAN and replace with empty string
+  if (grepl(NaN, text_content)) {
+    text_content <- gsub("NaN", '""', text_content)
+  }
+
+  parsed <- jsonlite::fromJSON(text_content)
 
   # if the api call returns an error
   # surface error to user

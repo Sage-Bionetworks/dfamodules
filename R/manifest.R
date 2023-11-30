@@ -80,7 +80,7 @@ update_dfs_manifest <- function(dfs_manifest,
     entry <- dfs_updates[[x]]
 
     # update vector by index
-    manifest_selected_idx <- match(selected_datasets_df$id, dfs_manifest$entityId)
+    manifest_selected_idx <- match(selected_datasets_df$id, dfs_manifest$dataset_id)
     vec[manifest_selected_idx] <- entry
 
     return(vec)
@@ -256,14 +256,14 @@ update_data_flow_manifest <- function(asset_view,
     }
   )
 
-  print("Checking data flow manifest for updates")
+                                                                                                                                                                                              print("Checking data flow manifest for updates")
 
   # check synapse for new datasets
   dataflow_manifest_updated <- update_manifest_add_datasets(
     dataflow_manifest = dataflow_manifest,
     get_all_manifests_out = synapse_manifests,
     asset_view = asset_view,
-    na_replace = "Not Applicable",
+    na_replace = "",
     schema_url = schema_url,
     access_token = access_token,
     base_url = base_url
@@ -293,7 +293,7 @@ update_data_flow_manifest <- function(asset_view,
   dataflow_manifest_updated <- update_manifest_column(
     dataflow_manifest = dataflow_manifest_updated,
     get_all_manifests_out = synapse_manifests,
-    update_column = "dataset",
+    update_column = "dataset_type",
     asset_view = asset_view,
     recalc_num_items = TRUE,
     access_token = access_token,
@@ -357,7 +357,7 @@ update_manifest_add_datasets <- function(dataflow_manifest,
                                          access_token,
                                          base_url) {
   # check for new datasets by entityId
-  new_datasets <- get_all_manifests_out[!get_all_manifests_out$entityId %in% dataflow_manifest$entityId, ]
+  new_datasets <- get_all_manifests_out[!get_all_manifests_out$dataset_id %in% dataflow_manifest$dataset_id, ]
 
   # if there are new datasets...
   if (nrow(new_datasets) > 0) {
@@ -370,6 +370,7 @@ update_manifest_add_datasets <- function(dataflow_manifest,
           df = new_datasets,
           asset_view = asset_view,
           access_token = access_token,
+          na_replace = na_replace,
           base_url = base_url
         )
       },
@@ -415,7 +416,7 @@ update_manifest_remove_datasets <- function(dataflow_manifest,
                                             access_token,
                                             base_url) {
   # check for removed datasets
-  remove_idx <- dataflow_manifest$entityId %in% get_all_manifests_out$entityId
+  remove_idx <- dataflow_manifest$dataset_id %in% get_all_manifests_out$dataset_id
 
   # if any of the rows are flagged for removal print a message and remove from manifest
   if (any(!remove_idx)) {
@@ -446,8 +447,8 @@ update_manifest_column <- function(dataflow_manifest,
                                    access_token,
                                    base_url) {
   # arrange by entityId
-  dataflow_manifest <- dplyr::arrange(dataflow_manifest, entityId)
-  get_all_manifests_out <- dplyr::arrange(get_all_manifests_out, entityId)
+  dataflow_manifest <- dplyr::arrange(dataflow_manifest, dataset_id)
+  get_all_manifests_out <- dplyr::arrange(get_all_manifests_out, dataset_id)
 
   # get logical index of which items have changed
   idx <- dataflow_manifest[, update_column] != get_all_manifests_out[, update_column]

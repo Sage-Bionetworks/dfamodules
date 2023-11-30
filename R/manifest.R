@@ -93,22 +93,25 @@ update_dfs_manifest <- function(dfs_manifest,
 #'
 #' @param asset_view ID of view listing all project data assets. For example, for Synapse this would be the Synapse ID of the fileview listing all data assets for a given project.(i.e. master_fileview in config.yml)
 #' @param schema_url URL of a dataFlow schema
+#' @param access_token A Synapse PAT
 #' @param na_replace NA replacement string
 #' @param calc_num_items TRUE/FALSE. Calculate the number of items in each manifest.
-#' @param access_token A Synapse PAT
 #' @param base_url Base URL of schematic API
 #'
 #' @export
 
 generate_dataflow_manifest <- function(asset_view,
                                        schema_url,
-                                       na_replace,
-                                       calc_num_items,
                                        access_token,
+                                       na_replace = NA,
+                                       verbose = FALSE,
+                                       calc_num_items = TRUE,
                                        base_url = "https://schematic-dev.api.sagebionetworks.org") {
+
   # get manifests for each storage project
   dataflow_manifest_chunk <- get_all_manifests(
     asset_view = asset_view,
+    na_replace = na_replace,
     access_token = access_token,
     base_url = base_url,
     verbose = TRUE
@@ -119,6 +122,8 @@ generate_dataflow_manifest <- function(asset_view,
     dataflow_manifest_chunk$num_items <- calculate_items_per_manifest(
       df = dataflow_manifest_chunk,
       asset_view = asset_view,
+      na_replace = na_replace,
+      verbose = verbose,
       access_token = access_token,
       base_url = base_url
     )
@@ -149,19 +154,16 @@ generate_dataflow_manifest <- function(asset_view,
 
 fill_dataflow_manifest <- function(dataflow_manifest_chunk,
                                    schema_url,
-                                   na_replace = NULL,
+                                   na_replace = NA,
                                    base_url) {
-  # set NA if no replacement string provided
-  if (is.null(na_replace)) {
-    na_replace <- NA
-  }
 
   # get attribute_df
   vc_out <- visualize_component(
-    schema_url,
-    "DataFlow",
-    base_url
+    schema_url = schema_url,
+    component = "DataFlow",
+    base_url = base_url
   )
+
   attributes_df <- vc_out$content
 
   # find attributes that are not present in provided manifest chunk
@@ -186,9 +188,6 @@ fill_dataflow_manifest <- function(dataflow_manifest_chunk,
 
   # bind manifest chunks
   dataflow_manifest <- cbind(dataflow_manifest_chunk, missing_attributes_filled)
-
-  # update empty cells to "Not Applicable"
-  dataflow_manifest[dataflow_manifest == ""] <- na_replace
 
   # return filled columns with original manifest chunk
   return(dataflow_manifest)

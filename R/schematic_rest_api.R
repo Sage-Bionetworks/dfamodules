@@ -41,9 +41,14 @@ dataset_manifest_download <- function(asset_view,
   )
 
   # pull out content from request
-  parsed <- suppressMessages(
-    jsonlite::fromJSON(httr::content(res, as = "text"))
-  )
+  text_content <- httr::content(res, "text")
+
+  # manually remove NAN and replace with empty string
+  if (grepl(NaN, text_content)) {
+    text_content <- gsub("NaN", '""', text_content)
+  }
+
+  parsed <- jsonlite::fromJSON(text_content)
 
   # if the api call returns an error
   # surface error to user

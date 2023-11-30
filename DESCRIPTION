@@ -23,7 +23,6 @@ Imports:
     jsonlite,
     magrittr,
     purrr,
-    RJSONIO,
     rlang,
     shiny,
     shinydashboard,

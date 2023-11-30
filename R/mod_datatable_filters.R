@@ -12,23 +12,7 @@
 #' @export
 
 mod_datatable_filters_ui <- function(id,
-                                     width = NULL,
-                                     contributor_choices = c(
-                                       "Contributor 1",
-                                       "Contributor 2"
-                                     ),
-                                     dataset_choices = c(
-                                       "dataset 1",
-                                       "dataset 2"
-                                     ),
-                                     release_daterange = c(
-                                       Sys.Date(),
-                                       (Sys.Date() + 365)
-                                     ),
-                                     status_choices = c(
-                                       "status 1",
-                                       "status 2"
-                                     )) {
+                                     width = NULL) {
   ns <- shiny::NS(id)
   shiny::tagList(
     shinydashboard::box(
@@ -37,28 +21,7 @@ mod_datatable_filters_ui <- function(id,
       collapsed = TRUE,
       width = width,
       status = "primary",
-      shiny::selectInput(ns("contributor_select"),
-        label = "Filter by contributor(s)",
-        choices = contributor_choices,
-        selected = contributor_choices,
-        multiple = TRUE
-      ),
-      shiny::selectInput(ns("dataset_select"),
-        label = "Filter by dataset type(s)",
-        choices = dataset_choices,
-        selected = dataset_choices,
-        multiple = TRUE
-      ),
-      shiny::dateRangeInput(ns("release_scheduled_daterange"),
-        label = "Filter by scheduled release date",
-        start = release_daterange[1],
-        end = release_daterange[2]
-      ),
-      shiny::checkboxGroupInput(ns("choose_status_checkbox"),
-        label = "Filter by status",
-        choices = status_choices,
-        selected = status_choices
-      )
+      shiny::uiOutput(ns("filter_widgets"))
     )
   )
 }
@@ -74,8 +37,56 @@ mod_datatable_filters_ui <- function(id,
 
 mod_datatable_filters_server <- function(id,
                                          manifest) {
+
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
+
+    choices <- list(
+      contributor_choices = reactiveVal(),
+      dataset_choices = reactiveVal(),
+      release_daterange_start = reactiveVal(),
+      release_daterange_end = reactiveVal(),
+      status_choices = reactiveVal()
+    )
+
+    # GENERATE CHOICES --------
+    observe({
+      choices$contributor_choices(unique(manifest()$contributor))
+      choices$dataset_choices(unique(manifest()$dataset_type))
+      choices$release_daterange_start(max(manifest()$scheduled_release_date, na.rm = T))
+      choices$release_daterange_end(min(manifest()$scheduled_release_date, na.rm = T))
+      choices$status_choices(unique(manifest()$status))
+    })
+
+    # RENDER WIDGETS --------
+
+    output$filter_widgets <- shiny::renderUI({
+      tagList(
+        shiny::selectInput(ns("contributor_select"),
+                           label = "Filter by contributor(s)",
+                           choices = choices$contributor_choices(),
+                           selected = NULL,
+                           multiple = TRUE
+        ),
+        shiny::selectInput(ns("dataset_select"),
+                           label = "Filter by dataset type(s)",
+                           choices = choices$dataset_choices(),
+                           selected = NULL,
+                           multiple = TRUE
+        ),
+        shiny::dateRangeInput(ns("release_scheduled_daterange"),
+                              label = "Filter by scheduled release date",
+                              start = choices$release_daterange_start()[1],
+                              end = choices$release_daterange_end()[2]
+        ),
+        shiny::checkboxGroupInput(ns("choose_status_checkbox"),
+                                  label = "Filter by status",
+                                  choices = choices$status_choices(),
+                                  selected = NULL
+        )
+      )
+    })
+
 
     # CHANGE "NA" TO NA --------
     selected_datasets_modified <- shiny::reactive({

@@ -101,9 +101,10 @@ prep_manifest_dash <- function(manifest,
     col_names = get_colname_by_type(config, type = "icon"),
     type = "icon")
 
-  # rearrange dataframe based on config order (any columns not in config are moved to end of dataframe)
-  # expected_colnames <- names(config)
-  # prepped_manifest <- rearrange_dataframe(manifest, expected_colnames)
+  # Remove unexpected attributes (not in data model)
+  # This will remove entityId and Id
+  expected_colnames <- names(config)
+  manifest <- manifest[, names(manifest) %in% expected_colnames]
 
   return(manifest)
 }

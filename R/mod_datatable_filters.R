@@ -1,3 +1,17 @@
+#' Filtering operator
+#'
+#' @description A special operator that doesn't filter nulls
+#' @rdname special_pipe
+#' @export
+
+`%==%` <- function (e1, e2) {
+  if (is.null(e2)) {
+    return(TRUE)
+  } else {
+    return(e1 %in% e2)
+  }
+}
+
 #' Filters for dataFlow Manifest UI
 #'
 #' @description A shiny Module that renders filters for the data flow manifest.
@@ -15,6 +29,7 @@ mod_datatable_filters_ui <- function(id,
                                      width = NULL) {
   ns <- shiny::NS(id)
   shiny::tagList(
+    shinyjs::useShinyjs(),
     shinydashboard::box(
       title = "Filter Datasets",
       collapsible = TRUE,
@@ -41,6 +56,7 @@ mod_datatable_filters_server <- function(id,
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
+    # GENERATE CHOICES --------
     choices <- list(
       contributor_choices = reactiveVal(),
       dataset_choices = reactiveVal(),
@@ -49,7 +65,6 @@ mod_datatable_filters_server <- function(id,
       status_choices = reactiveVal()
     )
 
-    # GENERATE CHOICES --------
     observe({
       choices$contributor_choices(unique(manifest()$contributor))
       choices$dataset_choices(unique(manifest()$dataset_type))
@@ -59,7 +74,6 @@ mod_datatable_filters_server <- function(id,
     })
 
     # RENDER WIDGETS --------
-
     output$filter_widgets <- shiny::renderUI({
       tagList(
         shiny::selectInput(ns("contributor_select"),
@@ -74,50 +88,39 @@ mod_datatable_filters_server <- function(id,
                            selected = NULL,
                            multiple = TRUE
         ),
-        shiny::dateRangeInput(ns("release_scheduled_daterange"),
+        shiny::dateRangeInput(ns("scheduled_release_daterange"),
                               label = "Filter by scheduled release date",
-                              start = choices$release_daterange_start()[1],
-                              end = choices$release_daterange_end()[2]
+                              start = choices$release_daterange_start(),
+                              end = choices$release_daterange_end()
         ),
-        shiny::checkboxGroupInput(ns("choose_status_checkbox"),
-                                  label = "Filter by status",
-                                  choices = choices$status_choices(),
-                                  selected = NULL
+        shiny::selectInput(ns("status_select"),
+                           label = "Filter by status",
+                           choices = choices$status_choices(),
+                           selected = NULL,
+                           multiple = TRUE
         )
       )
     })
 
-
-    # CHANGE "NA" TO NA --------
-    selected_datasets_modified <- shiny::reactive({
-      shiny::req(input$dataset_select)
-      # replace string "NA" with true NA
-      datasets <- input$dataset_select
-      datasets[datasets == "NA"] <- NA
-      datasets
-    })
-
-
     # FILTER INPUTS ---------
     manifest_filtered <- shiny::reactive({
-      manifest <- manifest()
+      req(manifest())
 
-      # FIXME: For some reason line 75 cause a warning
-      # Problem while computing `..3 = ... | is.na(release_scheduled)`.
-      # Input `..3` must be of size 19 or 1, not size 0.
-      # No error seems to be introduced so I will keep this line of code for now
-      filtered <- manifest %>%
+      filtered <- manifest() %>%
         dplyr::filter(
-          contributor %in% input$contributor_select,
-          dataset_type %in% selected_datasets_modified(),
-          scheduled_release_date >=
-            input$release_scheduled_daterange[1] &
-            scheduled_release_date <=
-              input$release_scheduled_daterange[2] |
-            is.na(scheduled_release_date),
-          status %in% input$choose_status_checkbox
+          contributor %==% input$contributor_select,
+          dataset_type %==% input$dataset_select,
+          status %==% input$status_select
         )
 
+      if (all(!is.na(input$scheduled_release_daterange)) & all(!is.null(input$scheduled_release_daterange))) {
+        print("running if statement")
+        filtered <- filtered %>%
+          dplyr::filter(
+            scheduled_release_date >= input$scheduled_release_daterange[1] &
+              scheduled_release_date <= input$scheduled_release_daterange[2]
+          )
+      }
 
       return(filtered)
     })

@@ -68,9 +68,16 @@ mod_datatable_filters_server <- function(id,
     observe({
       choices$contributor_choices(unique(manifest()$contributor))
       choices$dataset_choices(unique(manifest()$dataset_type))
-      choices$release_daterange_start(max(manifest()$scheduled_release_date, na.rm = T))
-      choices$release_daterange_end(min(manifest()$scheduled_release_date, na.rm = T))
       choices$status_choices(unique(manifest()$status))
+
+      is_all_na <- all(is.na(manifest()$scheduled_release_date))
+      if (is_all_na) {
+        choices$release_daterange_start(NA)
+        choices$release_daterange_end(NA)
+      } else {
+        choices$release_daterange_start(max(manifest()$scheduled_release_date, na.rm = T))
+        choices$release_daterange_end(min(manifest()$scheduled_release_date, na.rm = T))
+      }
     })
 
     # RENDER WIDGETS --------

@@ -109,6 +109,27 @@ mod_datatable_filters_server <- function(id,
       )
     })
 
+    # HANDLE NA ---------
+    # for some reason shiny::SelectInput converts NA to "NA"
+    # This logic helps everything filter nicely
+    selected_data_type_modified <- shiny::reactive({
+      selected_datasets <- input$dataset_select
+
+      if (!is.null(selected_datasets)) {
+        selected_datasets[selected_datasets == "NA"] <- NA
+      }
+      return(selected_datasets)
+    })
+
+    selected_statuses_modified <- shiny::reactive({
+      selected_status <- input$status_select
+
+      if (!is.null(selected_status)) {
+        selected_status[selected_status == "NA"] <- NA
+      }
+      return(selected_status)
+    })
+
     # FILTER INPUTS ---------
     manifest_filtered <- shiny::reactive({
       req(manifest())
@@ -116,12 +137,11 @@ mod_datatable_filters_server <- function(id,
       filtered <- manifest() %>%
         dplyr::filter(
           contributor %==% input$contributor_select,
-          dataset_type %==% input$dataset_select,
-          status %==% input$status_select
+          dataset_type %==% selected_data_type_modified(),
+          status %==% selected_statuses_modified()
         )
 
       if (all(!is.na(input$scheduled_release_daterange)) & all(!is.null(input$scheduled_release_daterange))) {
-        print("running if statement")
         filtered <- filtered %>%
           dplyr::filter(
             scheduled_release_date >= input$scheduled_release_daterange[1] &

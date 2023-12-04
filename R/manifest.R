@@ -8,7 +8,10 @@
 prep_manifest_dfa <- function(manifest,
                               config) {
   # convert various forms of "Not Applicable" to NA
-  manifest[manifest == "Not Applicable"| manifest == "Not applicable" | manifest == "not applicable"] <- NA
+  manifest[manifest == "Not Applicable"|
+             manifest == "Not applicable" |
+             manifest == "not applicable" |
+             manifest == ""] <- NA
 
   # dates come in from Synapse as char
   # convert to date type

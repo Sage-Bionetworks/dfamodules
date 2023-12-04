@@ -97,8 +97,8 @@ mod_datatable_filters_server <- function(id,
         ),
         shiny::dateRangeInput(ns("scheduled_release_daterange"),
                               label = "Filter by scheduled release date",
-                              start = choices$release_daterange_start(),
-                              end = choices$release_daterange_end()
+                              start = NA,
+                              end = NA
         ),
         shiny::selectInput(ns("status_select"),
                            label = "Filter by status",

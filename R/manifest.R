@@ -22,6 +22,12 @@ prep_manifest_dfa <- function(manifest,
     type = "date"
   )
 
+  manifest <- convert_column_type(
+    df = manifest,
+    col_names = get_colname_by_type("integer", config),
+    type = "integer"
+  )
+
   # return the manifest
   return(manifest)
 }

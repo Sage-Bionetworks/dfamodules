@@ -36,7 +36,8 @@ mod_datatable_filters_ui <- function(id,
       collapsed = TRUE,
       width = width,
       status = "primary",
-      shiny::uiOutput(ns("filter_widgets"))
+      shiny::uiOutput(ns("filter_widgets")),
+      shiny::actionButton(ns("clear_btn"), "Clear Filter Selections")
     )
   )
 }
@@ -71,6 +72,7 @@ mod_datatable_filters_server <- function(id,
       choices$status_choices(unique(manifest()$status))
 
       is_all_na <- all(is.na(manifest()$scheduled_release_date))
+
       if (is_all_na) {
         choices$release_daterange_start(NA)
         choices$release_daterange_end(NA)
@@ -152,6 +154,10 @@ mod_datatable_filters_server <- function(id,
       return(filtered)
     })
 
+    # CLEAR SELECTIONS ---------
+    observeEvent(input$clear_btn, { shinyjs::reset("filter_widgets") })
+
+    # RETURN FILTERED MANIFEST ---------
     return(manifest_filtered)
   })
 }

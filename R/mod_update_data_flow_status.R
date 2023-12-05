@@ -13,37 +13,60 @@ mod_update_data_flow_status_ui <- function(id) {
       title = "Update Data Flow Status",
       width = NULL,
 
-      # release scheduled input
-      mod_scheduler_ui(ns("release_date"),
+      # scheduled_release_date widget
+      mod_scheduler_ui(
+        ns("release_date"),
         dateInput_label = shiny::h4("Schedule Release"),
         checkboxInput_label = "Unschedule Release"
       ),
-      # embargo input
-      mod_scheduler_ui(ns("embargo"),
-        dateInput_label = shiny::h4("Schedule Embargo"),
-        checkboxInput_label = "Unschedule Embargo"
+
+      shiny::selectInput(
+        ns("status"),
+        label = shiny::h4("Status"),
+        choices = c("",
+                    "not uploaded",
+                    "uploaded",
+                    "curated",
+                    "quarantine",
+                    "preprocessing",
+                    "scheduled for release",
+                    "ready for released",
+                    "released")
       ),
 
-      # standard compliance input
-      shiny::radioButtons(ns("standard_compliance"),
-        label = shiny::h4("Standard Compliance"),
+      # released_destinations widget
+      shiny::selectInput(
+        ns("released_destinations"),
+        label = shiny::h4("Released Destination"),
+        choices = c("",
+                    "data portal",
+                    "dbGaP")
+      ),
+
+      # metadata_check widget
+      shiny::radioButtons(
+        ns("metadata_check"),
+        label = shiny::h4("Metadata Check?"),
+        choices = list("TRUE" = TRUE, "FALSE" = FALSE),
+        selected = NA
+      ),
+
+      # governance_compliance widget
+      shiny::radioButtons(
+        ns("governance_compliance"),
+        label = shiny::h4("Governance Compliance?"),
         list("TRUE" = TRUE, "FALSE" = FALSE),
         selected = NA
       ),
 
-      # data portal input
-      shiny::radioButtons(ns("data_portal"),
-        label = shiny::h4("Data Portal"),
+      # released widget
+      shiny::radioButtons(
+        ns("released"),
+        label = shiny::h4("Released?"),
         choices = list("TRUE" = TRUE, "FALSE" = FALSE),
         selected = NA
       ),
 
-      # released input
-      shiny::radioButtons(ns("released"),
-        label = shiny::h4("Released"),
-        choices = list("TRUE" = TRUE, "FALSE" = FALSE),
-        selected = NA
-      ),
       shiny::br(),
 
       # reset button
@@ -61,6 +84,7 @@ mod_update_data_flow_status_server <- function(id) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
+    ## SCHEDULER MODULE SERVER ---------
     release_scheduled <- mod_scheduler_server(
       "release_date",
       shiny::reactive({
@@ -68,23 +92,30 @@ mod_update_data_flow_status_server <- function(id) {
       })
     )
 
-    embargo <- mod_scheduler_server(
-      "embargo",
-      shiny::reactive({
-        input$reset_btn
-      })
-    )
-
+    ## RESET WIDGETS ---------
     shiny::observeEvent(input$reset_btn, {
+
       shiny::updateRadioButtons(
         session = session,
-        inputId = "standard_compliance",
+        inputId = "governance_compliance",
         selected = character(0)
       )
 
       shiny::updateRadioButtons(
         session = session,
-        inputId = "data_portal",
+        inputId = "metadata_check",
+        selected = character(0)
+      )
+
+      shiny::updateSelectInput(
+        session = session,
+        inputId = "status",
+        selected = character(0)
+      )
+
+      shiny::updateSelectInput(
+        session = session,
+        inputId = "released_destinations",
         selected = character(0)
       )
 
@@ -95,19 +126,34 @@ mod_update_data_flow_status_server <- function(id) {
       )
     })
 
-    res <- shiny::reactive({
-      list(
-        release_scheduled = release_scheduled(),
-        embargo = embargo(),
-        standard_compliance = input$standard_compliance,
-        data_portal = input$data_portal,
-        released = input$released
-      )
+    # BLANK STRING HANDLING --------
+    status_modified <- reactive({
+      print(nchar(input$status))
+      if ( nchar(input$status) >= 1 ) {
+        return(input$status)
+      } else {
+        return(NULL)
+      }
     })
 
+    release_destinations_modified <- reactive({
+      if ( nchar(input$released_destinations) >= 1 ) {
+        return(input$released_destinations)
+      } else {
+        return(NULL)
+      }
+    })
 
-    return(shiny::reactive({
-      res()
-    }))
+    return(
+      shiny::reactive({
+        list(
+          release_scheduled = release_scheduled(),
+          governance_compliance = input$governance_compliance,
+          metadata_check = input$metadata_check,
+          status = status_modified(),
+          released_destinations = release_destinations_modified(),
+          released = input$released
+        )
+      }))
   })
 }

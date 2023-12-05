@@ -89,7 +89,7 @@ update_dfs_manifest <- function(dfs_manifest,
     entry <- dfs_updates[[x]]
 
     # update vector by index
-    manifest_selected_idx <- match(selected_datasets_df$id, dfs_manifest$entityId)
+    manifest_selected_idx <- match(selected_datasets_df$id, dfs_manifest$dataset_id)
     vec[manifest_selected_idx] <- entry
 
     return(vec)

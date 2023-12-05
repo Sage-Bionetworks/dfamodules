@@ -1,4 +1,4 @@
-#' update_data_flow_status UI Function
+#' administrator_widgets UI Function
 #'
 #' @description A shiny Module.
 #'
@@ -6,7 +6,7 @@
 #' @importFrom shiny NS tagList
 #' @export
 
-mod_update_data_flow_status_ui <- function(id) {
+mod_administrator_widgets_ui <- function(id) {
   ns <- shiny::NS(id)
   shiny::tagList(
     shinydashboard::box(
@@ -80,7 +80,7 @@ mod_update_data_flow_status_ui <- function(id) {
 #' @param id shiny id
 #' @export
 
-mod_update_data_flow_status_server <- function(id) {
+mod_administrator_widgets_server <- function(id) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 

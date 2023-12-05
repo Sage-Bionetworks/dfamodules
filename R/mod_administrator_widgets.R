@@ -85,7 +85,7 @@ mod_administrator_widgets_server <- function(id) {
     ns <- session$ns
 
     ## SCHEDULER MODULE SERVER ---------
-    release_scheduled <- mod_scheduler_server(
+    scheduled_release <- mod_scheduler_server(
       "release_date",
       shiny::reactive({
         input$reset_btn
@@ -147,7 +147,7 @@ mod_administrator_widgets_server <- function(id) {
     return(
       shiny::reactive({
         list(
-          release_scheduled = release_scheduled(),
+          scheduled_release_date = scheduled_release(),
           governance_compliance = input$governance_compliance,
           metadata_check = input$metadata_check,
           status = status_modified(),

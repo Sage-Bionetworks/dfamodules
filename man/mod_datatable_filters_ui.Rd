@@ -10,14 +10,6 @@ mod_datatable_filters_ui(id, width = NULL)
 \item{id}{shiny id}
 
 \item{width}{filter width}
-
-\item{contributor_choices}{vector of choices for contributor filter}
-
-\item{dataset_choices}{vector of choices for dataset filter}
-
-\item{release_daterange}{vector containing max/min for release dateRange}
-
-\item{status_choices}{vector of choices for status filter}
 }
 \description{
 A shiny Module that renders filters for the data flow manifest.

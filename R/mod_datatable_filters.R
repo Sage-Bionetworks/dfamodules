@@ -17,11 +17,6 @@
 #' @description A shiny Module that renders filters for the data flow manifest.
 #' @param id shiny id
 #' @param width filter width
-#' @param contributor_choices vector of choices for contributor filter
-#' @param dataset_choices vector of choices for dataset filter
-#' @param release_daterange vector containing max/min for release dateRange
-#' @param status_choices vector of choices for status filter
-#'
 #' @importFrom shiny NS tagList
 #' @export
 
@@ -78,7 +73,6 @@ mod_datatable_filters_server <- function(id,
       if (is_all_na) {
         choices$release_daterange_min(NULL)
         choices$release_daterange_max(NULL)
-        print("ALL NA")
       } else {
 
         min_date <- min(manifest()$scheduled_release_date, na.rm = T) %m-% months(1)
@@ -91,9 +85,6 @@ mod_datatable_filters_server <- function(id,
 
     # RENDER WIDGETS --------
     output$filter_widgets <- shiny::renderUI({
-
-      print(paste0("min date - ", choices$release_daterange_min()))
-      print(paste0("max date - ", choices$release_daterange_max()))
 
       tagList(
         shiny::selectInput(ns("contributor_select"),
@@ -146,6 +137,9 @@ mod_datatable_filters_server <- function(id,
     })
 
     # FILTER INPUTS ---------
+    # Filters output NULL when nothing is selected. This was filtering out all
+    # rows so no data would show in the dashboard. Using %modifiedIn% catches
+    # fixes this issue.
     manifest_filtered <- shiny::reactive({
       req(manifest())
 
@@ -156,6 +150,7 @@ mod_datatable_filters_server <- function(id,
           status %modifiedIn% selected_statuses_modified()
         )
 
+      # Only run when both min and max dateRange has been selected
       if (all(!is.na(input$scheduled_release_daterange)) &
           all(!is.null(input$scheduled_release_daterange))) {
         filtered <- filtered %>%

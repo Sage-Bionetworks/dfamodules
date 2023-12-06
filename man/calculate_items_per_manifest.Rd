@@ -4,14 +4,25 @@
 \alias{calculate_items_per_manifest}
 \title{Call \code{calculate_items_per_manifest} calculate the number of items per manifest synID in a given dataframe}
 \usage{
-calculate_items_per_manifest(df, asset_view, access_token, base_url)
+calculate_items_per_manifest(
+  df,
+  asset_view,
+  na_replace = NA,
+  access_token,
+  verbose = FALSE,
+  base_url
+)
 }
 \arguments{
-\item{df}{A dataframe with \code{entityId} and \code{dataset} columns from data flow status manifest}
+\item{df}{A dataframe with \code{dataset_id} and \code{dataset_type} columns from data flow status manifest}
 
 \item{asset_view}{ID of view listing all project data assets. For example, for Synapse this would be the Synapse ID of the fileview listing all data assets for a given project.(i.e. master_fileview in config.yml)}
 
+\item{na_replace}{NA replacement string}
+
 \item{access_token}{Synapse PAT}
+
+\item{verbose}{default FALSE}
 
 \item{base_url}{Base URL of schematic API}
 }

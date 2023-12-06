@@ -1,10 +1,10 @@
 #' Filtering operator
 #'
 #' @description A special operator that doesn't filter nulls
-#' @rdname special_pipe
+#' @rdname modifiedIn
 #' @export
 
-`%==%` <- function (e1, e2) {
+`%modifiedIn%` <- function (e1, e2) {
   if (is.null(e2)) {
     return(TRUE)
   } else {
@@ -138,9 +138,9 @@ mod_datatable_filters_server <- function(id,
 
       filtered <- manifest() %>%
         dplyr::filter(
-          contributor %==% input$contributor_select,
-          dataset_type %==% selected_data_type_modified(),
-          status %==% selected_statuses_modified()
+          contributor %modifiedIn% input$contributor_select,
+          dataset_type %modifiedIn% selected_data_type_modified(),
+          status %modifiedIn% selected_statuses_modified()
         )
 
       if (all(!is.na(input$scheduled_release_daterange)) & all(!is.null(input$scheduled_release_daterange))) {

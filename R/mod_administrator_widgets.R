@@ -128,7 +128,6 @@ mod_administrator_widgets_server <- function(id) {
 
     # BLANK STRING HANDLING --------
     status_modified <- reactive({
-      print(nchar(input$status))
       if ( nchar(input$status) >= 1 ) {
         return(input$status)
       } else {

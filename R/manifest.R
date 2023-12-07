@@ -8,7 +8,10 @@
 prep_manifest_dfa <- function(manifest,
                               config) {
   # convert various forms of "Not Applicable" to NA
-  manifest[manifest == "Not Applicable"| manifest == "Not applicable" | manifest == "not applicable"] <- NA
+  manifest[manifest == "Not Applicable"|
+             manifest == "Not applicable" |
+             manifest == "not applicable" |
+             manifest == ""] <- NA
 
   # dates come in from Synapse as char
   # convert to date type
@@ -17,6 +20,12 @@ prep_manifest_dfa <- function(manifest,
     df = manifest,
     col_names = get_colname_by_type("date", config),
     type = "date"
+  )
+
+  manifest <- convert_column_type(
+    df = manifest,
+    col_names = get_colname_by_type("integer", config),
+    type = "integer"
   )
 
   # return the manifest

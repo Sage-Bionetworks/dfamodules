@@ -58,9 +58,10 @@ mod_highlight_datatable_server <- function(id,
           scrollX = TRUE,
           scrollY = 800,
           bPaginate = FALSE,
-          columnDefs = list(list(
-            targets = hide_idx(),
-            visible = FALSE
+          columnDefs = list(
+            list(
+              targets = hide_idx(),
+              visible = FALSE
           ))
         )
       )

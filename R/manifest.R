@@ -36,16 +36,15 @@ prep_manifest_dfa <- function(manifest,
 #'
 #' @param manifest A manifest that has been downloaded from using manifest_download_to_df()
 #' @param config `datatable_dashboard_config.json` read in as a dataframe
+#' @param na_replace NA replacement string
 #'
 #' @export
 
 prep_manifest_submit <- function(manifest,
-                                 config) {
+                                 config,
+                                 na_replace = "") {
   # convert columns back to string
-  col_names <- c(
-    get_colname_by_type("date", config),
-    get_colname_by_type("integer", config)
-  )
+  col_names <- get_colname_by_type("date", config)
 
   manifest <- convert_column_type(
     df = manifest,
@@ -54,7 +53,7 @@ prep_manifest_submit <- function(manifest,
   )
 
   # convert NA to "Not Applicable"
-  manifest[is.na(manifest)] <- "Not Applicable"
+  manifest[is.na(manifest)] <- na_replace
 
   return(manifest)
 }

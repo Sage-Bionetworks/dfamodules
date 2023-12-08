@@ -74,30 +74,33 @@ apply_administrator_selections <- function(dataflow_manifest,
   # remove unchanged (NULL) attributes from attributes to update
   attributes_to_update <- administrator_widget_output[!unlist(lapply(administrator_widget_output, is.null))]
 
-  # capture column names to update
-  col_names <- names(attributes_to_update)
+  # if there are attributes to update - update them, else return manifest as is
+  if (length(attributes_to_update) > 0) {
+    # capture column names to update
+    col_names <- names(attributes_to_update)
 
-  # loop over the list of changed attributes
-  # for each attribute:
-  #   - pull out the original vector
-  #   - get the updated entry from the list of attributes
-  #   - apply the entry to the selected datasets in dfs manifest
-  dataflow_manifest[col_names] <- lapply(col_names, function(x) {
-    # pull out column into a vector
-    vec <- dataflow_manifest[[x]]
+    # loop over the list of changed attributes
+    # for each attribute:
+    #   - pull out the original vector
+    #   - get the updated entry from the list of attributes
+    #   - apply the entry to the selected datasets in dfs manifest
+    dataflow_manifest[col_names] <- lapply(col_names, function(x) {
+      # pull out column into a vector
+      vec <- dataflow_manifest[[x]]
 
-    # get entry from updated data flow status attributes list
-    entry <- attributes_to_update[[x]]
+      # get entry from updated data flow status attributes list
+      entry <- attributes_to_update[[x]]
 
-    # update vector by index
-    manifest_selected_idx <- match(
-      dataset_selection_module_output$id, dataflow_manifest$dataset_id
+      # update vector by index
+      manifest_selected_idx <- match(
+        dataset_selection_module_output$id, dataflow_manifest$dataset_id
       )
 
-    vec[manifest_selected_idx] <- entry
+      vec[manifest_selected_idx] <- entry
 
-    return(vec)
-  })
+      return(vec)
+    })
+  }
 
   return(dataflow_manifest)
 }

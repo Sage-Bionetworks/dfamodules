@@ -9,8 +9,10 @@ mod_select_dcc_ui(id, dcc_config)
 \arguments{
 \item{id}{module id}
 
-\item{dcc_config}{DCC configuration file sourced from Sage-Bionetworks/data_flow_config}
+\item{dcc_config}{DCC configuration file sourced from
+\code{Sage-Bionetworks/data_flow_config}}
 }
 \description{
-A shiny module. Outputs a selectInput dropdown of Synapse storage project names to the UI.
+A shiny module. Outputs a selectInput dropdown of Synapse
+storage project names to the UI.
 }

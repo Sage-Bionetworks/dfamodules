@@ -1,10 +1,10 @@
 #' Filtering operator
 #'
 #' @description A special operator that doesn't filter nulls
-#' @rdname special_pipe
+#' @rdname modifiedIn
 #' @export
 
-`%==%` <- function (e1, e2) {
+`%modifiedIn%` <- function (e1, e2) {
   if (is.null(e2)) {
     return(TRUE)
   } else {
@@ -17,11 +17,6 @@
 #' @description A shiny Module that renders filters for the data flow manifest.
 #' @param id shiny id
 #' @param width filter width
-#' @param contributor_choices vector of choices for contributor filter
-#' @param dataset_choices vector of choices for dataset filter
-#' @param release_daterange vector containing max/min for release dateRange
-#' @param status_choices vector of choices for status filter
-#'
 #' @importFrom shiny NS tagList
 #' @export
 
@@ -49,6 +44,8 @@ mod_datatable_filters_ui <- function(id,
 #'
 #' @returns a filtered dataframe
 #'
+#' @importFrom lubridate %m+%
+#' @importFrom lubridate %m-%
 #' @export
 
 mod_datatable_filters_server <- function(id,
@@ -61,8 +58,8 @@ mod_datatable_filters_server <- function(id,
     choices <- list(
       contributor_choices = reactiveVal(),
       dataset_choices = reactiveVal(),
-      release_daterange_start = reactiveVal(),
-      release_daterange_end = reactiveVal(),
+      release_daterange_min = reactiveVal(),
+      release_daterange_max = reactiveVal(),
       status_choices = reactiveVal()
     )
 
@@ -74,16 +71,21 @@ mod_datatable_filters_server <- function(id,
       is_all_na <- all(is.na(manifest()$scheduled_release_date))
 
       if (is_all_na) {
-        choices$release_daterange_start(NA)
-        choices$release_daterange_end(NA)
+        choices$release_daterange_min(NULL)
+        choices$release_daterange_max(NULL)
       } else {
-        choices$release_daterange_start(max(manifest()$scheduled_release_date, na.rm = T))
-        choices$release_daterange_end(min(manifest()$scheduled_release_date, na.rm = T))
+
+        min_date <- min(manifest()$scheduled_release_date, na.rm = T) %m-% months(1)
+        max_date <- max(manifest()$scheduled_release_date, na.rm = T) %m+% months(1)
+
+        choices$release_daterange_min(min_date)
+        choices$release_daterange_max(max_date)
       }
     })
 
     # RENDER WIDGETS --------
     output$filter_widgets <- shiny::renderUI({
+
       tagList(
         shiny::selectInput(ns("contributor_select"),
                            label = "Filter by contributor(s)",
@@ -100,7 +102,9 @@ mod_datatable_filters_server <- function(id,
         shiny::dateRangeInput(ns("scheduled_release_daterange"),
                               label = "Filter by scheduled release date",
                               start = NA,
-                              end = NA
+                              end = NA,
+                              min = choices$release_daterange_min(),
+                              max = choices$release_daterange_max()
         ),
         shiny::selectInput(ns("status_select"),
                            label = "Filter by status",
@@ -133,17 +137,22 @@ mod_datatable_filters_server <- function(id,
     })
 
     # FILTER INPUTS ---------
+    # Filters output NULL when nothing is selected. This was filtering out all
+    # rows so no data would show in the dashboard. Using %modifiedIn% catches
+    # fixes this issue.
     manifest_filtered <- shiny::reactive({
       req(manifest())
 
       filtered <- manifest() %>%
         dplyr::filter(
-          contributor %==% input$contributor_select,
-          dataset_type %==% selected_data_type_modified(),
-          status %==% selected_statuses_modified()
+          contributor %modifiedIn% input$contributor_select,
+          dataset_type %modifiedIn% selected_data_type_modified(),
+          status %modifiedIn% selected_statuses_modified()
         )
 
-      if (all(!is.na(input$scheduled_release_daterange)) & all(!is.null(input$scheduled_release_daterange))) {
+      # Only run when both min and max dateRange has been selected
+      if (all(!is.na(input$scheduled_release_daterange)) &
+          all(!is.null(input$scheduled_release_daterange))) {
         filtered <- filtered %>%
           dplyr::filter(
             scheduled_release_date >= input$scheduled_release_daterange[1] &

@@ -21,6 +21,7 @@ Imports:
     htmltools,
     httr,
     jsonlite,
+    lubridate,
     magrittr,
     purrr,
     rlang,

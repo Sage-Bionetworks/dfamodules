@@ -7,6 +7,12 @@
 
 prep_manifest_dfa <- function(manifest,
                               config) {
+
+  # check that manifest and config match
+  if (!all(names(config) %in% names(manifest))) {
+    stop(paste0("Attributes in manifest and config do not match"))
+  }
+
   # convert various forms of "Not Applicable" to NA
   manifest[manifest == "Not Applicable"|
              manifest == "Not applicable" |
@@ -24,7 +30,7 @@ prep_manifest_dfa <- function(manifest,
 
   manifest <- convert_column_type(
     df = manifest,
-    col_names = get_colname_by_type("integer", config),
+    col_names = get_colname_by_type("int", config),
     type = "integer"
   )
 

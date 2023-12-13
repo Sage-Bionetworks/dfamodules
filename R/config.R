@@ -113,6 +113,7 @@ get_colname_by_type <- function(type,
 #' Parse config to get display column names for dashboard
 #'
 #' @param config datatable_dashboard_config.json as a datatable (`jsonlite::read_json("inst/datatable_dashboard_config.json")`)
+#' @param flatten flatten list into a vector output
 #'
 #' @export
 

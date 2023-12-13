@@ -118,6 +118,7 @@ apply_administrator_selections <- function(dataflow_manifest,
 #' @param na_replace NA replacement string
 #' @param calc_num_items TRUE/FALSE. Calculate the number of items in each manifest.
 #' @param base_url Base URL of schematic API
+#' @param verbose Show messages to help with debugging / progress bar in console
 #'
 #' @export
 

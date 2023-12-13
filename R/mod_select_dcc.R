@@ -22,7 +22,7 @@ mod_select_dcc_ui <- function(id,
       shiny::selectInput(
         inputId = ns("select_dcc"),
         label = NULL,
-        choices = setNames(
+        choices = stats::setNames(
           dcc_config$synapse_asset_view,
           dcc_config$project_name
         )
@@ -61,7 +61,7 @@ mod_select_dcc_server <- function(id,
     }
 
     # put asset views into named list
-    all_asset_views <- setNames(
+    all_asset_views <- stats::setNames(
       dcc_config$synapse_asset_view,
       dcc_config$project_name
     )

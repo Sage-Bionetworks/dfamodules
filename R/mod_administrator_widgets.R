@@ -127,7 +127,7 @@ mod_administrator_widgets_server <- function(id) {
     })
 
     # BLANK STRING HANDLING --------
-    status_modified <- reactive({
+    status_modified <- shiny::reactive({
       if ( nchar(input$status) >= 1 ) {
         return(input$status)
       } else {
@@ -135,7 +135,7 @@ mod_administrator_widgets_server <- function(id) {
       }
     })
 
-    release_destinations_modified <- reactive({
+    release_destinations_modified <- shiny::reactive({
       if ( nchar(input$released_destinations) >= 1 ) {
         return(input$released_destinations)
       } else {

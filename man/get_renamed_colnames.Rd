@@ -8,6 +8,8 @@ get_renamed_colnames(config, flatten = TRUE)
 }
 \arguments{
 \item{config}{datatable_dashboard_config.json as a datatable (\code{jsonlite::read_json("inst/datatable_dashboard_config.json")})}
+
+\item{flatten}{flatten list into a vector output}
 }
 \description{
 Parse config to get display column names for dashboard

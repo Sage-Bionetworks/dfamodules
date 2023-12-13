@@ -6,6 +6,11 @@
 \usage{
 e1 \%modifiedIn\% e2
 }
+\arguments{
+\item{e1}{function will check if the values of the first argument are present in the second argument}
+
+\item{e2}{function will check if the values of the first argument are present in the second argument}
+}
 \description{
-A special operator that doesn't filter nulls
+A special \%in\% operator that doesn't filter nulls (returns TRUE)
 }

@@ -8,7 +8,7 @@ manifest <- dataset_manifest_download(
   asset_view = dcc_config$synapse_asset_view,
   dataset_id = dcc_config$manifest_dataset_id,
   access_token = Sys.getenv("SYNAPSE_PAT"),
-  base_url = Sys.getenv("SCHEMATIC_BASE_URL_DEV")
+  base_url = Sys.getenv("DFA_SCHEMATIC_API_URL")
 )
 
 manifest <- manifest$content

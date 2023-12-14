@@ -143,6 +143,12 @@ mod_administrator_widgets_server <- function(id) {
       }
     })
 
+    # RETURN LIST OF SELECTIONS --------
+    # For widget values to be captured by apply_administrator_selections.R
+    # add another item to the list that captures the output of the new widget.
+    # Name the list item with a name that matches the attribute
+    # in the manifest you wish to update
+
     return(
       shiny::reactive({
         list(

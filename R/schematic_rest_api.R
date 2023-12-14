@@ -41,9 +41,14 @@ dataset_manifest_download <- function(asset_view,
   )
 
   # pull out content from request
-  parsed <- suppressMessages(
-    jsonlite::fromJSON(httr::content(res, as = "text"))
-  )
+  text_content <- httr::content(res, "text")
+
+  # manually remove NAN and replace with empty string
+  if (grepl(NaN, text_content)) {
+    text_content <- gsub("NaN", '""', text_content)
+  }
+
+  parsed <- jsonlite::fromJSON(text_content)
 
   # if the api call returns an error
   # surface error to user
@@ -84,8 +89,7 @@ dataset_manifest_download <- function(asset_view,
 #' (default), "entity", "both".
 #' @param base_url URL to schematic API endpoint
 #' @param schema_url URL to a schema jsonld
-#' @param use_schema_label Store attributes using the schema label
-#' (true, default) or store attributes using the display label (false).
+#' @param use_schema_label Store attributes using the schema label (true, default) or store attributes using the display label (false). Attribute display names in the schema must not only include characters that are not accepted by Synapse.
 #'
 #' @returns TRUE if successful upload or validate errors if not.
 #' @export
@@ -114,7 +118,6 @@ model_submit <- function(data_type = NULL,
     `manifest_record_type` = manifest_record_type,
     `restrict_rules` = restrict_rules,
     `asset_view` = asset_view,
-    `access_token` = access_token,
     `use_schema_label` = use_schema_label
   )
 

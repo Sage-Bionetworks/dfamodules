@@ -13,7 +13,7 @@
 #' @export
 
 get_all_manifests <- function(asset_view,
-                              na_replace = NULL,
+                              na_replace = NA,
                               access_token,
                               base_url = "https://schematic-dev.api.sagebionetworks.org",
                               verbose = FALSE) {
@@ -47,12 +47,14 @@ get_all_manifests <- function(asset_view,
     # if manifest has
     if (nrow(manifests$content) > 0) {
 
+      manifests$content
+
       # pull together in a dataframe
       return(data.frame(Component = rep("DataFlow", nrow(manifests$content)),
                         contributor = rep(sp_name, nrow(manifests$content)),
-                        entityId = manifests$content$dataset_id,
+                        dataset_id = manifests$content$dataset_id,
                         dataset_name = manifests$content$folder_name,
-                        dataset = manifests$content$data_type))
+                        dataset_type = manifests$content$data_type))
     } else {
       return(NULL)
     }
@@ -71,34 +73,48 @@ get_all_manifests <- function(asset_view,
 
 #' Call `calculate_items_per_manifest` calculate the number of items per manifest synID in a given dataframe
 #'
-#' @param df A dataframe with `entityId` and `dataset` columns from data flow status manifest
+#' @param df A dataframe with `dataset_id` and `dataset_type` columns from data flow status manifest
 #' @param asset_view ID of view listing all project data assets. For example, for Synapse this would be the Synapse ID of the fileview listing all data assets for a given project.(i.e. master_fileview in config.yml)
+#' @param na_replace NA replacement string
 #' @param access_token Synapse PAT
+#' @param verbose default FALSE
 #' @param base_url Base URL of schematic API
 #'
 #' @export
 
 calculate_items_per_manifest <- function(df,
                                          asset_view,
+                                         na_replace = NA,
                                          access_token,
+                                         verbose = FALSE,
                                          base_url) {
+  # create progress bar
+  if (verbose) {
+    message("Counting num items per manifest. This may take a minute.")
+    pb <- utils::txtProgressBar(min = 0, max = nrow(df), initial = 0, style = 3)
+  }
 
   sapply(1:nrow(df), function(i) {
 
     # dataset == "" indicates that there is no manifest
-    if (df$dataset[i] == "") {
+    if (df$dataset_type[i] == "" | is.na(df$dataset_type[i])) {
 
-      manifest_nrow <- "Not Applicable"
+      manifest_nrow <- na_replace
 
-      } else {
+      # update progress bar
+      if (verbose) {
+        utils::setTxtProgressBar(pb,i)
+      }
+
+    } else {
 
       # download manifest
       manifest <- tryCatch(
         {
-          manifest_download(asset_view = asset_view,
-                            dataset_id = df[i, "entityId"],
-                            access_token = access_token,
-                            base_url = base_url)
+          dataset_manifest_download(asset_view = asset_view,
+                                    dataset_id = df[i, "dataset_id"],
+                                    access_token = access_token,
+                                    base_url = base_url)
         },
         error=function(e) {
           return(NULL)
@@ -107,7 +123,12 @@ calculate_items_per_manifest <- function(df,
 
       # if no manifest is downloaded, return NA
       # otherwise count rows and return nrow
-      manifest_nrow <- ifelse(is.null(manifest$content), "Not Applicable", nrow(manifest$content))
+      manifest_nrow <- ifelse(is.null(manifest$content), na_replace, nrow(manifest$content))
+
+      # update progress bar
+      if (verbose) {
+        utils::setTxtProgressBar(pb,i)
+      }
     }
 
     return(manifest_nrow)

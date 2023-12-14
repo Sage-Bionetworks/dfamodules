@@ -4,27 +4,12 @@
 \alias{mod_datatable_filters_ui}
 \title{Filters for dataFlow Manifest UI}
 \usage{
-mod_datatable_filters_ui(
-  id,
-  width = NULL,
-  contributor_choices = c("Contributor 1", "Contributor 2"),
-  dataset_choices = c("dataset 1", "dataset 2"),
-  release_daterange = c(Sys.Date(), (Sys.Date() + 365)),
-  status_choices = c("status 1", "status 2")
-)
+mod_datatable_filters_ui(id, width = NULL)
 }
 \arguments{
 \item{id}{shiny id}
 
 \item{width}{filter width}
-
-\item{contributor_choices}{vector of choices for contributor filter}
-
-\item{dataset_choices}{vector of choices for dataset filter}
-
-\item{release_daterange}{vector containing max/min for release dateRange}
-
-\item{status_choices}{vector of choices for status filter}
 }
 \description{
 A shiny Module that renders filters for the data flow manifest.

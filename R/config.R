@@ -113,14 +113,20 @@ get_colname_by_type <- function(type,
 #' Parse config to get display column names for dashboard
 #'
 #' @param config datatable_dashboard_config.json as a datatable (`jsonlite::read_json("inst/datatable_dashboard_config.json")`)
+#' @param flatten flatten list into a vector output
 #'
 #' @export
 
-get_renamed_colnames <- function(config) {
+get_renamed_colnames <- function(config,
+                                 flatten = TRUE) {
   # create a vector of display column names
   new_col_names <- purrr::map(config, "display_name")
 
-  purrr::flatten_chr(new_col_names)
+  if (flatten) {
+    new_col_names <- purrr::flatten_chr(new_col_names)
+  }
+
+  return(new_col_names)
 }
 
 #' Parse config to get columns with na_replace specified

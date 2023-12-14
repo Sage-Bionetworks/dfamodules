@@ -7,28 +7,34 @@
 
 prep_manifest_dfa <- function(manifest,
                               config) {
-  # convert "Not Applicable" to NA
-  manifest[manifest == "Not Applicable"] <- NA
 
-  # convert contribute and dataset to factor
-  # manifest <- convert_column_type(df = manifest,
-  #                                 col_names = get_colname_by_type("drop_down_filter", config),
-  #                                 type = "factor")
+  # check that manifest and config match
+  if (!all(names(config) %in% names(manifest))) {
+    stop(paste0("Attributes in manifest and config do not match"))
+  }
 
-  # num_items to integer column
-  manifest <- convert_column_type(
-    df = manifest,
-    col_names = get_colname_by_type("integer", config),
-    type = "integer"
-  )
+  # convert various forms of "Not Applicable" to NA
+  manifest[manifest == "Not Applicable"|
+             manifest == "Not applicable" |
+             manifest == "not applicable" |
+             manifest == ""] <- NA
 
-  # release_scheduled and embargo to date columns
+  # dates come in from Synapse as char
+  # convert to date type
+  # use config file to source date attributes
   manifest <- convert_column_type(
     df = manifest,
     col_names = get_colname_by_type("date", config),
     type = "date"
   )
 
+  manifest <- convert_column_type(
+    df = manifest,
+    col_names = get_colname_by_type("int", config),
+    type = "integer"
+  )
+
+  # return the manifest
   return(manifest)
 }
 
@@ -36,16 +42,15 @@ prep_manifest_dfa <- function(manifest,
 #'
 #' @param manifest A manifest that has been downloaded from using manifest_download_to_df()
 #' @param config `datatable_dashboard_config.json` read in as a dataframe
+#' @param na_replace NA replacement string
 #'
 #' @export
 
 prep_manifest_submit <- function(manifest,
-                                 config) {
+                                 config,
+                                 na_replace = "") {
   # convert columns back to string
-  col_names <- c(
-    get_colname_by_type("date", config),
-    get_colname_by_type("integer", config)
-  )
+  col_names <- get_colname_by_type("date", config)
 
   manifest <- convert_column_type(
     df = manifest,
@@ -54,70 +59,81 @@ prep_manifest_submit <- function(manifest,
   )
 
   # convert NA to "Not Applicable"
-  manifest[is.na(manifest)] <- "Not Applicable"
+  manifest[is.na(manifest)] <- na_replace
 
   return(manifest)
 }
 
-#' Convert a list to a dataframe
+#' Apply administrator selections to Data Flow manifest
 #'
-#' @param dfs_manifest A data flow status manifest
-#' @param dfs_updates Output from mod_update_data_flow_status.R
-#' @param selected_datasets_df Output from mod_dataset_selection.R
+#' @param dataflow_manifest A data flow status manifest
+#' @param administrator_widget_output Output from mod_administrator_widgets.R
+#' @param dataset_selection_module_output Output from mod_dataset_selection.R
 #'
 #' @export
 
-update_dfs_manifest <- function(dfs_manifest,
-                                dfs_updates,
-                                selected_datasets_df) {
-  # remove unchanged attributes from selections
-  dfs_updates <- dfs_updates[!unlist(lapply(dfs_updates, is.null))]
+apply_administrator_selections <- function(dataflow_manifest,
+                                           administrator_widget_output,
+                                           dataset_selection_module_output) {
 
-  # capture column names to update
-  col_names <- names(dfs_updates)
+  # remove unchanged (NULL) attributes from attributes to update
+  attributes_to_update <- administrator_widget_output[!unlist(lapply(administrator_widget_output, is.null))]
 
-  # loop over the list of changed attributes
-  # for each attribute:
-  #   - pull out the original vector
-  #   - get the updated entry from the list of attributes
-  #   - apply the entry to the selected datasets in dfs manifest
-  dfs_manifest[col_names] <- lapply(col_names, function(x) {
-    # pull out column into a vector
-    vec <- dfs_manifest[[x]]
+  # if there are attributes to update - update them, else return manifest as is
+  if (length(attributes_to_update) > 0) {
+    # capture column names to update
+    col_names <- names(attributes_to_update)
 
-    # get entry from updated data flow status attributes list
-    entry <- dfs_updates[[x]]
+    # loop over the list of changed attributes
+    # for each attribute:
+    #   - pull out the original vector
+    #   - get the updated entry from the list of attributes
+    #   - apply the entry to the selected datasets in dfs manifest
+    dataflow_manifest[col_names] <- lapply(col_names, function(x) {
+      # pull out column into a vector
+      vec <- dataflow_manifest[[x]]
 
-    # update vector by index
-    manifest_selected_idx <- match(selected_datasets_df$id, dfs_manifest$entityId)
-    vec[manifest_selected_idx] <- entry
+      # get entry from updated data flow status attributes list
+      entry <- attributes_to_update[[x]]
 
-    return(vec)
-  })
+      # update vector by index
+      manifest_selected_idx <- match(
+        dataset_selection_module_output$id, dataflow_manifest$dataset_id
+      )
 
-  return(dfs_manifest)
+      vec[manifest_selected_idx] <- entry
+
+      return(vec)
+    })
+  }
+
+  return(dataflow_manifest)
 }
 
 #' Generate a data flow status manifest skeleton. Fills in the component, contributor, data type, number of items, and dataset name columns.
 #'
 #' @param asset_view ID of view listing all project data assets. For example, for Synapse this would be the Synapse ID of the fileview listing all data assets for a given project.(i.e. master_fileview in config.yml)
 #' @param schema_url URL of a dataFlow schema
+#' @param access_token A Synapse PAT
 #' @param na_replace NA replacement string
 #' @param calc_num_items TRUE/FALSE. Calculate the number of items in each manifest.
-#' @param access_token A Synapse PAT
 #' @param base_url Base URL of schematic API
+#' @param verbose Show messages to help with debugging / progress bar in console
 #'
 #' @export
 
 generate_dataflow_manifest <- function(asset_view,
                                        schema_url,
-                                       na_replace,
-                                       calc_num_items,
                                        access_token,
+                                       na_replace = NA,
+                                       verbose = FALSE,
+                                       calc_num_items = TRUE,
                                        base_url = "https://schematic-dev.api.sagebionetworks.org") {
+
   # get manifests for each storage project
   dataflow_manifest_chunk <- get_all_manifests(
     asset_view = asset_view,
+    na_replace = na_replace,
     access_token = access_token,
     base_url = base_url,
     verbose = TRUE
@@ -128,6 +144,8 @@ generate_dataflow_manifest <- function(asset_view,
     dataflow_manifest_chunk$num_items <- calculate_items_per_manifest(
       df = dataflow_manifest_chunk,
       asset_view = asset_view,
+      na_replace = na_replace,
+      verbose = verbose,
       access_token = access_token,
       base_url = base_url
     )
@@ -158,19 +176,16 @@ generate_dataflow_manifest <- function(asset_view,
 
 fill_dataflow_manifest <- function(dataflow_manifest_chunk,
                                    schema_url,
-                                   na_replace = NULL,
+                                   na_replace = NA,
                                    base_url) {
-  # set NA if no replacement string provided
-  if (is.null(na_replace)) {
-    na_replace <- NA
-  }
 
   # get attribute_df
   vc_out <- visualize_component(
-    schema_url,
-    "DataFlow",
-    base_url
+    schema_url = schema_url,
+    component = "DataFlow",
+    base_url = base_url
   )
+
   attributes_df <- vc_out$content
 
   # find attributes that are not present in provided manifest chunk
@@ -195,9 +210,6 @@ fill_dataflow_manifest <- function(dataflow_manifest_chunk,
 
   # bind manifest chunks
   dataflow_manifest <- cbind(dataflow_manifest_chunk, missing_attributes_filled)
-
-  # update empty cells to "Not Applicable"
-  dataflow_manifest[dataflow_manifest == ""] <- na_replace
 
   # return filled columns with original manifest chunk
   return(dataflow_manifest)

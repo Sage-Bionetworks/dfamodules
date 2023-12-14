@@ -1,33 +1,35 @@
-#' Datatable that highlights based on a given input UI
+#' Manifest Preview UI
 #'
-#' @description A shiny Module.
+#' @description Shows preview of manifest that highlights based on a given input
 #'
 #' @param id shiny id
 #'
 #' @importFrom shiny NS tagList
 #' @export
 
-mod_highlight_datatable_ui <- function(id) {
+mod_manifest_preview_ui <- function(id) {
   ns <- shiny::NS(id)
   shiny::tagList(
     DT::DTOutput(ns("highlight_tbl")),
   )
 }
 
-#' Datatable that highlights based on a given input Server
+#'  Manifest Preview Server
+#' @description
+#' Shows preview of manifest that highlights based on a given input
 #'
 #' @param id shiny id
 #' @param df a dataframe
-#' @param selection a vector of IDs to match on
-#' @param df_match_colname column name to match on
+#' @param selection a vector of IDs to highlight
+#' @param df_match_colname column name to match highlight on
 #'
 #'
 #' @export
 
-mod_highlight_datatable_server <- function(id,
-                                           df,
-                                           selection,
-                                           df_match_colname) {
+mod_manifest_preview_server <- function(id,
+                                        df,
+                                        selection,
+                                        df_match_colname) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -58,9 +60,10 @@ mod_highlight_datatable_server <- function(id,
           scrollX = TRUE,
           scrollY = 800,
           bPaginate = FALSE,
-          columnDefs = list(list(
-            targets = hide_idx(),
-            visible = FALSE
+          columnDefs = list(
+            list(
+              targets = hide_idx(),
+              visible = FALSE
           ))
         )
       )
@@ -76,9 +79,3 @@ mod_highlight_datatable_server <- function(id,
     })
   })
 }
-
-## To be copied in the UI
-# mod_highlight_datatable_ui("highlight_datatable_1")
-
-## To be copied in the server
-# mod_highlight_datatable_server("highlight_datatable_1")

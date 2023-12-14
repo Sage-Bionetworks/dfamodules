@@ -4,12 +4,14 @@
 \alias{prep_manifest_submit}
 \title{Prepare a dataframe for Synapse submission}
 \usage{
-prep_manifest_submit(manifest, config)
+prep_manifest_submit(manifest, config, na_replace = "")
 }
 \arguments{
 \item{manifest}{A manifest that has been downloaded from using manifest_download_to_df()}
 
 \item{config}{\code{datatable_dashboard_config.json} read in as a dataframe}
+
+\item{na_replace}{NA replacement string}
 }
 \description{
 Prepare a dataframe for Synapse submission

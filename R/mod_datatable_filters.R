@@ -1,6 +1,8 @@
 #' Filtering operator
 #'
-#' @description A special operator that doesn't filter nulls
+#' @description A special %in% operator that doesn't filter nulls (returns TRUE)
+#' @param e1 function will check if the values of the first argument are present in the second argument
+#' @param e2 function will check if the values of the first argument are present in the second argument
 #' @rdname modifiedIn
 #' @export
 
@@ -56,14 +58,14 @@ mod_datatable_filters_server <- function(id,
 
     # GENERATE CHOICES --------
     choices <- list(
-      contributor_choices = reactiveVal(),
-      dataset_choices = reactiveVal(),
-      release_daterange_min = reactiveVal(),
-      release_daterange_max = reactiveVal(),
-      status_choices = reactiveVal()
+      contributor_choices = shiny::reactiveVal(),
+      dataset_choices = shiny::reactiveVal(),
+      release_daterange_min = shiny::reactiveVal(),
+      release_daterange_max = shiny::reactiveVal(),
+      status_choices = shiny::reactiveVal()
     )
 
-    observe({
+    shiny::observe({
       choices$contributor_choices(unique(manifest()$contributor))
       choices$dataset_choices(unique(manifest()$dataset_type))
       choices$status_choices(unique(manifest()$status))
@@ -141,13 +143,13 @@ mod_datatable_filters_server <- function(id,
     # rows so no data would show in the dashboard. Using %modifiedIn% catches
     # fixes this issue.
     manifest_filtered <- shiny::reactive({
-      req(manifest())
+      shiny::req(manifest())
 
-      filtered <- manifest() %>%
-        dplyr::filter(
-          contributor %modifiedIn% input$contributor_select,
-          dataset_type %modifiedIn% selected_data_type_modified(),
-          status %modifiedIn% selected_statuses_modified()
+      filtered <- dplyr::filter(
+        .data = manifest(),
+        contributor %modifiedIn% input$contributor_select,
+        dataset_type %modifiedIn% selected_data_type_modified(),
+        status %modifiedIn% selected_statuses_modified()
         )
 
       # Only run when both min and max dateRange has been selected
@@ -164,7 +166,7 @@ mod_datatable_filters_server <- function(id,
     })
 
     # CLEAR SELECTIONS ---------
-    observeEvent(input$clear_btn, { shinyjs::reset("filter_widgets") })
+    shiny::observeEvent(input$clear_btn, { shinyjs::reset("filter_widgets") })
 
     # RETURN FILTERED MANIFEST ---------
     return(manifest_filtered)

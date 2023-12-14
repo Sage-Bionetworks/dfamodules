@@ -40,6 +40,8 @@ all rules will be available.}
 \item{base_url}{URL to schematic API endpoint}
 
 \item{schema_url}{URL to a schema jsonld}
+
+\item{use_schema_label}{Store attributes using the schema label (true, default) or store attributes using the display label (false). Attribute display names in the schema must not only include characters that are not accepted by Synapse.}
 }
 \value{
 TRUE if successful upload or validate errors if not.

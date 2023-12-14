@@ -91,7 +91,7 @@ calculate_items_per_manifest <- function(df,
   # create progress bar
   if (verbose) {
     message("Counting num items per manifest. This may take a minute.")
-    pb <- txtProgressBar(min = 0, max = nrow(df), initial = 0, style = 3)
+    pb <- utils::txtProgressBar(min = 0, max = nrow(df), initial = 0, style = 3)
   }
 
   sapply(1:nrow(df), function(i) {
@@ -103,7 +103,7 @@ calculate_items_per_manifest <- function(df,
 
       # update progress bar
       if (verbose) {
-        setTxtProgressBar(pb,i)
+        utils::setTxtProgressBar(pb,i)
       }
 
     } else {
@@ -127,7 +127,7 @@ calculate_items_per_manifest <- function(df,
 
       # update progress bar
       if (verbose) {
-        setTxtProgressBar(pb,i)
+        utils::setTxtProgressBar(pb,i)
       }
     }
 

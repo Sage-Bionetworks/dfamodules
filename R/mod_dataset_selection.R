@@ -57,7 +57,7 @@ mod_dataset_selection_server <- function(id,
 
     # GET DATASETS FOR SELECTED STORAGE PROJECT  ###############################
     datasets <- shiny::reactive({
-      req(storage_project_id())
+      shiny::req(storage_project_id())
 
       # show waiter
       waiter::waiter_show(
@@ -84,7 +84,7 @@ mod_dataset_selection_server <- function(id,
       return(storage_project_datasets_obj$content)
     })
 
-    output$tst <- renderPrint({
+    output$tst <- shiny::renderPrint({
       selected_datasets()
     })
 
@@ -92,7 +92,7 @@ mod_dataset_selection_server <- function(id,
     output$dataset_tbl <- DT::renderDataTable({
       # validate returned object
       # if there are no datasets returned, show message
-      req(datasets())
+      shiny::req(datasets())
       shiny::validate(
         shiny::need(
           nrow(datasets()) > 0, "No datasets available"

@@ -53,15 +53,15 @@ mod_select_storage_project_server <- function(id,
 
     # API CALL : GET STORAGE PROJECTS #######################################################################
     # UPDATE STORAGE PROJECT DROP DOWN W API RES ##############################
-    observe({
-      req(asset_view())
+    shiny::observe({
+      shiny::req(asset_view())
 
       sp_obj <- storage_projects(
         asset_view = asset_view(),
         access_token = access_token,
         base_url = base_url)
 
-      choices <- setNames(
+      choices <- stats::setNames(
         sp_obj$content$id,
         sp_obj$content$name
       )

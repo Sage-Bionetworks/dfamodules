@@ -7,6 +7,12 @@
 
 prep_manifest_dfa <- function(manifest,
                               config) {
+
+  # check that manifest and config match
+  if (!all(names(config) %in% names(manifest))) {
+    stop(paste0("Attributes in manifest and config do not match"))
+  }
+
   # convert various forms of "Not Applicable" to NA
   manifest[manifest == "Not Applicable"|
              manifest == "Not applicable" |
@@ -24,7 +30,7 @@ prep_manifest_dfa <- function(manifest,
 
   manifest <- convert_column_type(
     df = manifest,
-    col_names = get_colname_by_type("integer", config),
+    col_names = get_colname_by_type("int", config),
     type = "integer"
   )
 
@@ -36,16 +42,15 @@ prep_manifest_dfa <- function(manifest,
 #'
 #' @param manifest A manifest that has been downloaded from using manifest_download_to_df()
 #' @param config `datatable_dashboard_config.json` read in as a dataframe
+#' @param na_replace NA replacement string
 #'
 #' @export
 
 prep_manifest_submit <- function(manifest,
-                                 config) {
+                                 config,
+                                 na_replace = "") {
   # convert columns back to string
-  col_names <- c(
-    get_colname_by_type("date", config),
-    get_colname_by_type("integer", config)
-  )
+  col_names <- get_colname_by_type("date", config)
 
   manifest <- convert_column_type(
     df = manifest,
@@ -54,48 +59,55 @@ prep_manifest_submit <- function(manifest,
   )
 
   # convert NA to "Not Applicable"
-  manifest[is.na(manifest)] <- "Not Applicable"
+  manifest[is.na(manifest)] <- na_replace
 
   return(manifest)
 }
 
-#' Convert a list to a dataframe
+#' Apply administrator selections to Data Flow manifest
 #'
-#' @param dfs_manifest A data flow status manifest
-#' @param dfs_updates Output from mod_update_data_flow_status.R
-#' @param selected_datasets_df Output from mod_dataset_selection.R
+#' @param dataflow_manifest A data flow status manifest
+#' @param administrator_widget_output Output from mod_administrator_widgets.R
+#' @param dataset_selection_module_output Output from mod_dataset_selection.R
 #'
 #' @export
 
-update_dfs_manifest <- function(dfs_manifest,
-                                dfs_updates,
-                                selected_datasets_df) {
-  # remove unchanged attributes from selections
-  dfs_updates <- dfs_updates[!unlist(lapply(dfs_updates, is.null))]
+apply_administrator_selections <- function(dataflow_manifest,
+                                           administrator_widget_output,
+                                           dataset_selection_module_output) {
 
-  # capture column names to update
-  col_names <- names(dfs_updates)
+  # remove unchanged (NULL) attributes from attributes to update
+  attributes_to_update <- administrator_widget_output[!unlist(lapply(administrator_widget_output, is.null))]
 
-  # loop over the list of changed attributes
-  # for each attribute:
-  #   - pull out the original vector
-  #   - get the updated entry from the list of attributes
-  #   - apply the entry to the selected datasets in dfs manifest
-  dfs_manifest[col_names] <- lapply(col_names, function(x) {
-    # pull out column into a vector
-    vec <- dfs_manifest[[x]]
+  # if there are attributes to update - update them, else return manifest as is
+  if (length(attributes_to_update) > 0) {
+    # capture column names to update
+    col_names <- names(attributes_to_update)
 
-    # get entry from updated data flow status attributes list
-    entry <- dfs_updates[[x]]
+    # loop over the list of changed attributes
+    # for each attribute:
+    #   - pull out the original vector
+    #   - get the updated entry from the list of attributes
+    #   - apply the entry to the selected datasets in dfs manifest
+    dataflow_manifest[col_names] <- lapply(col_names, function(x) {
+      # pull out column into a vector
+      vec <- dataflow_manifest[[x]]
 
-    # update vector by index
-    manifest_selected_idx <- match(selected_datasets_df$id, dfs_manifest$entityId)
-    vec[manifest_selected_idx] <- entry
+      # get entry from updated data flow status attributes list
+      entry <- attributes_to_update[[x]]
 
-    return(vec)
-  })
+      # update vector by index
+      manifest_selected_idx <- match(
+        dataset_selection_module_output$id, dataflow_manifest$dataset_id
+      )
 
-  return(dfs_manifest)
+      vec[manifest_selected_idx] <- entry
+
+      return(vec)
+    })
+  }
+
+  return(dataflow_manifest)
 }
 
 #' Generate a data flow status manifest skeleton. Fills in the component, contributor, data type, number of items, and dataset name columns.
@@ -106,6 +118,7 @@ update_dfs_manifest <- function(dfs_manifest,
 #' @param na_replace NA replacement string
 #' @param calc_num_items TRUE/FALSE. Calculate the number of items in each manifest.
 #' @param base_url Base URL of schematic API
+#' @param verbose Show messages to help with debugging / progress bar in console
 #'
 #' @export
 

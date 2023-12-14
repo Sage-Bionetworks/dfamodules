@@ -14,11 +14,11 @@ storage_project_manifests(
 \arguments{
 \item{asset_view}{synapse ID of master file view.}
 
+\item{project_id}{synapse ID of a storage dataset.}
+
 \item{access_token}{synapse PAT}
 
 \item{base_url}{URL to schematic API endpoint}
-
-\item{dataset_id}{synapse ID of a storage dataset.}
 }
 \description{
 /storage/project/manifests

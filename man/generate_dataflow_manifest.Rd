@@ -23,6 +23,8 @@ generate_dataflow_manifest(
 
 \item{na_replace}{NA replacement string}
 
+\item{verbose}{Show messages to help with debugging / progress bar in console}
+
 \item{calc_num_items}{TRUE/FALSE. Calculate the number of items in each manifest.}
 
 \item{base_url}{Base URL of schematic API}

@@ -1,11 +1,11 @@
 #' Stacked Bar Plot UI Function
 #'
 #' @description A Shiny module that takes in a datafame and outputs a stacked bar plot.
-#' @param id,input,output,session Internal parameters for {shiny}.
+#' @param id shiny id
 #' @importFrom shiny NS tagList
 #' @export
 
-mod_stacked_bar_ui <- function(id){
+mod_stacked_bar_ui <- function(id) {
   ns <- shiny::NS(id)
   shiny::tagList(
     shiny::plotOutput(ns("stacked_bar"))
@@ -14,7 +14,7 @@ mod_stacked_bar_ui <- function(id){
 
 #' Stacked Bar Plot Server Functions
 #'
-#' @param id Shiny ID to call server module
+#' @param id shiny id
 #' @param df A data frame containing data to plot
 #' @param x_var Column name of X variable
 #' @param y_var Column name of Y variable
@@ -42,8 +42,7 @@ mod_stacked_bar_server <- function(id,
                                    width = NULL,
                                    date_breaks = NULL,
                                    coord_flip = FALSE) {
-
-  shiny::moduleServer( id, function(input, output, session){
+  shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
     # render stacked bar
@@ -52,7 +51,6 @@ mod_stacked_bar_server <- function(id,
 
       # base plot
       bar <- ggplot2::ggplot(df, ggplot2::aes(x = .data[[x_var]], y = .data[[y_var]], fill = .data[[fill_var]])) +
-
         ggplot2::geom_col(position = "fill", width = width)
 
       # add x intercept
@@ -87,7 +85,6 @@ mod_stacked_bar_server <- function(id,
 
       bar
     })
-
   })
 }
 

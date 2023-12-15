@@ -1,13 +1,14 @@
 #' Storage Project Selection Module UI
 #'
-#' @description A shiny module. Outputs a selectInput dropdown of Synapse storage project names to the UI.
+#' @description A shiny module. Outputs a selectInput dropdown of Synapse
+#' storage project names to the UI.
 #'
-#' @param id,input,output,session Internal parameters for {shiny}.
+#' @param id shiny id
 #'
 #' @importFrom shiny NS tagList
 #' @export
 
-mod_select_storage_project_ui <- function(id){
+mod_select_storage_project_ui <- function(id) {
   ns <- shiny::NS(id)
   shiny::tagList(
     shinydashboard::box(
@@ -15,65 +16,67 @@ mod_select_storage_project_ui <- function(id){
       width = NULL,
 
       # Project dropdown
-      shiny::uiOutput(ns("project_selector")),
+      shiny::selectInput(
+        inputId = ns("selected_project"),
+        label = NULL,
+        choices = "downloading data...",
+        selectize = FALSE), # must be false or for some reason cannot reference `input$selected_project`
 
       # Button to initiate project selection
-      shiny::actionButton(ns("submit_btn"),
-                          "Select Project"),
+      shiny::actionButton(
+        ns("submit_btn"),
+        "Select Project"
+      ),
     )
   )
 }
 
-# Storage Project Selection Module Server
+#' Storage Project Selection Module Server
+#' @param id shiny id
+#' @param asset_view An ID of a file view listing all project data assets
+#' @param access_token A Synapse Personal Access Token
+#' @param base_url A Schematic API base URL. Default is
+#' `https://schematic.api.sagebionetworks.org`
 #'
 #' @export
 
 mod_select_storage_project_server <- function(id,
                                               asset_view,
                                               access_token,
-                                              base_url) {
-
-  shiny::moduleServer( id, function(input, output, session){
-
+                                              base_url = paste0(
+                                                "https://",
+                                                "schematic.api.sagebionetworks",
+                                                ".org"
+                                              )) {
+  shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
     # API CALL : GET STORAGE PROJECTS #######################################################################
+    # UPDATE STORAGE PROJECT DROP DOWN W API RES ##############################
+    shiny::observe({
+      shiny::req(asset_view())
 
-    storage_project_obj <- storage_projects(asset_view = asset_view,
-                                            access_token = access_token,
-                                            base_url = base_url)
+      sp_obj <- storage_projects(
+        asset_view = asset_view(),
+        access_token = access_token,
+        base_url = base_url)
 
-    # DROP DOWN LISTING STORAGE PROJECTS ####################################################################
+      choices <- stats::setNames(
+        sp_obj$content$id,
+        sp_obj$content$name
+      )
 
-    # render ui for storage project drop down
-    output$project_selector <- shiny::renderUI({
+      shiny::updateSelectInput(
+        session = session,
+        inputId = "selected_project",
+        choices = choices
+      )
+      })
 
-      shiny::selectInput(inputId = ns("selected_project"),
-                         label = NULL,
-                         choices = storage_project_obj$content[,"name"],
-                         selectize = FALSE) # must be false or for some reason cannot reference `input$selected_project`
-
-    })
-
-    # SUBSET STORAGE PROJECT DATAFRAME BY SELECTED PROJECT  ##############################################################
-
-    selected_project_df <- shiny::reactive({
-
-      shiny::req(input$selected_project)
-
-      storage_project_obj$content[ match(input$selected_project, storage_project_obj$content[,"name"]), ]
-    })
-
-    # RETURN SELECTED PROJECT  ##############################################################
+    # # RETURN SELECTED PROJECT  ##############################################################
 
     shiny::eventReactive(input$submit_btn, {
-      return(selected_project_df())
+      return(input$selected_project)
     })
   })
 }
-
-## To be copied in the UI
-# mod_select_storage_project_ui("select_storage_project_1")
-
-## To be copied in the server
-# mod_select_storage_project_server("select_storage_project_1")

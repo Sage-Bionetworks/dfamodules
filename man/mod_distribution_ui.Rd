@@ -7,7 +7,7 @@
 mod_distribution_ui(id)
 }
 \arguments{
-\item{id, input, output, session}{Internal parameters for {shiny}.}
+\item{id}{shiny id}
 }
 \description{
 A Shiny module that takes a dataframe and displays a distribution bar plot

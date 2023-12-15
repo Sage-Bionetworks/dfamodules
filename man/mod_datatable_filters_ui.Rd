@@ -4,18 +4,13 @@
 \alias{mod_datatable_filters_ui}
 \title{Filters for dataFlow Manifest UI}
 \usage{
-mod_datatable_filters_ui(
-  id,
-  width = NULL,
-  contributor_choices = c("Contributor 1", "Contributor 2"),
-  dataset_choices = c("dataset 1", "dataset 2"),
-  release_daterange = c(Sys.Date(), (Sys.Date() + 365)),
-  status_choices = c("status 1", "status 2")
-)
+mod_datatable_filters_ui(id, width = NULL)
 }
 \arguments{
-\item{id, input, output, session}{Internal parameters for {shiny}.}
+\item{id}{shiny id}
+
+\item{width}{filter width}
 }
 \description{
-A shiny Module that renders filters for the dataFlow manifest
+A shiny Module that renders filters for the data flow manifest.
 }

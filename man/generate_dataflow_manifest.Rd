@@ -7,9 +7,10 @@
 generate_dataflow_manifest(
   asset_view,
   schema_url,
-  na_replace,
-  calc_num_items,
   access_token,
+  na_replace = NA,
+  verbose = FALSE,
+  calc_num_items = TRUE,
   base_url = "https://schematic-dev.api.sagebionetworks.org"
 )
 }
@@ -18,11 +19,13 @@ generate_dataflow_manifest(
 
 \item{schema_url}{URL of a dataFlow schema}
 
+\item{access_token}{A Synapse PAT}
+
 \item{na_replace}{NA replacement string}
 
-\item{calc_num_items}{TRUE/FALSE. Calculate the number of items in each manifest.}
+\item{verbose}{Show messages to help with debugging / progress bar in console}
 
-\item{access_token}{A Synapse PAT}
+\item{calc_num_items}{TRUE/FALSE. Calculate the number of items in each manifest.}
 
 \item{base_url}{Base URL of schematic API}
 }

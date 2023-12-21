@@ -89,6 +89,7 @@ dataset_manifest_download <- function(asset_view,
 #' (default), "entity", "both".
 #' @param base_url URL to schematic API endpoint
 #' @param schema_url URL to a schema jsonld
+#' @param use_schema_label Store attributes using the schema label (true, default) or store attributes using the display label (false). Attribute display names in the schema must not only include characters that are not accepted by Synapse.
 #'
 #' @returns TRUE if successful upload or validate errors if not.
 #' @export
@@ -292,7 +293,7 @@ storage_projects <- function(asset_view,
 #' /storage/project/manifests
 #'
 #' @param asset_view synapse ID of master file view.
-#' @param dataset_id synapse ID of a storage dataset.
+#' @param project_id synapse ID of a storage dataset.
 #' @param access_token synapse PAT
 #' @param base_url URL to schematic API endpoint
 #'

@@ -4,27 +4,15 @@
 \alias{mod_select_dcc_server}
 \title{Select a DCC Module Server}
 \usage{
-mod_select_dcc_server(
-  id,
-  dcc_config,
-  access_token,
-  parent = NULL,
-  menuItem_id = "tabs",
-  selected_tabItem_id = "tab_dashboard"
-)
+mod_select_dcc_server(id, dcc_config, access_token)
 }
 \arguments{
 \item{id}{module ID}
 
-\item{dcc_config}{DCC configuration file sourced from Sage-Bionetworks/data_flow_config}
+\item{dcc_config}{DCC configuration file sourced from
+\code{Sage-Bionetworks/data_flow_config}}
 
 \item{access_token}{Synapse PAT}
-
-\item{parent}{parent session object}
-
-\item{menuItem_id}{ID of shinydashboard menuItem}
-
-\item{selected_tabItem_id}{ID of shinydashboard tabItem to click to}
 }
 \description{
 Select a DCC Module Server

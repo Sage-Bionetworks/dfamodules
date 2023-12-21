@@ -1,6 +1,6 @@
 Package: dfamodules
 Title: Modules for the Data Flow App
-Version: 23.10.1
+Version: 23.12.1
 Authors@R: 
     person("Loren", "Wolfe", email = "loren.wolfe@sagebase.org", role = c("aut", "cre"))
 Description: Modules and functions for the Data Flow App.
@@ -21,9 +21,10 @@ Imports:
     htmltools,
     httr,
     jsonlite,
+    lubridate,
     magrittr,
     purrr,
-    RJSONIO,
+    readr,
     rlang,
     shiny,
     shinydashboard,

@@ -2,7 +2,7 @@
 % Please edit documentation in R/utility.R
 \name{verbose_message}
 \alias{verbose_message}
-\title{Convert a string so that first letter is capitalized}
+\title{Verbose message}
 \usage{
 verbose_message(m, verbose, type = "print")
 }
@@ -14,5 +14,5 @@ verbose_message(m, verbose, type = "print")
 \item{type}{Type of message to surface (print or message)}
 }
 \description{
-Convert a string so that first letter is capitalized
+Verbose message
 }

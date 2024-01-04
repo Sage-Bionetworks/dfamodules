@@ -115,6 +115,7 @@ rearrange_dataframe <- function(df,
 #' @param m a string
 #' @param verbose TRUE/FALSE
 #' @param type Type of message to surface (print or message)
+#' @export
 
 verbose_message <- function(m, verbose, type = "print") {
   if (verbose) {

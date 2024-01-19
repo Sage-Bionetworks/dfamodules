@@ -109,3 +109,20 @@ rearrange_dataframe <- function(df,
           sep = "", collapse = " ")
   })
 }
+
+#' Verbose message
+#'
+#' @param m a string
+#' @param verbose TRUE/FALSE
+#' @param type Type of message to surface (print or message)
+#' @export
+
+verbose_message <- function(m, verbose, type = "print") {
+  if (verbose) {
+    if (type == "print") {
+      print(m)
+    } else if (type == "message") {
+      message(m)
+    }
+  }
+}

@@ -271,6 +271,7 @@ update_data_flow_manifest <- function(asset_view,
     verbose = verbose
   )
 
+  # FOR TESTING
   synapse_manifests <- tryCatch(
     {
       get_all_manifests(
@@ -278,7 +279,7 @@ update_data_flow_manifest <- function(asset_view,
         na_replace = na_replace,
         access_token = access_token,
         base_url = base_url,
-        verbose = FALSE
+        verbose = T
       )
     },
     error = function(e) {
@@ -286,6 +287,22 @@ update_data_flow_manifest <- function(asset_view,
       message(e)
     }
   )
+
+  # synapse_manifests <- tryCatch(
+  #   {
+  #     get_all_manifests(
+  #       asset_view = asset_view,
+  #       na_replace = na_replace,
+  #       access_token = access_token,
+  #       base_url = base_url,
+  #       verbose = FALSE
+  #     )
+  #   },
+  #   error = function(e) {
+  #     message("get_all_manifests failed")
+  #     message(e)
+  #   }
+  # )
 
   # check synapse for new datasets
   dataflow_manifest_updated <- update_manifest_add_datasets(

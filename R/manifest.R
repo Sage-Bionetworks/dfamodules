@@ -265,6 +265,9 @@ update_data_flow_manifest <- function(asset_view,
 
   dataflow_manifest <- dataflow_manifest_obj$content
 
+  # make sure that num_items column is an int
+  dataflow_manifest$num_items <- as.integer(dataflow_manifest$num_items)
+
   # get all manifests for each storage project
   verbose_message(
     m = paste0("Getting all manifests under asset view ", asset_view, " from Synapse"),

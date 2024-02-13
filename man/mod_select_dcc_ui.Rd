@@ -4,13 +4,12 @@
 \alias{mod_select_dcc_ui}
 \title{Select a DCC UI}
 \usage{
-mod_select_dcc_ui(id, dcc_config)
+mod_select_dcc_ui(id, title = "Select a DCC")
 }
 \arguments{
-\item{id}{module id}
+\item{id}{Module id}
 
-\item{dcc_config}{DCC configuration file sourced from
-\code{Sage-Bionetworks/data_flow_config}}
+\item{title}{Title of box element}
 }
 \description{
 A shiny module. Outputs a selectInput dropdown of Synapse

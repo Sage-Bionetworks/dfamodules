@@ -22,9 +22,11 @@ get_all_manifests <- function(asset_view,
   }
 
   # get all storage projects under asset view
-  sp_obj <- storage_projects(asset_view = asset_view,
-                             access_token = access_token,
-                             base_url = base_url)
+  sp_obj <- storage_projects(
+    asset_view = asset_view,
+    access_token = access_token,
+    base_url = base_url
+  )
 
   if (verbose) {
     message(paste0("Getting manifests for ", nrow(sp_obj$content), " storage project(s)"))
@@ -39,25 +41,40 @@ get_all_manifests <- function(asset_view,
       message(paste0("Retrieving manifests for ", sp_name))
     }
 
-    manifests <- storage_project_manifests(asset_view = asset_view,
-                                           project_id = sp_id,
-                                           access_token = access_token,
-                                           base_url = base_url)
+    manifests <- tryCatch(
+      {
+        storage_project_manifests(
+          asset_view = asset_view,
+          project_id = sp_id,
+          access_token = access_token,
+          base_url = base_url
+        )
+      },
+      error = function(e) {
+        message("Could not return storage/project/manifest for ", asset_view)
+        message(e)
+        return(NULL)
+      }
+    )
 
-    # if manifest has
-    if (nrow(manifests$content) > 0) {
+    if ( any(is.null(manifests$content), nrow(manifests$content) < 0) ) {
 
-      manifests$content
+      return(NULL)
+
+    } else {
 
       # pull together in a dataframe
-      return(data.frame(Component = rep("DataFlow", nrow(manifests$content)),
-                        contributor = rep(sp_name, nrow(manifests$content)),
-                        dataset_id = manifests$content$dataset_id,
-                        dataset_name = manifests$content$folder_name,
-                        dataset_type = manifests$content$data_type))
-    } else {
-      return(NULL)
+      return(
+        data.frame(
+          Component = rep("DataFlow", nrow(manifests$content)),
+          contributor = rep(sp_name, nrow(manifests$content)),
+          dataset_id = manifests$content$dataset_id,
+          dataset_name = manifests$content$folder_name,
+          dataset_type = manifests$content$data_type
+          )
+        )
     }
+
   })
 
   all_manifests <- do.call("rbind", synapse_manifests_list)

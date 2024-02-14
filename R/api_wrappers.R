@@ -15,7 +15,7 @@
 get_all_manifests <- function(asset_view,
                               na_replace = NA,
                               access_token,
-                              base_url = "https://schematic-dev.api.sagebionetworks.org",
+                              base_url = "https://schematic.api.sagebionetworks.org",
                               verbose = FALSE) {
   if (verbose) {
     message(paste0("Getting storage project list for ", asset_view))

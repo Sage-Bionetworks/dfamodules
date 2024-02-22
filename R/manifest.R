@@ -265,12 +265,16 @@ update_data_flow_manifest <- function(asset_view,
 
   dataflow_manifest <- dataflow_manifest_obj$content
 
+  # make sure that num_items column is an int
+  dataflow_manifest$num_items <- as.integer(dataflow_manifest$num_items)
+
   # get all manifests for each storage project
   verbose_message(
     m = paste0("Getting all manifests under asset view ", asset_view, " from Synapse"),
     verbose = verbose
   )
 
+  # FOR TESTING
   synapse_manifests <- tryCatch(
     {
       get_all_manifests(
@@ -278,7 +282,7 @@ update_data_flow_manifest <- function(asset_view,
         na_replace = na_replace,
         access_token = access_token,
         base_url = base_url,
-        verbose = FALSE
+        verbose = T
       )
     },
     error = function(e) {
@@ -286,6 +290,22 @@ update_data_flow_manifest <- function(asset_view,
       message(e)
     }
   )
+
+  # synapse_manifests <- tryCatch(
+  #   {
+  #     get_all_manifests(
+  #       asset_view = asset_view,
+  #       na_replace = na_replace,
+  #       access_token = access_token,
+  #       base_url = base_url,
+  #       verbose = FALSE
+  #     )
+  #   },
+  #   error = function(e) {
+  #     message("get_all_manifests failed")
+  #     message(e)
+  #   }
+  # )
 
   # check synapse for new datasets
   dataflow_manifest_updated <- update_manifest_add_datasets(

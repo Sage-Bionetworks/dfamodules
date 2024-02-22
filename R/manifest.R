@@ -136,7 +136,7 @@ generate_dataflow_manifest <- function(asset_view,
     na_replace = na_replace,
     access_token = access_token,
     base_url = base_url,
-    verbose = TRUE
+    verbose = verbose
   )
 
   # count rows in each manifest listed

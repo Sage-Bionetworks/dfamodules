@@ -8,7 +8,7 @@ get_all_manifests(
   asset_view,
   na_replace = NA,
   access_token,
-  base_url = "https://schematic-dev.api.sagebionetworks.org",
+  base_url = "https://schematic.api.sagebionetworks.org",
   verbose = FALSE
 )
 }

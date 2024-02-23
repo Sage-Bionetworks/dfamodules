@@ -30,7 +30,10 @@ style_dashboard <- function(prepped_manifest,
                             config) {
 
   # get icon col index
-  icon_idx <- match(get_colname_by_type("icon", config), names(prepped_manifest))
+  icon_idx <- match(
+    get_colname_by_type("icon", config),
+    names(prepped_manifest)
+    )
 
   # define center styling for icon columns
   center_list <- list(targets = icon_idx, className = 'dt-center')
@@ -39,7 +42,8 @@ style_dashboard <- function(prepped_manifest,
   # get column names for datatable display
   display_names <- get_renamed_colnames(
     config,
-    flatten = FALSE)
+    flatten = FALSE
+    )
 
   hide_cols <- c(names(display_names[is.na(display_names)]),
                  setdiff(names(prepped_manifest), names(config)))
@@ -59,16 +63,18 @@ style_dashboard <- function(prepped_manifest,
   display_names <- c("", display_names)
 
   # create datatable
-  dt <- DT::datatable(prepped_manifest,
-                      escape = FALSE,
-                      selection = "none",
-                      filter = "none",
-                      colnames = as.character(display_names),
-                      options = list(scrollX = TRUE,
-                                     scrollY = 500,
-                                     bPaginate = FALSE,
-                                     searching = FALSE,
-                                     columnDefs = defs))
+  dt <- DT::datatable(
+    data = prepped_manifest,
+    escape = FALSE,
+    selection = "none",
+    filter = "none",
+    colnames = as.character(display_names),
+    options = list(scrollX = TRUE,
+                   scrollY = 500,
+                   bPaginate = FALSE,
+                   searching = FALSE,
+                   columnDefs = defs)
+    )
 
   dt
 }

@@ -10,6 +10,12 @@
 
 generate_dashboard_config <- function(dcc_config,
                                       base_url) {
+
+  # check schema url
+  if (httr::http_error(dcc_config$dcc$data_model_url)) {
+    stop("data model URL request fails")
+  }
+
   # GET VISUALIZE/COMPONENT
   vc_out <- visualize_component(
     dcc_config$dcc$data_model_url,

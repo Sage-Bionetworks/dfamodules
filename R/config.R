@@ -3,7 +3,6 @@
 #' Parse config to get columns types
 #'
 #' @param dcc_config DCC config
-#' @param na_replace Named list indicating strings to replace NA with `na_replace <- list(attribute_1 = "na string 1", attribute_2 = "na string 2")`
 #' @param base_url Schematic REST API base URL
 #'
 #' @export
@@ -18,19 +17,20 @@ generate_dashboard_config <- function(dcc_config,
 
   # GET VISUALIZE/COMPONENT
   vc_out <- visualize_component(
-    dcc_config$dcc$data_model_url,
-    "DataFlow",
-    base_url
+    schema_url = dcc_config$dcc$data_model_url,
+    component = "DataFlow",
+    base_url = base_url
   )
 
   attributes_df <- vc_out$content
 
   # GET VALIDATION RULES FOR EACH ATTRIBUTE
-  attributes_df$type <- unlist(sapply(attributes_df$Label, USE.NAMES = FALSE, function(lab) {
+  attributes_df$type <- unlist(
+    sapply(attributes_df$Label, USE.NAMES = FALSE, function(lab) {
     schematic_obj <- schemas_get_node_validation_rules(
-      dcc_config$dcc$data_model_url,
-      lab,
-      base_url
+      schema_url = dcc_config$dcc$data_model_url,
+      node_display_name = lab,
+      base_url = base_url
     )
     return(schematic_obj$content)
   }))
@@ -39,14 +39,21 @@ generate_dashboard_config <- function(dcc_config,
   # if null infer names from attribute_df
   if (!is.null(dcc_config$dfa_dashboard$display_names)) {
     # reorder columns based on display names
-    attributes_df <- dplyr::arrange(attributes_df, match(attributes_df$Attribute, names(dcc_config$dfa_dashboard$display_names)))
+    attributes_df <- dplyr::arrange(
+      attributes_df,
+      match(attributes_df$Attribute,
+            names(dcc_config$dfa_dashboard$display_names)
+            )
+      )
 
     # Assign display names
-    display_names <- ifelse(attributes_df$Attribute %in% names(dcc_config$dfa_dashboard$display_names), unlist(dcc_config$dfa_dashboard$display_names), NA)
+    display_names <- ifelse(
+      attributes_df$Attribute %in% names(dcc_config$dfa_dashboard$display_names),
+      unlist(dcc_config$dfa_dashboard$display_names),
+      NA)
   }
 
   attributes_df$display_name <- display_names
-
 
   # SET TYPE=ICON
   # if icon = TRUE

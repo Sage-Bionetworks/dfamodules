@@ -62,6 +62,8 @@ generate_dashboard_config <- function(dcc_config,
       attributes_df$Attribute %in% names(dcc_config$dfa_dashboard$display_names),
       unlist(dcc_config$dfa_dashboard$display_names),
       NA)
+  } else {
+    display_names <- attributes_df$Attribute
   }
 
   attributes_df$display_name <- display_names

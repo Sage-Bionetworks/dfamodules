@@ -38,6 +38,17 @@ generate_dashboard_config <- function(dcc_config,
   # ADD DISPLAY NAMES / REORDER COLS
   # if null infer names from attribute_df
   if (!is.null(dcc_config$dfa_dashboard$display_names)) {
+
+    in_schema <- names(dcc_config$dfa_dashboard$display_names) %in% attributes_df$Attribute
+
+    # check that display names in config match, error if not
+    if (!all(in_schema)) {
+      missing <- names(dcc_config$dfa_dashboard$display_names[!in_schema])
+
+      stop(paste0("Attribute \'", missing, "\' is in dfa_config.json but not in schema"))
+
+    }
+
     # reorder columns based on display names
     attributes_df <- dplyr::arrange(
       attributes_df,

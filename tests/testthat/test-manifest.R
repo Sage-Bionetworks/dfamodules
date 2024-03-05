@@ -1,12 +1,10 @@
 # read in test config
-dcc_config <- readr::read_csv("https://raw.githubusercontent.com/Sage-Bionetworks/data_flow_config/main/dcc_config.csv",
-                              show_col_types = FALSE)
-dcc_config <- dcc_config[grepl("Fair Demo", dcc_config$project_name), ]
+dcc_config <- jsonlite::read_json("https://raw.githubusercontent.com/Sage-Bionetworks/data_flow_config/dev/Demo/dfa_config.json")
 
 # Download Manifest ---------
 manifest <- dataset_manifest_download(
-  asset_view = dcc_config$synapse_asset_view,
-  dataset_id = dcc_config$manifest_dataset_id,
+  asset_view = dcc_config$dcc$synapse_asset_view,
+  dataset_id = dcc_config$dcc$manifest_dataset_id,
   access_token = Sys.getenv("SYNAPSE_PAT"),
   base_url = Sys.getenv("DFA_SCHEMATIC_API_URL")
 )
@@ -15,9 +13,9 @@ manifest <- manifest$content
 
 # Generate Dash ---------
 config <- generate_dashboard_config(
-  schema_url = dcc_config$schema_url,
+  dcc_config = dcc_config,
   base_url = Sys.getenv("DFA_SCHEMATIC_API_URL")
-  )
+)
 
 # Run tests ---------
 
@@ -33,7 +31,6 @@ test_that("prep_manifest_dfa updates date attributes correctly", {
     sort(manifest_date),
     sort(config_date)
   )
-
 })
 
 test_that("prep_manifest_dfa updates int attributes correctly", {
@@ -44,7 +41,7 @@ test_that("prep_manifest_dfa updates int attributes correctly", {
   expect_equal(
     sort(manifest_int),
     sort(config_int)
-    )
+  )
 })
 
 test_that("prep_manifest_submit replaces NA with ''", {
@@ -52,7 +49,7 @@ test_that("prep_manifest_submit replaces NA with ''", {
     dfa_manifest,
     config,
     na_replace = ""
-    )
+  )
 
   expect_false(any(is.na(submit_manifest)))
 })

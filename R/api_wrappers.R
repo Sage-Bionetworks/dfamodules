@@ -51,7 +51,7 @@ get_all_manifests <- function(asset_view,
         )
       },
       error = function(e) {
-        message("Could not return storage/project/manifest for ", asset_view)
+        message("Could not return storage/project/manifest for ", sp_id)
         message(e)
         return(NULL)
       }
@@ -68,6 +68,7 @@ get_all_manifests <- function(asset_view,
         data.frame(
           Component = rep("DataFlow", nrow(manifests$content)),
           contributor = rep(sp_name, nrow(manifests$content)),
+          contributor_id = rep(sp_id, nrow(manifests$content)),
           dataset_id = manifests$content$dataset_id,
           dataset_name = manifests$content$folder_name,
           dataset_type = manifests$content$data_type

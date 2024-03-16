@@ -39,9 +39,9 @@ synapse_access <- function(url = "https://repo-prod.prod.sagebase.org/repo/v1/en
 #'
 #' @export
 
-get_annotations <- function(url = "https://repo-prod.prod.sagebase.org/repo/v1/entity",
-                            id,
-                            auth) {
+synapse_annotations <- function(id,
+                                auth,
+                                url = "https://repo-prod.prod.sagebase.org/repo/v1/entity") {
   if (is.null(id)) stop("id cannot be NULL")
   req_url <- file.path(url, id, "annotations2")
   req <- httr::GET(
@@ -55,4 +55,43 @@ get_annotations <- function(url = "https://repo-prod.prod.sagebase.org/repo/v1/e
 
   cont <- httr::content(req)
   return(cont$annotations)
+}
+
+#' @title Gets an annotation for a given entity ID
+#'
+#' @param id Synapse ID
+#' @param annotation label Label of annotation (case sensitive)
+#' @param access_token Synapse authentication token
+#' @param na_replace NA replacement string
+#' @param url Synapse API endpoint URL
+#'
+#' @export
+
+get_annotations <- function(id,
+                            annotation_label,
+                            na_replace = NA,
+                            access_token,
+                            url = file.path(
+                              "https://repo-prod.prod.sagebase.org",
+                              "repo/v1/entity")
+) {
+
+  # query annotations synapse endpoint
+  annotations_out <- synapse_annotations(
+    id = project_id,
+    auth = access_token,
+    url = url
+  )
+
+  annotations_out[annotation_label]
+
+  # check that studyStatus is a returned annotation
+  # if it is return it's value, if it isn't return na_replace
+  if (!is.null(annotations_out[[annotation_label]])) {
+    annotation <- toupper(unlist(annotations_out[[annotation_label]]$value))
+  } else {
+    annotation <- na_replace
+  }
+
+  return(annotation)
 }

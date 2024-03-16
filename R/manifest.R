@@ -177,6 +177,7 @@ generate_dataflow_manifest <- function(asset_view,
 fill_dataflow_manifest <- function(dataflow_manifest_chunk,
                                    schema_url,
                                    na_replace = NA,
+                                   access_token,
                                    base_url) {
 
   # get attribute_df
@@ -188,12 +189,43 @@ fill_dataflow_manifest <- function(dataflow_manifest_chunk,
 
   attributes_df <- vc_out$content
 
+  # check for study_status attribute
+  # if present add annotation to dataflow_manifest_chunk
+  if ("study_status" %in% attributes_df$Attribute) {
+
+    # study status is annotated at the project level
+    # get annotations and apply to manifest
+    project_ids <- unique(dataflow_manifest_chunk$contributor_id)
+
+    study_status <- sapply(project_ids, function(id) {
+      get_annotations(
+        id = id,
+        annotation_label = "studyStatus",
+        na_replace = na_replace,
+        access_token = access_token
+        )
+    })
+  }
+
+  # Convert the named vector into a dataframe
+  study_status_df <- data.frame(
+    contributor_id = names(study_status),
+    study_status = study_status
+  )
+
+  # merge study status into dataflow manifest chunk
+  dataflow_manifest_chunk <- merge(
+    x = dataflow_manifest_chunk,
+    y = study_status_df,
+    by = "contributor_id",
+    all.x = TRUE
+    )
+
   # find attributes that are not present in provided manifest chunk
   missing_attributes_df <- attributes_df[!attributes_df$Attribute %in% names(dataflow_manifest_chunk), ]
 
-  # fill in missing attributes
-  # TRUE/FALSE or Not Applicable
-  # Add NA_variable
+  # fill in the rest of the attributes
+  # TRUE/FALSE or NA
 
   missing_attributes_filled <- lapply(1:nrow(missing_attributes_df), function(i) {
     if (grepl("TRUE", missing_attributes_df[i, "Valid Values"])) {

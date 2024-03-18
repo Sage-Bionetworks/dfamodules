@@ -78,7 +78,7 @@ get_annotations <- function(id,
 
   # query annotations synapse endpoint
   annotations_out <- synapse_annotations(
-    id = project_id,
+    id = id,
     auth = access_token,
     url = url
   )

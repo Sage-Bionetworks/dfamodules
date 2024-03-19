@@ -159,6 +159,7 @@ generate_dataflow_manifest <- function(asset_view,
     dataflow_manifest_chunk = dataflow_manifest_chunk,
     schema_url = schema_url,
     na_replace = na_replace,
+    access_token = access_token,
     base_url = base_url
   )
 

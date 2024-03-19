@@ -135,7 +135,7 @@ generate_dataflow_manifest <- function(asset_view,
     asset_view = asset_view,
     na_replace = na_replace,
     access_token = access_token,
-    base_url = "https://schematic.api.sagebionetworks.org", # FIXME: only for testing while endpoints are down (3/18/2024)
+    base_url = base_url,
     verbose = verbose
   )
 

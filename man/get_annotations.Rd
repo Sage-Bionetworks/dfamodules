@@ -7,17 +7,17 @@
 get_annotations(
   id,
   annotation_label,
-  access_token,
   na_replace = NA,
+  access_token,
   url = file.path("https://repo-prod.prod.sagebase.org", "repo/v1/entity")
 )
 }
 \arguments{
 \item{id}{Synapse ID}
 
-\item{access_token}{Synapse authentication token}
-
 \item{na_replace}{NA replacement string}
+
+\item{access_token}{Synapse authentication token}
 
 \item{url}{Synapse API endpoint URL}
 

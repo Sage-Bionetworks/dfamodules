@@ -49,7 +49,7 @@ manifest_download <- function(manifest_id,
   if (httr::http_error(res)) {
     stop(
       sprintf(
-        "Schematic API request failed [%s]\n%s",
+        "manifest/download Schematic API request failed [%s]\n%s",
         httr::status_code(res),
         parsed$detail
       ),
@@ -117,7 +117,7 @@ dataset_manifest_download <- function(asset_view,
   if (httr::http_error(res)) {
     stop(
       sprintf(
-        "Schematic API request failed [%s]\n%s",
+        "dataset/manifest/download Schematic API request failed [%s]\n%s",
         httr::status_code(res),
         parsed$detail
       ),
@@ -203,7 +203,7 @@ model_submit <- function(data_type = NULL,
   if (httr::http_error(res)) {
     stop(
       sprintf(
-        "Schematic API request failed [%s]",
+        "model/submit Schematic API request failed [%s]",
         httr::status_code(res)
       ),
       call. = FALSE
@@ -265,7 +265,7 @@ storage_project_datasets <- function(asset_view,
   if (httr::http_error(res)) {
     stop(
       sprintf(
-        "Schematic API request failed [%s]\n%s",
+        "storage/project/datasets Schematic API request failed [%s]\n%s",
         httr::status_code(res),
         parsed$detail
       ),
@@ -330,7 +330,7 @@ storage_projects <- function(asset_view,
   if (httr::http_error(res)) {
     stop(
       sprintf(
-        "Schematic API request failed [%s]\n%s",
+        "storage/projets Schematic API request failed [%s]\n%s",
         httr::status_code(res),
         parsed$detail
       ),
@@ -401,7 +401,7 @@ storage_project_manifests <- function(asset_view,
   if (httr::http_error(res)) {
     stop(
       sprintf(
-        "Schematic API request failed [%s]\n%s",
+        "storage/project/manifests Schematic API request failed [%s]\n%s",
         httr::status_code(res),
         parsed$detail
       ),
@@ -470,7 +470,7 @@ visualize_component <- function(schema_url,
   if (httr::http_error(res)) {
     stop(
       sprintf(
-        "Schematic API request failed [%s]",
+        "visualize/component Schematic API request failed [%s]",
         httr::status_code(res)
       ),
       call. = FALSE
@@ -524,7 +524,7 @@ schemas_get_node_validation_rules <- function(schema_url,
   if (httr::http_error(res)) {
     stop(
       sprintf(
-        "Schematic API request failed [%s]",
+        "schemas/get_node_validation_rules Schematic API request failed [%s]",
         httr::status_code(res)
       ),
       call. = FALSE

@@ -9,7 +9,7 @@ dataset_id <- "syn51219090"
 access_token <- Sys.getenv("SYNAPSE_PAT")
 base_url <- Sys.getenv("DFA_SCHEMATIC_API_URL")
 testing_manifest_path <- "test_data/synapse_storage_manifest_dataflow.csv"
-schema_url <- "https://raw.githubusercontent.com/Sage-Bionetworks/data_flow_config/5cc4e536d100c6ef9471c2e0e267724068e6d79a/Demo/dataflow_component.jsonld"
+schema_url <- "https://raw.githubusercontent.com/Sage-Bionetworks/data_flow_config/dev/Demo/dataflow_component.jsonld"
 
 # TEST API ##############################################################################
 
@@ -81,6 +81,18 @@ test_that("storage_project_manifests successfully returns a schematic_api object
       project_id,
       access_token,
       base_url
+    ),
+    silent = FALSE
+  )
+
+  expect_true(class(spm) == "schematic_api")
+})
+
+test_that("visualize_component returns a schematic_api object", {
+  spm <- try(
+    visualize_component(
+      schema_url = schema_url,
+      base_url = base_url
     ),
     silent = FALSE
   )

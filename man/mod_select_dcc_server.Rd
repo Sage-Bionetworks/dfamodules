@@ -4,12 +4,12 @@
 \alias{mod_select_dcc_server}
 \title{Select a DCC Module Server}
 \usage{
-mod_select_dcc_server(id, dcc_config, access_token)
+mod_select_dcc_server(id, tenants_config_path, access_token)
 }
 \arguments{
 \item{id}{module ID}
 
-\item{dcc_config}{DCC configuration file sourced from
+\item{tenants_config_path}{DCC configuration file sourced from
 \code{Sage-Bionetworks/data_flow_config}}
 
 \item{access_token}{Synapse PAT}

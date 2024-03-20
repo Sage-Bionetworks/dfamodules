@@ -3,30 +3,24 @@
 #' @description A shiny module. Outputs a selectInput dropdown of Synapse
 #' storage project names to the UI.
 #'
-#' @param id module id
-#' @param dcc_config DCC configuration file sourced from
-#' `Sage-Bionetworks/data_flow_config`
+#' @param id Module id
+#' @param title Title of box element
 #'
 #' @importFrom shiny NS tagList
 #' @export
 
 mod_select_dcc_ui <- function(id,
-                              dcc_config) {
+                              title = "Select a DCC") {
   ns <- shiny::NS(id)
   shiny::tagList(
 
+    shinyjs::useShinyjs(),
+
     shinydashboard::box(
-      title = "Select a DCC",
+      title = title,
 
       # DCC dropdown
-      shiny::selectInput(
-        inputId = ns("select_dcc"),
-        label = NULL,
-        choices = stats::setNames(
-          dcc_config$synapse_asset_view,
-          dcc_config$project_name
-        )
-      ),
+      shiny::uiOutput(ns("dcc_dropdown")),
 
       # Button to initiate selection
       shiny::actionButton(
@@ -40,63 +34,98 @@ mod_select_dcc_ui <- function(id,
 #' Select a DCC Module Server
 #'
 #' @param id module ID
-#' @param dcc_config DCC configuration file sourced from
+#' @param tenants_config_path DCC configuration file sourced from
 #' `Sage-Bionetworks/data_flow_config`
 #' @param access_token Synapse PAT
 #'
 #' @export
 
 mod_select_dcc_server <- function(id,
-                                  dcc_config,
+                                  tenants_config_path,
                                   access_token) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
     # check that inputs are not reactive
-    if (shiny::is.reactive(dcc_config)) {
-      stop("dcc_config must not be a reactive")
+    if (shiny::is.reactive(tenants_config_path)) {
+      stop("tenants_config_path must not be a reactive")
     }
     if (shiny::is.reactive(access_token)) {
       stop("access_token must not be a reactive")
     }
 
-    # put asset views into named list
-    all_asset_views <- stats::setNames(
-      dcc_config$synapse_asset_view,
-      dcc_config$project_name
+    # get tenants config
+    tenants_config <- jsonlite::read_json(
+      path = tenants_config_path,
+      simplifyVector = TRUE
     )
 
-    # only display asset_views that user has access to
+    tenants_config <- tenants_config$tenants
+
+    # put asset views into named vector
+    all_asset_views <- stats::setNames(
+      tenants_config$synapse_asset_view,
+      tenants_config$name
+    )
+
+    # determine which asset views user has access to
     has_access <- vapply(all_asset_views, function(x) {
       synapse_access(id = x, access = "DOWNLOAD", auth = access_token)
     }, 1)
 
-    asset_views <- all_asset_views[has_access == 1]
+    visible_tenants <- tenants_config[has_access == 1,]
 
-    # if there are no asset_views available, stop
-    if (length(asset_views) == 0) {
-      stop("You do not have DOWNLOAD access to any supported Asset Views.")
-    }
+    observe({
 
-    # update selectInput with available dccs
-    shiny::updateSelectInput(
-      session = session,
-      inputId = "select_dcc",
-      choices = asset_views
-    )
+      # if there are no asset_views available, stop
+      if (nrow(visible_tenants) == 0) {
 
-    # if there is only one asset_view available, go straight to dash by
-    # updating the selected tabItem
-    if (length(asset_views) == 1) {
-      shinyjs::click("submit_btn")
-    }
+        stop("You do not have DOWNLOAD access to any supported Asset Views.")
 
-    # on button click return:
-    # 1) selected dcc configuration
-    # 2) the button click
+      } else if (nrow(visible_tenants) == 1) {
+
+        # if only 1 tenant skip drop down selection
+        shinyjs::click("submit_btn")
+
+      } else {
+
+        # populate dropdown with available asset views
+        output$dcc_dropdown <- renderUI({
+          shiny::selectInput(
+            inputId = ns("selected_dcc"),
+            label = NULL,
+            choices = stats::setNames(
+              visible_tenants$synapse_asset_view,
+              visible_tenants$name
+            )
+          )
+        })
+      }
+    })
+
+    # on button click:
+    # get dcc specific configuration
+    # return configuration + button click output
     shiny::eventReactive(input$submit_btn, {
+
+      # get selected tenant info
+      if (nrow(visible_tenants) == 1) {
+        tenant <- visible_tenants
+      } else {
+        tenant <- visible_tenants[visible_tenants$synapse_asset_view == input$selected_dcc,]
+      }
+
+      # get tenant dfa config
+      config <- jsonlite::read_json(
+        path = file.path(
+          dirname(tenants_config_path),
+          tenant$config_location
+        ),
+      )
+
+      # return a list with config and btn click output
       list(
-        selected_dcc_config = dcc_config[dcc_config$synapse_asset_view == input$select_dcc,],
+        selected_dcc_config = config,
         btn_click = input$submit_btn
       )
     })

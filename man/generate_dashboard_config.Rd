@@ -4,22 +4,10 @@
 \alias{generate_dashboard_config}
 \title{Parse config to get columns types}
 \usage{
-generate_dashboard_config(
-  schema_url,
-  display_names = NULL,
-  icon = TRUE,
-  na_replace = NULL,
-  base_url
-)
+generate_dashboard_config(dcc_config, base_url)
 }
 \arguments{
-\item{schema_url}{URL of a Schematic data model schema}
-
-\item{display_names}{A named list of display names to use in dashboard. Dashboard is ordered by this list. Attributes not included are hidden from the dashboard.}
-
-\item{icon}{Display \code{Valid_Values = TRUE/FALSE} attributes as icons in dashboard}
-
-\item{na_replace}{Named list indicating strings to replace NA with \code{na_replace <- list(attribute_1 = "na string 1", attribute_2 = "na string 2")}}
+\item{dcc_config}{DCC config}
 
 \item{base_url}{Schematic REST API base URL}
 }

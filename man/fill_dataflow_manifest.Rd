@@ -8,6 +8,7 @@ fill_dataflow_manifest(
   dataflow_manifest_chunk,
   schema_url,
   na_replace = NA,
+  access_token,
   base_url
 )
 }

@@ -456,7 +456,8 @@ visualize_component <- function(schema_url,
   params <- list(
     `schema_url` = schema_url,
     `component` = component,
-    `include_index` = "false"
+    `include_index` = "false",
+    `data_model_labels` = "class_label"
   )
 
   # GET

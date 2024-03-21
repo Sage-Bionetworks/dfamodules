@@ -30,6 +30,35 @@ synapse_access <- function(url = "https://repo-prod.prod.sagebase.org/repo/v1/en
   cont$result
 }
 
+#' @title Gets user permissions
+#'
+#' @param id Synapse ID
+#' @param auth Synapse authentication token
+#' @param url Synapse API endpoint URL
+#'
+#' @export
+
+synapse_permissions <- function(id,
+                                auth,
+                                url = "https://repo-prod.prod.sagebase.org/repo/v1/entity") {
+
+  if (is.null(id)) stop("id cannot be NULL")
+
+  # query permissions endpoint
+  req_url <- file.path(url, id, "permissions")
+  req <- httr::GET(
+    req_url,
+    httr::add_headers(Authorization = paste0("Bearer ", auth))
+  )
+
+  # send error if unsuccessful query
+  status <- httr::http_status(req)
+  if (status$category != "Success") stop(status$message)
+
+  cont <- httr::content(req)
+  return(cont)
+}
+
 #' @title Gets annotations for a given entity ID
 #' @description wrapper for https://rest-docs.synapse.org/rest/GET/entity/id/annotations2.html
 #'

@@ -30,10 +30,11 @@ mod_datatable_filters_ui <- function(id,
     shinydashboard::box(
       title = "Filter Datasets",
       collapsible = TRUE,
-      collapsed = TRUE,
+      collapsed = F,
       width = width,
       status = "primary",
       shiny::uiOutput(ns("filter_widgets")),
+      shiny::uiOutput(ns("study_status_widget")),
       shiny::actionButton(ns("clear_btn"), "Clear Filter Selections")
     )
   )
@@ -113,8 +114,19 @@ mod_datatable_filters_server <- function(id,
                            choices = choices$status_choices(),
                            selected = NULL,
                            multiple = TRUE
-        )
+        ),
+
       )
+    })
+
+    output$study_status_widget <- renderUI({
+      if ("study_status" %in% colnames(manifest())) {
+        print("hooray!")
+        shiny::checkboxGroupInput(ns("study_status_chkbx"),
+                                  label = "Filter by study status",
+                                  choices = c("option1", "option2", "option3", "option4")
+        )
+      } else {NULL}
     })
 
     # HANDLE NA ---------
@@ -166,7 +178,10 @@ mod_datatable_filters_server <- function(id,
     })
 
     # CLEAR SELECTIONS ---------
-    shiny::observeEvent(input$clear_btn, { shinyjs::reset("filter_widgets") })
+    shiny::observeEvent(input$clear_btn, {
+      shinyjs::reset("filter_widgets")
+      shinyjs::reset("study_status_widget")
+      })
 
     # RETURN FILTERED MANIFEST ---------
     return(manifest_filtered)

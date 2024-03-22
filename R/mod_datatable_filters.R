@@ -6,7 +6,7 @@
 #' @rdname modifiedIn
 #' @export
 
-`%modifiedIn%` <- function (e1, e2) {
+`%modifiedIn%` <- function(e1, e2) {
   if (is.null(e2)) {
     return(TRUE)
   } else {
@@ -30,7 +30,7 @@ mod_datatable_filters_ui <- function(id,
     shinydashboard::box(
       title = "Filter Datasets",
       collapsible = TRUE,
-      collapsed = F,
+      collapsed = TRUE,
       width = width,
       status = "primary",
       shiny::uiOutput(ns("filter_widgets")),
@@ -53,11 +53,11 @@ mod_datatable_filters_ui <- function(id,
 
 mod_datatable_filters_server <- function(id,
                                          manifest) {
-
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
     # GENERATE CHOICES --------
+    # These choices will supply the widgets
     choices <- list(
       contributor_choices = shiny::reactiveVal(),
       dataset_choices = shiny::reactiveVal(),
@@ -66,18 +66,21 @@ mod_datatable_filters_server <- function(id,
       status_choices = shiny::reactiveVal()
     )
 
+    # parsing and error handling for choices
     shiny::observe({
+      # only display unique choices
       choices$contributor_choices(unique(manifest()$contributor))
       choices$dataset_choices(unique(manifest()$dataset_type))
       choices$status_choices(unique(manifest()$status))
 
+      # if scheduled_release_date is all NA coerce choice to NULL
+      # else set min and max so there's some buffer
       is_all_na <- all(is.na(manifest()$scheduled_release_date))
 
       if (is_all_na) {
         choices$release_daterange_min(NULL)
         choices$release_daterange_max(NULL)
       } else {
-
         min_date <- min(manifest()$scheduled_release_date, na.rm = T) %m-% months(1)
         max_date <- max(manifest()$scheduled_release_date, na.rm = T) %m+% months(1)
 
@@ -88,45 +91,51 @@ mod_datatable_filters_server <- function(id,
 
     # RENDER WIDGETS --------
     output$filter_widgets <- shiny::renderUI({
-
-      tagList(
-        shiny::selectInput(ns("contributor_select"),
-                           label = "Filter by contributor(s)",
-                           choices = choices$contributor_choices(),
-                           selected = NULL,
-                           multiple = TRUE
+      shiny::tagList(
+        shiny::selectInput(
+          inputId = ns("contributor_select"),
+          label = "Filter by contributor(s)",
+          choices = choices$contributor_choices(),
+          selected = NULL,
+          multiple = TRUE
         ),
-        shiny::selectInput(ns("dataset_select"),
-                           label = "Filter by dataset type(s)",
-                           choices = choices$dataset_choices(),
-                           selected = NULL,
-                           multiple = TRUE
+        shiny::selectInput(
+          inputId = ns("dataset_select"),
+          label = "Filter by dataset type(s)",
+          choices = choices$dataset_choices(),
+          selected = NULL,
+          multiple = TRUE
         ),
-        shiny::dateRangeInput(ns("scheduled_release_daterange"),
-                              label = "Filter by scheduled release date",
-                              start = NA,
-                              end = NA,
-                              min = choices$release_daterange_min(),
-                              max = choices$release_daterange_max()
+        shiny::dateRangeInput(
+          inputId = ns("scheduled_release_daterange"),
+          label = "Filter by scheduled release date",
+          start = NA,
+          end = NA,
+          min = choices$release_daterange_min(),
+          max = choices$release_daterange_max()
         ),
-        shiny::selectInput(ns("status_select"),
-                           label = "Filter by status",
-                           choices = choices$status_choices(),
-                           selected = NULL,
-                           multiple = TRUE
-        ),
-
+        shiny::selectInput(
+          inputId = ns("status_select"),
+          label = "Filter by status",
+          choices = choices$status_choices(),
+          selected = NULL,
+          multiple = TRUE
+        )
       )
     })
 
-    output$study_status_widget <- renderUI({
+    # optionally render study_status widget
+    output$study_status_widget <- shiny::renderUI({
+      # if study_status is present in manifest show checkbox group
       if ("study_status" %in% colnames(manifest())) {
-        print("hooray!")
-        shiny::checkboxGroupInput(ns("study_status_chkbx"),
-                                  label = "Filter by study status",
-                                  choices = c("option1", "option2", "option3", "option4")
+        shiny::checkboxGroupInput(
+          inputId = ns("study_status_chkbx"),
+          label = "Filter by study status",
+          choices = c("option1", "option2", "option3", "option4")
         )
-      } else {NULL}
+      } else {
+        NULL
+      }
     })
 
     # HANDLE NA ---------
@@ -162,11 +171,11 @@ mod_datatable_filters_server <- function(id,
         contributor %modifiedIn% input$contributor_select,
         dataset_type %modifiedIn% selected_data_type_modified(),
         status %modifiedIn% selected_statuses_modified()
-        )
+      )
 
       # Only run when both min and max dateRange has been selected
       if (all(!is.na(input$scheduled_release_daterange)) &
-          all(!is.null(input$scheduled_release_daterange))) {
+        all(!is.null(input$scheduled_release_daterange))) {
         filtered <- filtered %>%
           dplyr::filter(
             scheduled_release_date >= input$scheduled_release_daterange[1] &
@@ -181,7 +190,7 @@ mod_datatable_filters_server <- function(id,
     shiny::observeEvent(input$clear_btn, {
       shinyjs::reset("filter_widgets")
       shinyjs::reset("study_status_widget")
-      })
+    })
 
     # RETURN FILTERED MANIFEST ---------
     return(manifest_filtered)

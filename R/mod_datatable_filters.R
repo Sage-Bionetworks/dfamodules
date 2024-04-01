@@ -63,7 +63,8 @@ mod_datatable_filters_server <- function(id,
       dataset_choices = shiny::reactiveVal(),
       release_daterange_min = shiny::reactiveVal(),
       release_daterange_max = shiny::reactiveVal(),
-      status_choices = shiny::reactiveVal()
+      status_choices = shiny::reactiveVal(),
+      study_status_choices = shiny::reactiveVal()
     )
 
     # parsing and error handling for choices
@@ -72,6 +73,10 @@ mod_datatable_filters_server <- function(id,
       choices$contributor_choices(unique(manifest()$contributor))
       choices$dataset_choices(unique(manifest()$dataset_type))
       choices$status_choices(unique(manifest()$status))
+
+      if ("study_status" %in% colnames(manifest())) {
+        choices$study_status_choices(unique(manifest()$study_status))
+      }
 
       # if scheduled_release_date is all NA coerce choice to NULL
       # else set min and max so there's some buffer
@@ -128,10 +133,12 @@ mod_datatable_filters_server <- function(id,
     output$study_status_widget <- shiny::renderUI({
       # if study_status is present in manifest show checkbox group
       if ("study_status" %in% colnames(manifest())) {
-        shiny::checkboxGroupInput(
-          inputId = ns("study_status_chkbx"),
+        shiny::selectInput(
+          inputId = ns("study_status_select"),
           label = "Filter by study status",
-          choices = c("option1", "option2", "option3", "option4")
+          choices = choices$study_status_choices(),
+          selected = NULL,
+          multiple = TRUE
         )
       } else {
         NULL
@@ -159,6 +166,16 @@ mod_datatable_filters_server <- function(id,
       return(selected_status)
     })
 
+    selected_study_status_modified <- shiny::reactive({
+      selected_study_status <- input$study_status_select
+
+      if (!is.null(selected_study_status)) {
+        selected_study_status[selected_study_status == "NA"] <- NA
+      }
+      return(selected_study_status)
+    })
+
+
     # FILTER INPUTS ---------
     # Filters output NULL when nothing is selected. This was filtering out all
     # rows so no data would show in the dashboard. Using %modifiedIn% catches
@@ -172,6 +189,14 @@ mod_datatable_filters_server <- function(id,
         dataset_type %modifiedIn% selected_data_type_modified(),
         status %modifiedIn% selected_statuses_modified()
       )
+
+      # handle study_status if present in manifest
+      if ("study_status" %in% colnames(manifest())) {
+        filtered <- filtered %>%
+          dplyr::filter(
+            study_status %modifiedIn% selected_study_status_modified()
+          )
+      }
 
       # Only run when both min and max dateRange has been selected
       if (all(!is.na(input$scheduled_release_daterange)) &

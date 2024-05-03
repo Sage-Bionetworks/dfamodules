@@ -67,8 +67,8 @@ get_all_manifests <- function(asset_view,
       return(
         data.frame(
           Component = rep("DataFlow", nrow(manifests$content)),
-          contributor = rep(sp_name, nrow(manifests$content)),
-          contributor_id = rep(sp_id, nrow(manifests$content)),
+          source = rep(sp_name, nrow(manifests$content)),
+          source_id = rep(sp_id, nrow(manifests$content)),
           dataset_id = manifests$content$dataset_id,
           dataset_name = manifests$content$folder_name,
           dataset_type = manifests$content$data_type

@@ -1,4 +1,4 @@
-Component,Uuid,contributor,data_portal,dataset,dataset_name,embargo,entityId,num_items,release_scheduled,released,standard_compliance
+Component,Uuid,source,data_portal,dataset,dataset_name,embargo,entityId,num_items,release_scheduled,released,standard_compliance
 DataFlow,c59c6efb-3a19-4865-bce4-18db7aeeaf34,FAIR demo data,FALSE,Not Applicable,biospecimen,Not Applicable,syn35294937,Not Applicable,Not Applicable,FALSE,FALSE
 DataFlow,46d68c86-6a70-431a-b4fc-47fcd3bca3e3,FAIR demo data,TRUE,Patient,patient,Not Applicable,syn36003517,3,2022-10-01,FALSE,TRUE
 DataFlow,3551f2b9-2a4a-4bd1-a4fb-acc408ceebde,FAIR demo data,FALSE,BulkRNA-seqAssay,bulk RNA seq,2023-05-01,syn36003526,2,2023-06-01,FALSE,FALSE

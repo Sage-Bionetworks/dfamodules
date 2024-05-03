@@ -110,7 +110,7 @@ apply_administrator_selections <- function(dataflow_manifest,
   return(dataflow_manifest)
 }
 
-#' Generate a data flow status manifest skeleton. Fills in the component, contributor, data type, number of items, and dataset name columns.
+#' Generate a data flow status manifest skeleton. Fills in the component, source, data type, number of items, and dataset name columns.
 #'
 #' @param asset_view ID of view listing all project data assets. For example, for Synapse this would be the Synapse ID of the fileview listing all data assets for a given project.(i.e. master_fileview in config.yml)
 #' @param schema_url URL of a dataFlow schema
@@ -166,9 +166,9 @@ generate_dataflow_manifest <- function(asset_view,
   return(dataflow_manifest)
 }
 
-#' Generate a data flow status manifest skeleton. Fills in the component, contributor, data type, number of items, and dataset name columns.
+#' Generate a data flow status manifest skeleton. Fills in the component, source, data type, number of items, and dataset name columns.
 #'
-#' @param dataflow_manifest_chunk Some rows of a data flow manifest. Generally will be `contributor`, `entityId`, `Component`, `dataset`, `dataset_name`
+#' @param dataflow_manifest_chunk Some rows of a data flow manifest. Generally will be `source`, `entityId`, `Component`, `dataset`, `dataset_name`
 #' @param schema_url URL of DataFlow schema jsonld (if on GitHub must be raw file)
 #' @param na_replace String to use in place of NA. Defaults to "Not Applicable". Enter NULL for `NA`.
 #' @param base_url Base URL of schematic API
@@ -196,7 +196,7 @@ fill_dataflow_manifest <- function(dataflow_manifest_chunk,
 
     # study status is annotated at the project level
     # get annotations and apply to manifest
-    project_ids <- unique(dataflow_manifest_chunk$contributor_id)
+    project_ids <- unique(dataflow_manifest_chunk$source_id)
 
     study_status <- sapply(project_ids, function(id) {
       get_annotations(
@@ -208,18 +208,18 @@ fill_dataflow_manifest <- function(dataflow_manifest_chunk,
     })
   }
 
-  # Convert the named vector into a dataframe
-  study_status_df <- data.frame(
-    contributor_id = names(study_status),
-    study_status = study_status
-  )
+    # Convert the named vector into a dataframe
+    study_status_df <- data.frame(
+      source_id = names(study_status),
+      study_status = study_status
+    )
 
-  # merge study status into dataflow manifest chunk
-  dataflow_manifest_chunk <- merge(
-    x = dataflow_manifest_chunk,
-    y = study_status_df,
-    by = "contributor_id",
-    all.x = TRUE
+    # merge study status into dataflow manifest chunk
+    dataflow_manifest_chunk <- merge(
+      x = dataflow_manifest_chunk,
+      y = study_status_df,
+      by = "source_id",
+      all.x = TRUE
     )
 
   # find attributes that are not present in provided manifest chunk
@@ -245,6 +245,10 @@ fill_dataflow_manifest <- function(dataflow_manifest_chunk,
   # inserts NA if there are extra cols (like entityId and Id)
   # FIXME: is this what we want to happen if data flow schema changes?
   dataflow_manifest <- dplyr::bind_cols(dataflow_manifest_chunk, missing_attributes_filled)
+
+  # REMOVE source_id column
+  source_id_idx <- grep("source_id", names(dataflow_manifest))
+  dataflow_manifest <- dataflow_manifest[, -source_id_idx]
 
   # return filled columns with original manifest chunk
   return(dataflow_manifest)
@@ -423,7 +427,7 @@ update_data_flow_manifest <- function(asset_view,
 #'
 #' @param dataflow_manifest A dataFlow manifest
 #' @param get_all_manifests_out The output of get_all_manifests.
-#'  Also can be a dataframe that includes Component, contributor,
+#'  Also can be a dataframe that includes Component, source,
 #'  entityId, dataset_name, and dataset.
 #' @param asset_view ID of view listing all project data assets
 #' @param na_replace NA replacement text
@@ -478,8 +482,8 @@ update_manifest_add_datasets <- function(dataflow_manifest,
 
     # rearrange data flow manifest
     dataflow_manifest <- dataflow_manifest %>%
-      dplyr::group_by(contributor) %>%
-      dplyr::arrange(contributor)
+      dplyr::group_by(source) %>%
+      dplyr::arrange(source)
   }
 
   return(data.frame(dataflow_manifest))
@@ -488,7 +492,7 @@ update_manifest_add_datasets <- function(dataflow_manifest,
 #' Remove datasets that are no longer found in Synapse
 #'
 #' @param dataflow_manifest A dataFlow manifest
-#' @param get_all_manifests_out The output of get_all_manifests. Also can be a dataframe that includes Component, contributor, entityId, dataset_name, and dataset.
+#' @param get_all_manifests_out The output of get_all_manifests. Also can be a dataframe that includes Component, source, entityId, dataset_name, and dataset.
 #' @param asset_view ID of view listing all project data assets. For example, for Synapse this would be the Synapse ID of the fileview listing all data assets for a given project.(i.e. master_fileview in config.yml)
 #' @param access_token Synapse PAT
 #' @param base_url Base URL of schematic API (Defaults to  AWS version)
@@ -515,7 +519,7 @@ update_manifest_remove_datasets <- function(dataflow_manifest,
 #' Update dataFlow manifest when dataset folder name changes
 #'
 #' @param dataflow_manifest A dataFlow manifest
-#' @param get_all_manifests_out The output of get_all_manifests. Also can be a dataframe that includes Component, contributor, entityId, dataset_name, and dataset.
+#' @param get_all_manifests_out The output of get_all_manifests. Also can be a dataframe that includes Component, source, entityId, dataset_name, and dataset.
 #' @param asset_view ID of view listing all project data assets. For example, for Synapse this would be the Synapse ID of the fileview listing all data assets for a given project.(i.e. master_fileview in config.yml)
 #' @param update_column Column name of the column to be updated
 #' @param recalc_num_items TRUE/FALSE if there is an item to be updated, should the manifest
@@ -555,8 +559,8 @@ update_manifest_column <- function(dataflow_manifest,
 
   # rearrange data flow manifest
   dataflow_manifest <- dataflow_manifest %>%
-    dplyr::group_by(contributor) %>%
-    dplyr::arrange(contributor)
+    dplyr::group_by(source) %>%
+    dplyr::arrange(source)
 
   return(data.frame(dataflow_manifest))
 }

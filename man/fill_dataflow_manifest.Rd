@@ -2,7 +2,7 @@
 % Please edit documentation in R/manifest.R
 \name{fill_dataflow_manifest}
 \alias{fill_dataflow_manifest}
-\title{Generate a data flow status manifest skeleton. Fills in the component, contributor, data type, number of items, and dataset name columns.}
+\title{Generate a data flow status manifest skeleton. Fills in the component, source, data type, number of items, and dataset name columns.}
 \usage{
 fill_dataflow_manifest(
   dataflow_manifest_chunk,
@@ -13,7 +13,7 @@ fill_dataflow_manifest(
 )
 }
 \arguments{
-\item{dataflow_manifest_chunk}{Some rows of a data flow manifest. Generally will be \code{contributor}, \code{entityId}, \code{Component}, \code{dataset}, \code{dataset_name}}
+\item{dataflow_manifest_chunk}{Some rows of a data flow manifest. Generally will be \code{source}, \code{entityId}, \code{Component}, \code{dataset}, \code{dataset_name}}
 
 \item{schema_url}{URL of DataFlow schema jsonld (if on GitHub must be raw file)}
 
@@ -22,5 +22,5 @@ fill_dataflow_manifest(
 \item{base_url}{Base URL of schematic API}
 }
 \description{
-Generate a data flow status manifest skeleton. Fills in the component, contributor, data type, number of items, and dataset name columns.
+Generate a data flow status manifest skeleton. Fills in the component, source, data type, number of items, and dataset name columns.
 }

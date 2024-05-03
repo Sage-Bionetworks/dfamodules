@@ -89,7 +89,7 @@ test_that("storage_project_manifests successfully returns a schematic_api object
 })
 
 test_that("visualize_component returns a schematic_api object", {
-  spm <- try(
+  vc <- try(
     visualize_component(
       schema_url = schema_url,
       base_url = base_url
@@ -97,14 +97,14 @@ test_that("visualize_component returns a schematic_api object", {
     silent = FALSE
   )
 
-  expect_true(class(spm) == "schematic_api")
+  expect_true(class(vc) == "schematic_api")
 })
 
 test_that("schemas_get_node_validation_rules returns a schematic_api object", {
   spm <- try(
     schemas_get_node_validation_rules(
       schema_url = schema_url,
-      node_display_name = "Contributor",
+      node_display_name = "Source",
       base_url
     ),
     silent = FALSE

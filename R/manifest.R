@@ -206,7 +206,6 @@ fill_dataflow_manifest <- function(dataflow_manifest_chunk,
         access_token = access_token
         )
     })
-  }
 
     # Convert the named vector into a dataframe
     study_status_df <- data.frame(
@@ -221,6 +220,8 @@ fill_dataflow_manifest <- function(dataflow_manifest_chunk,
       by = "source_id",
       all.x = TRUE
     )
+  }
+
 
   # find attributes that are not present in provided manifest chunk
   missing_attributes_df <- attributes_df[!attributes_df$Attribute %in% names(dataflow_manifest_chunk), ]
@@ -327,22 +328,6 @@ update_data_flow_manifest <- function(asset_view,
       message(e)
     }
   )
-
-  # synapse_manifests <- tryCatch(
-  #   {
-  #     get_all_manifests(
-  #       asset_view = asset_view,
-  #       na_replace = na_replace,
-  #       access_token = access_token,
-  #       base_url = base_url,
-  #       verbose = FALSE
-  #     )
-  #   },
-  #   error = function(e) {
-  #     message("get_all_manifests failed")
-  #     message(e)
-  #   }
-  # )
 
   # check synapse for new datasets
   dataflow_manifest_updated <- update_manifest_add_datasets(
@@ -467,7 +452,7 @@ update_manifest_add_datasets <- function(dataflow_manifest,
       }
     )
 
-    new_datasets$num_items <- num_items
+    new_datasets$num_items <- as.integer(num_items)
 
     # fill data flow manifest rows for missing datasets
     new_datasets <- fill_dataflow_manifest(
@@ -541,7 +526,7 @@ update_manifest_column <- function(dataflow_manifest,
   idx <- dataflow_manifest[, update_column] != get_all_manifests_out[, update_column]
 
   # if any items have changed update dataset type column
-  if (any(idx)) {
+  if (any(isTRUE(idx))) {
     n_changed <- sum(idx)
     print(paste0("Making ", n_changed, " update(s) to ", update_column, " column"))
     dataflow_manifest[idx, update_column] <- get_all_manifests_out[idx, update_column]

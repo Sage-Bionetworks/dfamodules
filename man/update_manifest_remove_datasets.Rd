@@ -15,7 +15,7 @@ update_manifest_remove_datasets(
 \arguments{
 \item{dataflow_manifest}{A dataFlow manifest}
 
-\item{get_all_manifests_out}{The output of get_all_manifests. Also can be a dataframe that includes Component, contributor, entityId, dataset_name, and dataset.}
+\item{get_all_manifests_out}{The output of get_all_manifests. Also can be a dataframe that includes Component, source, entityId, dataset_name, and dataset.}
 
 \item{asset_view}{ID of view listing all project data assets. For example, for Synapse this would be the Synapse ID of the fileview listing all data assets for a given project.(i.e. master_fileview in config.yml)}
 

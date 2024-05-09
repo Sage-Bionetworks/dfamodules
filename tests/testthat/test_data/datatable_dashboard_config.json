@@ -1,9 +1,9 @@
 {
-    "contributor": {
-        "col_name": "Contributor",
+    "source": {
+        "col_name": "Source",
         "type": "drop_down_filter"
     },
-    
+
     "entityId": {
         "col_name": "Synapse ID"
     },

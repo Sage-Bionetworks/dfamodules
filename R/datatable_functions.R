@@ -4,7 +4,7 @@
 
 #' Create a dashboard style datatable
 #'
-#' @param df A dataframe prepared by `prep_df_for_dash()` with the columns `Contributor`, `Dataset_Name`, `Dataset_Type`, `Num_Items`, `Release_Scheduled`, `Embargo`, `Standard_Compliance`, `QC_Compliance`,`PHI_Detection_Compliance`, `Access_Controls_Compliance`, `Data_Portal`, `Released`, `past_due`
+#' @param df data flow manifest
 #' @param config Config for datatable dashboard module in `inst/datatable_dashboard_config.json`
 #'
 #' @export

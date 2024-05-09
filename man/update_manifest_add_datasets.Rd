@@ -18,7 +18,7 @@ update_manifest_add_datasets(
 \item{dataflow_manifest}{A dataFlow manifest}
 
 \item{get_all_manifests_out}{The output of get_all_manifests.
-Also can be a dataframe that includes Component, contributor,
+Also can be a dataframe that includes Component, source,
 entityId, dataset_name, and dataset.}
 
 \item{asset_view}{ID of view listing all project data assets}

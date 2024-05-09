@@ -17,7 +17,7 @@ update_manifest_column(
 \arguments{
 \item{dataflow_manifest}{A dataFlow manifest}
 
-\item{get_all_manifests_out}{The output of get_all_manifests. Also can be a dataframe that includes Component, contributor, entityId, dataset_name, and dataset.}
+\item{get_all_manifests_out}{The output of get_all_manifests. Also can be a dataframe that includes Component, source, entityId, dataset_name, and dataset.}
 
 \item{update_column}{Column name of the column to be updated}
 

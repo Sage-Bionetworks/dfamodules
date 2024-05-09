@@ -59,7 +59,7 @@ mod_datatable_filters_server <- function(id,
     # GENERATE CHOICES --------
     # These choices will supply the widgets
     choices <- list(
-      contributor_choices = shiny::reactiveVal(),
+      source_choices = shiny::reactiveVal(),
       dataset_choices = shiny::reactiveVal(),
       release_daterange_min = shiny::reactiveVal(),
       release_daterange_max = shiny::reactiveVal(),
@@ -70,7 +70,7 @@ mod_datatable_filters_server <- function(id,
     # parsing and error handling for choices
     shiny::observe({
       # only display unique choices
-      choices$contributor_choices(unique(manifest()$contributor))
+      choices$source_choices(unique(manifest()$source))
       choices$dataset_choices(unique(manifest()$dataset_type))
       choices$status_choices(unique(manifest()$status))
 
@@ -98,9 +98,9 @@ mod_datatable_filters_server <- function(id,
     output$filter_widgets <- shiny::renderUI({
       shiny::tagList(
         shiny::selectInput(
-          inputId = ns("contributor_select"),
-          label = "Filter by contributor(s)",
-          choices = choices$contributor_choices(),
+          inputId = ns("source_select"),
+          label = "Filter by source(s)",
+          choices = choices$source_choices(),
           selected = NULL,
           multiple = TRUE
         ),
@@ -185,7 +185,7 @@ mod_datatable_filters_server <- function(id,
 
       filtered <- dplyr::filter(
         .data = manifest(),
-        contributor %modifiedIn% input$contributor_select,
+        source %modifiedIn% input$source_select,
         dataset_type %modifiedIn% selected_data_type_modified(),
         status %modifiedIn% selected_statuses_modified()
       )

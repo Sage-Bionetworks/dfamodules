@@ -7,7 +7,7 @@
 create_dashboard(df, config)
 }
 \arguments{
-\item{df}{A dataframe prepared by \code{prep_df_for_dash()} with the columns \code{Contributor}, \code{Dataset_Name}, \code{Dataset_Type}, \code{Num_Items}, \code{Release_Scheduled}, \code{Embargo}, \code{Standard_Compliance}, \code{QC_Compliance},\code{PHI_Detection_Compliance}, \code{Access_Controls_Compliance}, \code{Data_Portal}, \code{Released}, \code{past_due}}
+\item{df}{data flow manifest}
 
 \item{config}{Config for datatable dashboard module in \code{inst/datatable_dashboard_config.json}}
 }

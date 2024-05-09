@@ -2,7 +2,7 @@
 % Please edit documentation in R/manifest.R
 \name{generate_dataflow_manifest}
 \alias{generate_dataflow_manifest}
-\title{Generate a data flow status manifest skeleton. Fills in the component, contributor, data type, number of items, and dataset name columns.}
+\title{Generate a data flow status manifest skeleton. Fills in the component, source, data type, number of items, and dataset name columns.}
 \usage{
 generate_dataflow_manifest(
   asset_view,
@@ -30,5 +30,5 @@ generate_dataflow_manifest(
 \item{base_url}{Base URL of schematic API}
 }
 \description{
-Generate a data flow status manifest skeleton. Fills in the component, contributor, data type, number of items, and dataset name columns.
+Generate a data flow status manifest skeleton. Fills in the component, source, data type, number of items, and dataset name columns.
 }

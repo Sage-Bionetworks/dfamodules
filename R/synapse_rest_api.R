@@ -15,9 +15,15 @@ synapse_access <- function(url = "https://repo-prod.prod.sagebase.org/repo/v1/en
                            id,
                            access,
                            auth) {
+  # QC
   if (is.null(id)) stop("id cannot be NULL")
+
+  # create api url
   req_url <- file.path(url, id, "access")
-  req <- httr::GET(req_url,
+
+  # get request
+  req <- httr::GET(
+    req_url,
     httr::add_headers(Authorization = paste0("Bearer ", auth)),
     query = list(accessType = access)
   )
@@ -26,6 +32,7 @@ synapse_access <- function(url = "https://repo-prod.prod.sagebase.org/repo/v1/en
   status <- httr::http_status(req)
   if (status$category != "Success") stop(status$message)
 
+  # return result
   cont <- httr::content(req)
   cont$result
 }
@@ -42,8 +49,13 @@ synapse_access <- function(url = "https://repo-prod.prod.sagebase.org/repo/v1/en
 synapse_annotations <- function(id,
                                 auth,
                                 url = "https://repo-prod.prod.sagebase.org/repo/v1/entity") {
+  # QC
   if (is.null(id)) stop("id cannot be NULL")
+
+  # Create url
   req_url <- file.path(url, id, "annotations2")
+
+  # make request
   req <- httr::GET(
     req_url,
     httr::add_headers(Authorization = paste0("Bearer ", auth))
@@ -53,6 +65,7 @@ synapse_annotations <- function(id,
   status <- httr::http_status(req)
   if (status$category != "Success") stop(status$message)
 
+  # return annotations
   cont <- httr::content(req)
   return(cont$annotations)
 }

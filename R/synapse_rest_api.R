@@ -108,3 +108,54 @@ get_annotations <- function(id,
 
   return(annotation)
 }
+
+#' @title Get children of a synapse entity
+#' https://rest-docs.synapse.org/rest/POST/entity/children.html
+#' @param url Synapse api endpoint
+#' @param auth Synapse token
+#' @param parentId Synapse ID of parent folder
+#' @param nextPageToken Synapse next page token
+#' @param includeTypes Types to return
+#' @param sortBy Variable to sort by
+#' @param sortDirection sort direction
+#' @param includeTotalChildCount boolean include count of children
+#' @param includeSumFileSizes boolean include sum of file sizes
+#' @export
+synapse_entity_children <- function(url = "https://repo-prod.prod.sagebase.org/repo/v1/entity/children",
+                                    auth, parentId=NULL, nextPageToken=NULL, includeTypes="project", sortBy="NAME",
+                                    sortDirection="ASC", includeTotalChildCount=FALSE, includeSumFileSizes=FALSE) {
+
+  output <- list()
+  req <- httr::POST(url,
+                    httr::add_headers(Authorization=paste0("Bearer ", auth)),
+                    body =
+                      list(parentId=parentId,
+                           nextPageToken=nextPageToken,
+                           includeTypes=includeTypes,
+                           sortBy=sortBy,
+                           sortDirection=sortDirection,
+                           includeTotalChildCount=includeTotalChildCount,
+                           includeSumFileSizes=includeSumFileSizes),
+                    encode="json")
+  
+  resp <- httr::content(req)
+  output <- resp$page
+
+  while (!is.null(resp$nextPageToken)) {
+    req <- httr::POST(url,
+                      httr::add_headers(Authorization=paste0("Bearer ", auth)),
+                      body =
+                        list(parentId=parentId,
+                             nextPageToken=resp$nextPageToken,
+                             includeTypes=includeTypes,
+                             sortBy=sortBy,
+                             sortDirection=sortDirection,
+                             includeTotalChildCount=includeTotalChildCount,
+                             includeSumFileSizes=includeSumFileSizes),
+                      encode="json")
+    resp <- httr::content(req)
+    output <- c(output, resp$page)
+  }
+  dplyr::bind_rows(output)
+
+}

@@ -221,7 +221,26 @@ fill_dataflow_manifest <- function(dataflow_manifest_chunk,
       all.x = TRUE
     )
   }
-
+  
+  # If modified_on is an attribute, get the modified_on of each manifest
+  if ("modified_on" %in% attributes_df$Attribute) {
+    files <- lapply(dataflow_manifest_chunk$dataset_id, function(x) {
+      entities <- dfamodules::synapse_entity_children(auth = access_token,
+        parentId = x, includeTypes = list("file"))
+      entities$dataset_id <- x
+      entities
+    })
+    files <- dplyr::bind_rows(files)
+    dplyr::filter(files, grepl("synapse_storage_manifest", name))
+    files <- dplyr::select(files, modified_on=modifiedOn, dataset_id)
+    dataflow_manifest_chunk <- dplyr::select(dataflow_manifest_chunk, -modified_on)
+    dataflow_manifest_chunk <- merge(
+      x = dataflow_manifest_chunk,
+      y = files,
+      by = "dataset_id",
+      all.x = TRUE
+    )
+  }
 
   # find attributes that are not present in provided manifest chunk
   missing_attributes_df <- attributes_df[!attributes_df$Attribute %in% names(dataflow_manifest_chunk), ]
@@ -328,6 +347,27 @@ update_data_flow_manifest <- function(asset_view,
       message(e)
     }
   )
+  
+  files <- lapply(synapse_manifests$dataset_id, function(x) {
+    entities <- dfamodules::synapse_entity_children(auth = access_token,
+      parentId = x, includeTypes = list("file"))
+    entities$dataset_id <- x
+    entities
+  })
+  files <- dplyr::bind_rows(files)
+  files <- dplyr::filter(files, grepl("synapse_storage_manifest_", name))
+  files <- dplyr::select(files, modified_on=modifiedOn, dataset_id)
+  files$modified_on <- lubridate::as_datetime(files$modified_on)
+  files <- files |>
+    dplyr::group_by(dataset_id) |>
+    dplyr::summarise(modified_on = max(modified_on))
+  files$modified_on <- as.character(files$modified_on)
+  synapse_manifests <- merge(
+    x = synapse_manifests,
+    y = files,
+    by = "dataset_id",
+    all.x = TRUE
+  )
 
   # check synapse for new datasets
   dataflow_manifest_updated <- update_manifest_add_datasets(
@@ -370,7 +410,17 @@ update_data_flow_manifest <- function(asset_view,
     access_token = access_token,
     base_url = base_url
   )
-
+  
+  dataflow_manifest_updated <- update_manifest_column(
+    dataflow_manifest = dataflow_manifest_updated,
+    get_all_manifests_out = synapse_manifests,
+    update_column = "modified_on",
+    asset_view = asset_view,
+    recalc_num_items = FALSE,
+    access_token = access_token,
+    base_url = base_url
+  )
+  
   # compare updated dataflow manifest to initial manifest
 
   changes_made <- !identical(dataflow_manifest, dataflow_manifest_updated)
@@ -459,7 +509,8 @@ update_manifest_add_datasets <- function(dataflow_manifest,
       dataflow_manifest_chunk = new_datasets,
       schema_url = schema_url,
       na_replace = na_replace,
-      base_url = base_url
+      base_url = base_url,
+      access_token = access_token
     )
 
     # bind together new dataset rows and data flow manifest

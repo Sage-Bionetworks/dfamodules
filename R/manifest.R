@@ -231,7 +231,7 @@ fill_dataflow_manifest <- function(dataflow_manifest_chunk,
       entities
     })
     files <- dplyr::bind_rows(files)
-    dplyr::filter(files, grepl("synapse_storage_manifest", name))
+    files <- dplyr::filter(files, grepl("synapse_storage_manifest", name))
     files <- dplyr::select(files, modified_on=modifiedOn, dataset_id)
     dataflow_manifest_chunk <- dplyr::select(dataflow_manifest_chunk, -modified_on)
     dataflow_manifest_chunk <- merge(

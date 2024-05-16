@@ -574,7 +574,9 @@ update_manifest_column <- function(dataflow_manifest,
   # full join two datasets and filter on mismatched updated_column
   d1 <- get_all_manifests_out[ , c("dataset_id", update_column)]
   names(d1) <- c("dataset_id", ".new_data")
+  d1$.new_data[is.na(d1$.new_data)] <- ""
   df_merge <- dplyr::full_join(dataflow_manifest, d1, by = "dataset_id")
+  df_merge[, update_column][is.na(df_merge[ ,update_column])] <- ""
   idx <- df_merge[ , update_column] != df_merge$.new_data
 
   # if any items have changed update dataset type column
@@ -584,6 +586,7 @@ update_manifest_column <- function(dataflow_manifest,
     dataflow_manifest <- df_merge
     dataflow_manifest[ ,update_column] <- dataflow_manifest$.new_data
     dataflow_manifest$.new_data <- NULL
+    dataflow_manifest[, update_column][dataflow_manifest[ ,update_column] == ""] <- NA
 
     # if recalc_num_items = TRUE recalculate number of items in the manifest for updated items
     if (recalc_num_items) {

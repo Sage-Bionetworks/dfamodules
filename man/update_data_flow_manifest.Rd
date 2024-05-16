@@ -7,10 +7,11 @@
 update_data_flow_manifest(
   asset_view,
   manifest_dataset_id,
-  na_replace = NULL,
+  na_replace,
   schema_url,
   access_token,
-  base_url
+  base_url,
+  verbose = TRUE
 )
 }
 \arguments{

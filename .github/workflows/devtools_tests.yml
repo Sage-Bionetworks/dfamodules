@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         r-version: ['4.1.1']
-    
+
     env:
       SYNAPSE_PAT: ${{ secrets.SYNAPSE_PAT }}
       SCHEMATIC_URL_DEV: https://schematic-dev.api.sagebionetworks.org
@@ -25,14 +25,14 @@ jobs:
           r-version: ${{ matrix.r-version }}
       - name: Install dependencies
         run: |
-          install.packages(c("remotes", "rcmdcheck", "devtools"))
+          install.packages(c("remotes", "rcmdcheck", "devtools", 'DT', 'httr', 'shiny'))
           remotes::install_deps(dependencies = TRUE)
         shell: Rscript {0}
       - name: Add schematic base URL to Renviron
         run: |
-    
+
           refName <- Sys.getenv("GITHUB_REF_NAME")
-          
+
           if (grepl("v[0-9]+.[0-9]+.[0-9]+", refName)) {
             message("Testing using production schematic API instance")
             renviron <- "DFA_SCHEMATIC_API_URL = '${{ env.SCHEMATIC_URL_PROD }}'"
@@ -45,7 +45,7 @@ jobs:
           }
 
           # write .Renviron
-          writeLines(renviron, ".Renviron") 
+          writeLines(renviron, ".Renviron")
 
         shell: Rscript {0}
       - name: Check

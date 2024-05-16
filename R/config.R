@@ -2,80 +2,80 @@
 
 #' Parse config to get columns types
 #'
-#' @param schema_url URL of a Schematic data model schema
-#' @param display_names A named list of display names to use in dashboard. Dashboard is ordered by this list. Attributes not included are hidden from the dashboard.
-#' @param icon Display `Valid_Values = TRUE/FALSE` attributes as icons in dashboard
-#' @param na_replace Named list indicating strings to replace NA with `na_replace <- list(attribute_1 = "na string 1", attribute_2 = "na string 2")`
+#' @param dcc_config DCC config
 #' @param base_url Schematic REST API base URL
 #'
 #' @export
 
-generate_dashboard_config <- function(schema_url,
-                                      display_names = NULL,
-                                      icon = TRUE,
-                                      na_replace = NULL,
+generate_dashboard_config <- function(dcc_config,
                                       base_url) {
+
+  # check schema url
+  if (httr::http_error(dcc_config$dcc$data_model_url)) {
+    stop("data model URL request fails")
+  }
+
   # GET VISUALIZE/COMPONENT
   vc_out <- visualize_component(
-    schema_url,
-    "DataFlow",
-    base_url
+    schema_url = dcc_config$dcc$data_model_url,
+    component = "DataFlow",
+    base_url = base_url
   )
+
   attributes_df <- vc_out$content
 
   # GET VALIDATION RULES FOR EACH ATTRIBUTE
-  attributes_df$type <- unlist(sapply(attributes_df$Label, USE.NAMES = FALSE, function(lab) {
+  attributes_df$type <- unlist(
+    sapply(attributes_df$Label, USE.NAMES = FALSE, function(lab) {
     schematic_obj <- schemas_get_node_validation_rules(
-      schema_url,
-      lab,
-      base_url
+      schema_url = dcc_config$dcc$data_model_url,
+      node_display_name = lab,
+      base_url = base_url
     )
     return(schematic_obj$content)
   }))
 
   # ADD DISPLAY NAMES / REORDER COLS
   # if null infer names from attribute_df
-  if (is.null(display_names)) {
-    display_names <- .simple_cap(gsub("_|-", " ", attributes_df$Attribute))
-  } else {
-    # check provided display names
-    if (nrow(attributes_df) != length(display_names)) {
-      missing <- attributes_df[!attributes_df$Attribute %in% names(display_names), ]
-      stop(paste0("Missing display name for attribute(s): ", paste0(missing$Attribute, collapse = ", ")))
+  if (!is.null(dcc_config$dfa_dashboard$display_names)) {
+
+    in_schema <- names(dcc_config$dfa_dashboard$display_names) %in% attributes_df$Attribute
+
+    # check that display names in config match, error if not
+    if (!all(in_schema)) {
+      missing <- names(dcc_config$dfa_dashboard$display_names[!in_schema])
+
+      stop(paste0("Attribute \'", missing, "\' is in dfa_config.json but not in schema"))
+
     }
+
     # reorder columns based on display names
-    attributes_df <- dplyr::arrange(attributes_df, match(attributes_df$Attribute, names(display_names)))
+    attributes_df <- dplyr::arrange(
+      attributes_df,
+      match(attributes_df$Attribute,
+            names(dcc_config$dfa_dashboard$display_names)
+            )
+      )
 
     # Assign display names
-    display_names <- ifelse(attributes_df$Attribute %in% names(display_names), unlist(display_names), NA)
+    display_names <- ifelse(
+      attributes_df$Attribute %in% names(dcc_config$dfa_dashboard$display_names),
+      unlist(dcc_config$dfa_dashboard$display_names),
+      NA)
+  } else {
+    display_names <- attributes_df$Attribute
   }
 
   attributes_df$display_name <- display_names
 
-
   # SET TYPE=ICON
   # if icon = TRUE
-  if (icon) {
+  if (dcc_config$dfa_dashboard$icon) {
     # find logical columns
     log_cols <- grepl("TRUE", attributes_df$`Valid Values`) & grepl("FALSE", attributes_df$`Valid Values`)
 
     # change type to icon
     attributes_df[log_cols, "type"] <- "icon"
-  }
-
-  # SET REPLACEMENT STRINGS FOR NA
-  if (!is.null(na_replace)) {
-    attributes_df$na_replace <- sapply(1:nrow(attributes_df), function(i) {
-      # pull out attribute
-      attribute <- attributes_df$Attribute[i]
-      # if attribute is in na_replace list, add na_replace string to attribute_df
-      if (attribute %in% names(na_replace)) {
-        return(na_replace[[grep(attribute, names(na_replace))]])
-      } else {
-        # else return NA
-        return(NA)
-      }
-    })
   }
 
   # make a list

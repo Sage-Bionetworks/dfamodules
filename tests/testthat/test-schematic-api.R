@@ -1,15 +1,22 @@
-# adapted from afwillia's work on data_curator
-# (https://github.com/Sage-Bionetworks/data_curator/blob/schematic-rest-api/tests/testthat/test_schematic_rest_api.R)
-
 # VARIABLES #############################################################################
-# FAIR DEMO DATA PROJECT A
-asset_view <- "syn50896957"
-project_id <- "syn50896931"
-dataset_id <- "syn51219090"
+# DFA TEST
+asset_view <- "syn55226012"
+project_id <- "syn55226002"
+dataset_id <- "syn59424225"
 access_token <- Sys.getenv("SYNAPSE_PAT")
 base_url <- Sys.getenv("DFA_SCHEMATIC_API_URL")
-testing_manifest_path <- "test_data/synapse_storage_manifest_dataflow.csv"
-schema_url <- "https://raw.githubusercontent.com/Sage-Bionetworks/data_flow/main/inst/data_model/dataflow_component.jsonld"
+schema_url <- "https://raw.githubusercontent.com/Sage-Bionetworks/data-models/main/example.model.jsonld"
+
+# if running interactively, run load_all()
+# https://r-pkgs.org/misc.html#sec-misc-inst
+if ( interactive() ) {
+  devtools::load_all()
+}
+
+pass_csv_path <- system.file(
+  "test_data/biospecimen_pass.csv",
+  package = "dfamodules"
+  )
 
 # TEST API ##############################################################################
 
@@ -57,13 +64,13 @@ test_that("manifest_download successfully returns a schematic_api object", {
 test_that("model_submit successfully returns a schematic_api object", {
   s <- try(
     model_submit(
-      data_type = NULL,
+      data_type = "Biospecimen",
       asset_view = asset_view,
       dataset_id = dataset_id,
-      file_name = testing_manifest_path,
+      file_name = pass_csv_path,
       access_token = access_token,
-      restrict_rules = TRUE,
-      manifest_record_type = "table_and_file",
+      restrict_rules = FALSE,
+      manifest_record_type = "file_only",
       base_url = base_url,
       schema_url = schema_url,
       use_schema_label = TRUE
@@ -88,11 +95,24 @@ test_that("storage_project_manifests successfully returns a schematic_api object
   expect_true(class(spm) == "schematic_api")
 })
 
+test_that("visualize_component returns a schematic_api object", {
+  vc <- try(
+    visualize_component(
+      schema_url = schema_url,
+      component = "Biospecimen",
+      base_url = base_url
+    ),
+    silent = FALSE
+  )
+
+  expect_true(class(vc) == "schematic_api")
+})
+
 test_that("schemas_get_node_validation_rules returns a schematic_api object", {
   spm <- try(
     schemas_get_node_validation_rules(
       schema_url = schema_url,
-      node_display_name = "Contributor",
+      node_display_name = "TissueStatus",
       base_url
     ),
     silent = FALSE

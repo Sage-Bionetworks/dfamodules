@@ -110,7 +110,7 @@ apply_administrator_selections <- function(dataflow_manifest,
   return(dataflow_manifest)
 }
 
-#' Generate a data flow status manifest skeleton. Fills in the component, contributor, data type, number of items, and dataset name columns.
+#' Generate a data flow status manifest skeleton. Fills in the component, source, data type, number of items, and dataset name columns.
 #'
 #' @param asset_view ID of view listing all project data assets. For example, for Synapse this would be the Synapse ID of the fileview listing all data assets for a given project.(i.e. master_fileview in config.yml)
 #' @param schema_url URL of a dataFlow schema
@@ -136,7 +136,7 @@ generate_dataflow_manifest <- function(asset_view,
     na_replace = na_replace,
     access_token = access_token,
     base_url = base_url,
-    verbose = TRUE
+    verbose = verbose
   )
 
   # count rows in each manifest listed
@@ -159,15 +159,16 @@ generate_dataflow_manifest <- function(asset_view,
     dataflow_manifest_chunk = dataflow_manifest_chunk,
     schema_url = schema_url,
     na_replace = na_replace,
+    access_token = access_token,
     base_url = base_url
   )
 
   return(dataflow_manifest)
 }
 
-#' Generate a data flow status manifest skeleton. Fills in the component, contributor, data type, number of items, and dataset name columns.
+#' Generate a data flow status manifest skeleton. Fills in the component, source, data type, number of items, and dataset name columns.
 #'
-#' @param dataflow_manifest_chunk Some rows of a data flow manifest. Generally will be `contributor`, `entityId`, `Component`, `dataset`, `dataset_name`
+#' @param dataflow_manifest_chunk Some rows of a data flow manifest. Generally will be `source`, `entityId`, `Component`, `dataset`, `dataset_name`
 #' @param schema_url URL of DataFlow schema jsonld (if on GitHub must be raw file)
 #' @param na_replace String to use in place of NA. Defaults to "Not Applicable". Enter NULL for `NA`.
 #' @param base_url Base URL of schematic API
@@ -177,6 +178,7 @@ generate_dataflow_manifest <- function(asset_view,
 fill_dataflow_manifest <- function(dataflow_manifest_chunk,
                                    schema_url,
                                    na_replace = NA,
+                                   access_token,
                                    base_url) {
 
   # get attribute_df
@@ -188,16 +190,48 @@ fill_dataflow_manifest <- function(dataflow_manifest_chunk,
 
   attributes_df <- vc_out$content
 
+  # check for study_status attribute
+  # if present add annotation to dataflow_manifest_chunk
+  if ("study_status" %in% attributes_df$Attribute) {
+
+    # study status is annotated at the project level
+    # get annotations and apply to manifest
+    project_ids <- unique(dataflow_manifest_chunk$source_id)
+
+    study_status <- sapply(project_ids, function(id) {
+      get_annotations(
+        id = id,
+        annotation_label = "studyStatus",
+        na_replace = na_replace,
+        access_token = access_token
+        )
+    })
+
+    # Convert the named vector into a dataframe
+    study_status_df <- data.frame(
+      source_id = names(study_status),
+      study_status = study_status
+    )
+
+    # merge study status into dataflow manifest chunk
+    dataflow_manifest_chunk <- merge(
+      x = dataflow_manifest_chunk,
+      y = study_status_df,
+      by = "source_id",
+      all.x = TRUE
+    )
+  }
+
+
   # find attributes that are not present in provided manifest chunk
   missing_attributes_df <- attributes_df[!attributes_df$Attribute %in% names(dataflow_manifest_chunk), ]
 
-  # fill in missing attributes
-  # TRUE/FALSE or Not Applicable
-  # Add NA_variable
+  # fill in the rest of the attributes
+  # TRUE/FALSE or NA
 
   missing_attributes_filled <- lapply(1:nrow(missing_attributes_df), function(i) {
     if (grepl("TRUE", missing_attributes_df[i, "Valid Values"])) {
-      column_fill <- data.frame(rep("FALSE", nrow(dataflow_manifest_chunk)))
+      column_fill <- data.frame(rep(FALSE, nrow(dataflow_manifest_chunk)))
     } else {
       column_fill <- data.frame(rep(na_replace, nrow(dataflow_manifest_chunk)))
     }
@@ -209,7 +243,13 @@ fill_dataflow_manifest <- function(dataflow_manifest_chunk,
     dplyr::bind_cols()
 
   # bind manifest chunks
-  dataflow_manifest <- cbind(dataflow_manifest_chunk, missing_attributes_filled)
+  # inserts NA if there are extra cols (like entityId and Id)
+  # FIXME: is this what we want to happen if data flow schema changes?
+  dataflow_manifest <- dplyr::bind_cols(dataflow_manifest_chunk, missing_attributes_filled)
+
+  # REMOVE source_id column
+  source_id_idx <- grep("source_id", names(dataflow_manifest))
+  dataflow_manifest <- dataflow_manifest[, -source_id_idx]
 
   # return filled columns with original manifest chunk
   return(dataflow_manifest)
@@ -229,12 +269,21 @@ fill_dataflow_manifest <- function(dataflow_manifest_chunk,
 
 update_data_flow_manifest <- function(asset_view,
                                       manifest_dataset_id,
-                                      na_replace = NULL,
+                                      na_replace,
                                       schema_url,
                                       access_token,
-                                      base_url) {
-  print(paste0("Checking asset view ", asset_view, " for updates"))
-  print(paste0("Getting data flow status manifest"))
+                                      base_url,
+                                      verbose = TRUE) {
+
+  verbose_message(
+    m = paste0("Checking asset view ", asset_view, " for updates"),
+    verbose = verbose
+    )
+
+  verbose_message(
+    m = paste0("Getting data flow status manifest"),
+    verbose = verbose
+  )
 
   # get current data flow manifest
   dataflow_manifest_obj <- tryCatch(
@@ -254,14 +303,16 @@ update_data_flow_manifest <- function(asset_view,
 
   dataflow_manifest <- dataflow_manifest_obj$content
 
-  # if uuid remove
-  if (any(grepl("Uuid", names(dataflow_manifest)))) {
-    idx <- grep("Uuid", names(dataflow_manifest))
-    dataflow_manifest <- dataflow_manifest[, -idx]
-  }
+  # make sure that num_items column is an int
+  dataflow_manifest$num_items <- as.integer(dataflow_manifest$num_items)
 
   # get all manifests for each storage project
-  print(paste0("Getting all manifests under asset view ", asset_view, " from Synapse"))
+  verbose_message(
+    m = paste0("Getting all manifests under asset view ", asset_view, " from Synapse"),
+    verbose = verbose
+  )
+
+  # FOR TESTING
   synapse_manifests <- tryCatch(
     {
       get_all_manifests(
@@ -269,7 +320,7 @@ update_data_flow_manifest <- function(asset_view,
         na_replace = na_replace,
         access_token = access_token,
         base_url = base_url,
-        verbose = FALSE
+        verbose = T
       )
     },
     error = function(e) {
@@ -278,14 +329,12 @@ update_data_flow_manifest <- function(asset_view,
     }
   )
 
-  print("Checking data flow manifest for updates")
-
   # check synapse for new datasets
   dataflow_manifest_updated <- update_manifest_add_datasets(
     dataflow_manifest = dataflow_manifest,
     get_all_manifests_out = synapse_manifests,
     asset_view = asset_view,
-    na_replace = "Not Applicable",
+    na_replace = na_replace,
     schema_url = schema_url,
     access_token = access_token,
     base_url = base_url
@@ -315,7 +364,7 @@ update_data_flow_manifest <- function(asset_view,
   dataflow_manifest_updated <- update_manifest_column(
     dataflow_manifest = dataflow_manifest_updated,
     get_all_manifests_out = synapse_manifests,
-    update_column = "dataset",
+    update_column = "dataset_type",
     asset_view = asset_view,
     recalc_num_items = TRUE,
     access_token = access_token,
@@ -363,7 +412,7 @@ update_data_flow_manifest <- function(asset_view,
 #'
 #' @param dataflow_manifest A dataFlow manifest
 #' @param get_all_manifests_out The output of get_all_manifests.
-#'  Also can be a dataframe that includes Component, contributor,
+#'  Also can be a dataframe that includes Component, source,
 #'  entityId, dataset_name, and dataset.
 #' @param asset_view ID of view listing all project data assets
 #' @param na_replace NA replacement text
@@ -379,10 +428,11 @@ update_manifest_add_datasets <- function(dataflow_manifest,
                                          access_token,
                                          base_url) {
   # check for new datasets by entityId
-  new_datasets <- get_all_manifests_out[!get_all_manifests_out$entityId %in% dataflow_manifest$entityId, ]
+  new_datasets <- get_all_manifests_out[!get_all_manifests_out$dataset_id %in% dataflow_manifest$dataset_id, ]
 
   # if there are new datasets...
   if (nrow(new_datasets) > 0) {
+
     print(paste0(nrow(new_datasets), " new dataset(s) found on Synapse"))
 
     # calculate number of items in each manifest
@@ -392,6 +442,7 @@ update_manifest_add_datasets <- function(dataflow_manifest,
           df = new_datasets,
           asset_view = asset_view,
           access_token = access_token,
+          na_replace = na_replace,
           base_url = base_url
         )
       },
@@ -401,7 +452,7 @@ update_manifest_add_datasets <- function(dataflow_manifest,
       }
     )
 
-    new_datasets$num_items <- num_items
+    new_datasets$num_items <- as.integer(num_items)
 
     # fill data flow manifest rows for missing datasets
     new_datasets <- fill_dataflow_manifest(
@@ -412,12 +463,12 @@ update_manifest_add_datasets <- function(dataflow_manifest,
     )
 
     # bind together new dataset rows and data flow manifest
-    dataflow_manifest <- rbind(dataflow_manifest, new_datasets)
+    dataflow_manifest <- dplyr::bind_rows(dataflow_manifest, new_datasets)
 
     # rearrange data flow manifest
     dataflow_manifest <- dataflow_manifest %>%
-      dplyr::group_by(contributor) %>%
-      dplyr::arrange(contributor)
+      dplyr::group_by(source) %>%
+      dplyr::arrange(source)
   }
 
   return(data.frame(dataflow_manifest))
@@ -426,7 +477,7 @@ update_manifest_add_datasets <- function(dataflow_manifest,
 #' Remove datasets that are no longer found in Synapse
 #'
 #' @param dataflow_manifest A dataFlow manifest
-#' @param get_all_manifests_out The output of get_all_manifests. Also can be a dataframe that includes Component, contributor, entityId, dataset_name, and dataset.
+#' @param get_all_manifests_out The output of get_all_manifests. Also can be a dataframe that includes Component, source, entityId, dataset_name, and dataset.
 #' @param asset_view ID of view listing all project data assets. For example, for Synapse this would be the Synapse ID of the fileview listing all data assets for a given project.(i.e. master_fileview in config.yml)
 #' @param access_token Synapse PAT
 #' @param base_url Base URL of schematic API (Defaults to  AWS version)
@@ -437,7 +488,7 @@ update_manifest_remove_datasets <- function(dataflow_manifest,
                                             access_token,
                                             base_url) {
   # check for removed datasets
-  remove_idx <- dataflow_manifest$entityId %in% get_all_manifests_out$entityId
+  remove_idx <- dataflow_manifest$dataset_id %in% get_all_manifests_out$dataset_id
 
   # if any of the rows are flagged for removal print a message and remove from manifest
   if (any(!remove_idx)) {
@@ -453,7 +504,7 @@ update_manifest_remove_datasets <- function(dataflow_manifest,
 #' Update dataFlow manifest when dataset folder name changes
 #'
 #' @param dataflow_manifest A dataFlow manifest
-#' @param get_all_manifests_out The output of get_all_manifests. Also can be a dataframe that includes Component, contributor, entityId, dataset_name, and dataset.
+#' @param get_all_manifests_out The output of get_all_manifests. Also can be a dataframe that includes Component, source, entityId, dataset_name, and dataset.
 #' @param asset_view ID of view listing all project data assets. For example, for Synapse this would be the Synapse ID of the fileview listing all data assets for a given project.(i.e. master_fileview in config.yml)
 #' @param update_column Column name of the column to be updated
 #' @param recalc_num_items TRUE/FALSE if there is an item to be updated, should the manifest
@@ -468,14 +519,14 @@ update_manifest_column <- function(dataflow_manifest,
                                    access_token,
                                    base_url) {
   # arrange by entityId
-  dataflow_manifest <- dplyr::arrange(dataflow_manifest, entityId)
-  get_all_manifests_out <- dplyr::arrange(get_all_manifests_out, entityId)
+  dataflow_manifest <- dplyr::arrange(dataflow_manifest, dataset_id)
+  get_all_manifests_out <- dplyr::arrange(get_all_manifests_out, dataset_id)
 
   # get logical index of which items have changed
   idx <- dataflow_manifest[, update_column] != get_all_manifests_out[, update_column]
 
   # if any items have changed update dataset type column
-  if (any(idx)) {
+  if (any(isTRUE(idx))) {
     n_changed <- sum(idx)
     print(paste0("Making ", n_changed, " update(s) to ", update_column, " column"))
     dataflow_manifest[idx, update_column] <- get_all_manifests_out[idx, update_column]
@@ -493,8 +544,8 @@ update_manifest_column <- function(dataflow_manifest,
 
   # rearrange data flow manifest
   dataflow_manifest <- dataflow_manifest %>%
-    dplyr::group_by(contributor) %>%
-    dplyr::arrange(contributor)
+    dplyr::group_by(source) %>%
+    dplyr::arrange(source)
 
   return(data.frame(dataflow_manifest))
 }

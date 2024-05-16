@@ -580,7 +580,7 @@ update_manifest_column <- function(dataflow_manifest,
   idx <- df_merge[ , update_column] != df_merge$.new_data
 
   # if any items have changed update dataset type column
-  if (any(isTRUE(idx))) {
+  if (any(idx)) {
     n_changed <- sum(idx)
     print(paste0("Making ", n_changed, " update(s) to ", update_column, " column"))
     dataflow_manifest <- df_merge

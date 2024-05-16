@@ -231,15 +231,17 @@ fill_dataflow_manifest <- function(dataflow_manifest_chunk,
       entities
     })
     files <- dplyr::bind_rows(files)
-    files <- dplyr::filter(files, grepl("synapse_storage_manifest", name))
-    files <- dplyr::select(files, modified_on=modifiedOn, dataset_id)
-    dataflow_manifest_chunk <- dplyr::select(dataflow_manifest_chunk, -modified_on)
-    dataflow_manifest_chunk <- merge(
-      x = dataflow_manifest_chunk,
-      y = files,
-      by = "dataset_id",
-      all.x = TRUE
-    )
+    if (nrow(files)) {
+      files <- dplyr::filter(files, grepl("synapse_storage_manifest", name))
+      files <- dplyr::select(files, modified_on=modifiedOn, dataset_id)
+      dataflow_manifest_chunk <- dplyr::select(dataflow_manifest_chunk, -modified_on)
+      dataflow_manifest_chunk <- merge(
+        x = dataflow_manifest_chunk,
+        y = files,
+        by = "dataset_id",
+        all.x = TRUE
+      )
+    }
   }
 
   # find attributes that are not present in provided manifest chunk
@@ -569,18 +571,19 @@ update_manifest_column <- function(dataflow_manifest,
                                    recalc_num_items = FALSE,
                                    access_token,
                                    base_url) {
-  # arrange by entityId
-  dataflow_manifest <- dplyr::arrange(dataflow_manifest, dataset_id)
-  get_all_manifests_out <- dplyr::arrange(get_all_manifests_out, dataset_id)
-
-  # get logical index of which items have changed
-  idx <- dataflow_manifest[, update_column] != get_all_manifests_out[, update_column]
+  # full join two datasets and filter on mismatched updated_column
+  d1 <- get_all_manifests_out[ , c("dataset_id", update_column)]
+  names(d1) <- c("dataset_id", ".new_data")
+  df_merge <- dplyr::full_join(dataflow_manifest, d1, by = "dataset_id")
+  idx <- df_merge[ , update_column] != df_merge$.new_data
 
   # if any items have changed update dataset type column
-  if (any(isTRUE(idx))) {
+  if (any(isTRUE(idx), is.na(idx))) {
     n_changed <- sum(idx)
     print(paste0("Making ", n_changed, " update(s) to ", update_column, " column"))
-    dataflow_manifest[idx, update_column] <- get_all_manifests_out[idx, update_column]
+    dataflow_manifest <- df_merge
+    dataflow_manifest[ ,update_column] <- dataflow_manifest$.new_data
+    dataflow_manifest$.new_data <- NULL
 
     # if recalc_num_items = TRUE recalculate number of items in the manifest for updated items
     if (recalc_num_items) {

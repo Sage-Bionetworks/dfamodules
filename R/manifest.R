@@ -221,7 +221,12 @@ fill_dataflow_manifest <- function(dataflow_manifest_chunk,
       all.x = TRUE
     )
   }
-
+  
+  # If modified_on is an attribute, get the modified_on of each manifest
+  if ("modified_on" %in% attributes_df$Attribute) {
+    dataflow_manifest_chunk <- dfamodules:::get_manifest_entity_info(
+      dataflow_manifest_chunk, access_token)
+  }
 
   # find attributes that are not present in provided manifest chunk
   missing_attributes_df <- attributes_df[!attributes_df$Attribute %in% names(dataflow_manifest_chunk), ]
@@ -328,6 +333,9 @@ update_data_flow_manifest <- function(asset_view,
       message(e)
     }
   )
+  
+  synapse_manifests <- dfamodules:::get_manifest_entity_info(
+    synapse_manifests, access_token)
 
   # check synapse for new datasets
   dataflow_manifest_updated <- update_manifest_add_datasets(
@@ -370,7 +378,17 @@ update_data_flow_manifest <- function(asset_view,
     access_token = access_token,
     base_url = base_url
   )
-
+  
+  dataflow_manifest_updated <- update_manifest_column(
+    dataflow_manifest = dataflow_manifest_updated,
+    get_all_manifests_out = synapse_manifests,
+    update_column = "modified_on",
+    asset_view = asset_view,
+    recalc_num_items = FALSE,
+    access_token = access_token,
+    base_url = base_url
+  )
+  
   # compare updated dataflow manifest to initial manifest
 
   changes_made <- !identical(dataflow_manifest, dataflow_manifest_updated)
@@ -459,7 +477,8 @@ update_manifest_add_datasets <- function(dataflow_manifest,
       dataflow_manifest_chunk = new_datasets,
       schema_url = schema_url,
       na_replace = na_replace,
-      base_url = base_url
+      base_url = base_url,
+      access_token = access_token
     )
 
     # bind together new dataset rows and data flow manifest
@@ -518,18 +537,22 @@ update_manifest_column <- function(dataflow_manifest,
                                    recalc_num_items = FALSE,
                                    access_token,
                                    base_url) {
-  # arrange by entityId
-  dataflow_manifest <- dplyr::arrange(dataflow_manifest, dataset_id)
-  get_all_manifests_out <- dplyr::arrange(get_all_manifests_out, dataset_id)
-
-  # get logical index of which items have changed
-  idx <- dataflow_manifest[, update_column] != get_all_manifests_out[, update_column]
+  # full join two datasets and filter on mismatched updated_column
+  d1 <- get_all_manifests_out[ , c("dataset_id", update_column)]
+  names(d1) <- c("dataset_id", ".new_data")
+  d1$.new_data[is.na(d1$.new_data)] <- ""
+  df_merge <- dplyr::full_join(dataflow_manifest, d1, by = "dataset_id")
+  df_merge[, update_column][is.na(df_merge[ ,update_column])] <- ""
+  idx <- df_merge[ , update_column] != df_merge$.new_data
 
   # if any items have changed update dataset type column
-  if (any(isTRUE(idx))) {
+  if (any(idx)) {
     n_changed <- sum(idx)
     print(paste0("Making ", n_changed, " update(s) to ", update_column, " column"))
-    dataflow_manifest[idx, update_column] <- get_all_manifests_out[idx, update_column]
+    dataflow_manifest <- df_merge
+    dataflow_manifest[ ,update_column] <- dataflow_manifest$.new_data
+    dataflow_manifest$.new_data <- NULL
+    dataflow_manifest[, update_column][dataflow_manifest[ ,update_column] == ""] <- NA
 
     # if recalc_num_items = TRUE recalculate number of items in the manifest for updated items
     if (recalc_num_items) {
